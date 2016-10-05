@@ -1,4 +1,4 @@
-﻿// Library imports
+// Library imports
 var http = require('http');
 var fs = require("fs");
 var os = require('os');
@@ -665,6 +665,7 @@ GameServer.prototype.mainLoop = function () {
     // Loop main functions
     if (this.run) {
         this.updateMoveEngine();
+        this.remergeTick();
         if ((this.getTick() % this.config.spawnInterval) == 0) {
             this.updateFood();  // Spawn food
             this.updateVirus(); // Spawn viruses
@@ -783,6 +784,17 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
         x: pos.x,
         y: pos.y
     };
+};
+
+GameServer.prototype.remergeTick = function () {
+    for (var i in this.clients) {
+        var client = this.clients[i].playerTracker;
+        for (var j = 0; j < client.cells.length; j++) {
+            var cell1 = client.cells[j];
+            if (cell1 === null || cell1.isRemoved) continue;
+            cell1.updateRemerge(this);
+        }
+    }
 };
 
 GameServer.prototype.willCollide = function (pos, size) {
@@ -923,7 +935,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
             }
         }
         // Size check
-        if (maxCell.getSize() <= minCell.getSize() * 1.15) {
+        if (maxCell.getSize() <= minCell.getSize() * 1.10) {
             // too large => can't eat
             return;
         }
@@ -969,7 +981,6 @@ GameServer.prototype.updateMoveEngine = function () {
             var cell1 = client.cells[j];
             if (cell1.isRemoved)
                 continue;
-            cell1.updateRemerge(this);
             cell1.moveUser(this.border);
             cell1.move(this.border);
 
@@ -1152,7 +1163,10 @@ GameServer.prototype.splitMass = function (mass, count) {
         // Barbosik: draft version
         var restCount = maxCount;
         while (restCount > 2) {
-            var splitMass = curMass / 2;
+            var splitMass = curMass / 2.5;
+            if (curMass >= 16000) {
+                splitMass = curMass / 3;
+            }
             if (splitMass <= throwMass) {
                 break;
             }
