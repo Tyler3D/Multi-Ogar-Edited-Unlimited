@@ -118,13 +118,6 @@ PacketHandler.prototype.message_onMouse = function (message) {
 };
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
-    if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
-    var dt = tick - this.lastSpaceTick;
-    if (dt < this.gameServer.config.ejectCooldown) {
-        return;
-    }
-    this.lastSpaceTick = tick;
     this.pressSpace = true;
 };
 
