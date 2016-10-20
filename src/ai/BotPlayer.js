@@ -1,18 +1,12 @@
-﻿var PlayerTracker = require('../PlayerTracker');
-var gameServer = require('../GameServer');
+var PlayerTracker = require('../PlayerTracker');
 var Vector = require('vector2-node');
 
 function BotPlayer() {
     PlayerTracker.apply(this, Array.prototype.slice.call(arguments));
-    //this.setColor(gameServer.getRandomColor());
-    
     this.splitCooldown = 0;
 }
-
 module.exports = BotPlayer;
 BotPlayer.prototype = new PlayerTracker();
-
-// Functions
 
 BotPlayer.prototype.getLowestCell = function () {
     // Gets the cell with the lowest mass
@@ -148,7 +142,7 @@ BotPlayer.prototype.decide = function (cell) {
             cell.getSize() < check.getSize() * 5 &&
             (!split) && 
             this.splitCooldown == 0 && 
-            this.cells.length < 3) {
+            this.cells.length < 8) {
             
             var endDist = 780 + 40 - cell.getSize() / 2 - check.getSize();
             
@@ -177,7 +171,6 @@ BotPlayer.prototype.decide = function (cell) {
                 };
                 this.splitCooldown = 16;
                 this.socket.packetHandler.pressSpace = true;
-                //this.gameServer.splitCells(this);
                 return;
             }
         }
@@ -189,7 +182,6 @@ BotPlayer.prototype.decide = function (cell) {
             };
             this.splitCooldown = 16;
             this.socket.packetHandler.pressSpace = true;
-            //this.gameServer.splitCells(this);
             return;
         }
     }
@@ -201,7 +193,6 @@ BotPlayer.prototype.decide = function (cell) {
 
 
 // Subfunctions
-
 BotPlayer.prototype.largest = function (list) {
     // Sort the cells by Array.sort() function to avoid errors
     var sorted = list.valueOf();
