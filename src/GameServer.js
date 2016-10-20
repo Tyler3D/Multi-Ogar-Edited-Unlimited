@@ -116,7 +116,7 @@ function GameServer() {
         playerMinSplitSize: 60,     // Minimum player cell size allowed to split (mass = 60*60/100 = 36) 
         playerStartSize: 64,        // Start size of the player cell (mass = 64*64/100 = 41)
         playerMaxCells: 16,         // Max cells the player is allowed to have
-        playerSpeed: 0.5,             // Player speed multiplier
+        playerSpeed: 1,             // Player speed multiplier
         playerDecayRate: .002,      // Amount of player cell size lost per second
         playerRecombineTime: 30,    // Base time in seconds before a cell is allowed to recombine
         playerMaxNickLength: 15,    // Maximum nick length
@@ -935,7 +935,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
             }
         }
         // Size check
-        if (maxCell.getSize() <= minCell.getSize() * 1.10) {
+        if (maxCell.getSize() <= minCell.getSize() * 1.15) {
             // too large => can't eat
             return;
         }
