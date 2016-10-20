@@ -1,9 +1,8 @@
-﻿var Cell = require('./Cell');
+var Cell = require('./Cell');
 var Logger = require('../modules/Logger');
 
 function Virus() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-    
     this.cellType = 2;
     this.isSpiked = true;
     this.fed = 0;
@@ -13,8 +12,6 @@ function Virus() {
 
 module.exports = Virus;
 Virus.prototype = new Cell();
-
-// Main Functions
 
 Virus.prototype.canEat = function (cell) {
     return cell.cellType == 3; // virus can eat ejected mass only
@@ -38,6 +35,7 @@ Virus.prototype.onEaten = function (consumer) {
     var numSplits = this.gameServer.config.playerMaxCells - client.cells.length; // Get number of splits
         numSplits = Math.min(numSplits, maxSplits);
     var splitMass = Math.min(consumer.getMass() / (numSplits + 1), 24); // Maximum size of new splits
+    var angle = 2 * Math.PI * Math.random(); // Random directions
 
     // Cell cannot split any further
     if (numSplits <= 0) {
@@ -55,29 +53,22 @@ Virus.prototype.onEaten = function (consumer) {
     else if (numSplits == 4) bigSplits = [mass / 5, mass / 7, mass / 8, mass / 10];
     else {
         var m = mass - numSplits * splitMass;
-        var i = 0;
         if (m > 466) { // Threshold
-            // While can split into an even smaller cell (10000 => 2500, 1000, etc)
+            // While can split into an even smaller cell
             var mult = 3.33;
             while (m / mult > 24) {
                 m /= mult;
                 mult = 2;
                 bigSplits.push(m >> 0);
-                i++;
             }
         }
     }
-    numSplits -= bigSplits.length;
-
-    var angle = 0;
+    // Big splits
     for (var k = 0; k < bigSplits.length; k++) {
-        angle = Math.random() * 6.28; // Random directions
         this.gameServer.splitPlayerCell(client, consumer, angle, bigSplits[k]);
     }
-
-    // Splitting
+    // Small splits
     for (var k = 0; k < numSplits; k++) {
-        angle = Math.random() * 6.28; // Random directions
         this.gameServer.splitPlayerCell(client, consumer, angle, splitMass);
     }
 };
