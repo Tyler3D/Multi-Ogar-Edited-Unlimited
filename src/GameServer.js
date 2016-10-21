@@ -107,7 +107,6 @@ function GameServer() {
         
         ejectSize: 38,              // Size of ejected cells (vanilla 38)
         ejectSizeLoss: 43,          // Eject size which will be substracted from player cell (vanilla 43?)
-        ejectDistance: 780,         // vanilla 780
         ejectCooldown: 3,           // min ticks between ejects
         ejectSpawnPlayer: 1,        // if 1 then player may be spawned from ejected mass
         
@@ -1266,7 +1265,7 @@ GameServer.prototype.ejectMass = function (client) {
         var ejected = new Entity.EjectedMass(this, null, pos, size2);
         ejected.ejector = cell;
         ejected.setColor(cell.getColor());
-        ejected.setBoost(this.config.ejectDistance, angle);
+        ejected.setBoost(780, angle);
         
         this.addNode(ejected);
     }
