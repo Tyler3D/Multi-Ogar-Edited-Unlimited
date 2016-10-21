@@ -1,4 +1,4 @@
-﻿// Imports
+// Imports
 var GameMode = require('../gamemodes');
 var Entity = require('../entity');
 var ini = require('./ini.js');
@@ -58,8 +58,17 @@ Commands.list = {
         console.log("tp [PlayerID] [X] [Y]        : teleport player to specified location");
         console.log("unban [IP]                   : unban an IP");
         console.log("virus [X] [Y] [mass]         : spawn virus at a specified Location");
-        console.log("pl                           : alias for playerlist");
+        console.log("spawnmass [PlayerID] [mass]  : sets players spawn mass");
+        console.log("freeze [PlayerID]            : freezes a player");
+        console.log("speed [PlayerID]             : sets a players base speed");
         console.log("st                           : alias for status");
+        console.log("pl                           : alias for playerlist");
+        console.log("m                            : alias for mass");
+        console.log("sm                           : alias for spawnmass");
+        console.log("ka                           : alias for killall");
+        console.log("k                            : alias for kill");
+        console.log("mg                           : alias for merge");
+        console.log("s                            : alias for speed");
         console.log("====================================================");
     },
     debug: function (gameServer, split) {
@@ -312,6 +321,8 @@ Commands.list = {
             return;
         }
         gameServer.kickId(id);
+        var player = gameServer.getPlayerById(id);
+        console.log("Kicked " + player.getFriendlyName());
     },
     mute: function (gameServer, args) {
         if (!args || args.length < 2) {
@@ -332,7 +343,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" were muted");
+        Logger.print("Player \"" + player.getFriendlyName() + "\" was muted");
         player.isMuted = true;
     },
     unmute: function (gameServer, args) {
@@ -377,7 +388,7 @@ Commands.list = {
                     count++;
                 }
                 
-                console.log("Removed " + count + " cells");
+                console.log("Killed " + client.getFriendlyName() + " and removed " + count + " cells");
                 break;
             }
         }
@@ -420,6 +431,50 @@ Commands.list = {
                 break;
             }
         }
+    },
+    spawnmass: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        
+        var amount = Math.max(parseInt(split[2]), 9);
+        var size = Math.sqrt(amount * 100);
+        if (isNaN(amount)) {
+            Logger.warn("Please specify a valid mass!");
+            return;
+        }
+
+        // Sets spawnmass to the specified amount
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                client.spawnmass = size;
+                console.log("Set spawnmass of "+ client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+            }
+        }
+    },   
+    speed: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        var speed = parseInt(split[2]);
+        if (isNaN(id)) {
+            console.log("Please specify a valid player ID!");
+            return;
+        }
+        
+        if (isNaN(speed)) {
+            console.log("Please specify a valid speed!");
+            return;
+        }
+
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                client.customspeed = speed;
+            }
+        }
+        console.log("Set base speed of "+ client.getFriendlyName() + " to " + speed);
     },
     skin: function (gameServer, args) {
         if (!args || args.length < 3) {
@@ -497,8 +552,8 @@ Commands.list = {
         }
         
         // Log
-        if (state) console.log("Player " + id + " is now force merging");
-        else console.log("Player " + id + " isn't force merging anymore");
+        if (state) console.log(client.getFriendlyName() + " is now force merging");
+        else console.log(client.getFriendlyName() + " isn't force merging anymore");
     },
     name: function (gameServer, split) {
         // Validation checks
@@ -556,7 +611,7 @@ Commands.list = {
             ip = fillChar(ip, ' ', 15);
             var protocol = gameServer.clients[i].packetHandler.protocol;
             if (protocol == null)
-                protocol = "?"
+                protocol = "?";
             // Get name and data
             var nick = '',
                 cells = '',
@@ -600,6 +655,27 @@ Commands.list = {
         gameServer.run = !gameServer.run; // Switches the pause state
         var s = gameServer.run ? "Unpaused" : "Paused";
         console.log(s + " the game.");
+    },
+    freeze: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            console.log("Please specify a valid player ID!");
+            return;
+        }
+
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                client.frozen = !client.frozen;
+                
+                if (client.frozen) {
+                    console.log("Froze " + client.getFriendlyName());
+                } else {
+                    console.log("Unfroze " + client.getFriendlyName());
+                }
+                break;
+            }
+        }
     },
     reload: function (gameServer) {
         gameServer.loadConfig();
@@ -678,13 +754,6 @@ Commands.list = {
         gameServer.addNode(v);
         console.log("Spawned 1 virus at (" + pos.x + " , " + pos.y + ")");
     },
-    //Aliases
-    st: function (gameServer, split) {
-        Commands.list.status(gameServer, split);
-    },
-    pl: function (gameServer, split) {
-        Commands.list.playerlist(gameServer, split);
-    },
     heapdump: function (gameServer, args) {
         if (heapdump == null) {
             function tryLoadModule(name) {
@@ -709,5 +778,31 @@ Commands.list = {
             else
                 Logger.print('heapdump written to ' + filename);
         });
+    },
+    
+    //Aliases
+    st: function (gameServer, split) { // Status
+        Commands.list.status(gameServer, split);
+    },
+    pl: function (gameServer, split) { // Playerlist
+        Commands.list.playerlist(gameServer, split);
+    },
+    m: function (gameServer, split) { // Mass
+        Commands.list.mass(gameServer, split);
+    },
+    sm: function (gameServer, split) { // Spawnmass
+        Commands.list.spawnmass(gameServer, split);
+    },
+    ka: function (gameServer, split) { // Killall
+        Commands.list.killall(gameServer, split);
+    },
+    k: function (gameServer, split) { // Kill
+        Commands.list.kill(gameServer, split);
+    },
+    mg: function (gameServer, split) { // Merge
+        Commands.list.merge(gameServer, split);
+    },
+    s: function (gameServer, split) { // Speed
+        Commands.list.speed(gameServer, split);
     }
 };
