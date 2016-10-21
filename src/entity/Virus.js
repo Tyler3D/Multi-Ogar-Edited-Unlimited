@@ -31,12 +31,12 @@ Virus.prototype.onEaten = function (consumer) {
     var client = consumer.owner;
     if (client == null) return;
 
+    var angle = null; // Starting angle
     var maxSplits = Math.floor(consumer.getMass() / 16) - 1; // Maximum amount of splits
     var numSplits = this.gameServer.config.playerMaxCells - client.cells.length; // Get number of splits
         numSplits = Math.min(numSplits, maxSplits);
     var splitMass = Math.min(consumer.getMass() / (numSplits + 1), 24); // Maximum size of new splits
-    var angle = 2 * Math.PI * Math.random(); // Random directions
-
+    
     // Cell cannot split any further
     if (numSplits <= 0) {
         return;
@@ -65,10 +65,12 @@ Virus.prototype.onEaten = function (consumer) {
     }
     // Big splits
     for (var k = 0; k < bigSplits.length; k++) {
+        angle = 2 * Math.PI * Math.random(); // Random directions
         this.gameServer.splitPlayerCell(client, consumer, angle, bigSplits[k]);
     }
     // Small splits
     for (var k = 0; k < numSplits; k++) {
+        angle = 2 * Math.PI * Math.random(); // Random directions
         this.gameServer.splitPlayerCell(client, consumer, angle, splitMass);
     }
 };
