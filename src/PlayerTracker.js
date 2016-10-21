@@ -32,7 +32,6 @@ function PlayerTracker(gameServer, socket) {
         y: 0
     };
     this.tickLeaderboard = 0;
-    
     this.team = 0;
     this.spectate = false;
     this.freeRoam = false;      // Free-roam mode enables player to move in spectate mode
@@ -58,11 +57,15 @@ function PlayerTracker(gameServer, socket) {
     this.scrambleX = 0;
     this.scrambleY = 0;
     this.scrambleId = 0;
-    
     this.connectedTime = 0;
     this.isMinion = false;
     this.spawnCounter = 0;
     this.isMuted = false;
+    
+    // Custom commands
+    this.spawnmass = 0;
+    this.frozen = false;
+    this.customspeed = 0;
     
     // Gamemode function
     if (gameServer) {
