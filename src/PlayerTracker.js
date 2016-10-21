@@ -1,5 +1,4 @@
-﻿var Packet = require('./packet');
-var GameServer = require('./GameServer');
+var Packet = require('./packet');
 var BinaryWriter = require("./packet/BinaryWriter");
 var UserRoleEnum = require("./enum/UserRoleEnum");
 
