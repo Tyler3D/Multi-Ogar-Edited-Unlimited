@@ -734,9 +734,9 @@ GameServer.prototype.spawnFood = function () {
 GameServer.prototype.spawnVirus = function () {
     // Spawns a virus
     var pos = this.getRandomPosition();
-    if (this.willCollide(pos, this.config.virusMinSize)) {
-        // cannot find safe position => do not spawn
-        return;
+    // 10 attempts to find safe position
+    for (var i = 0; i < 10 && this.willCollide(pos, this.config.virusMinSize); i++) {
+        pos = this.getRandomPosition();
     }
     var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
     this.addNode(v);
@@ -807,7 +807,8 @@ GameServer.prototype.willCollide = function (pos, size) {
     return this.quadTree.any(
         bound, 
         function (item) {
-            return item.cell.cellType == 0; // check players only
+            return item.cell.cellType == 0  // check players
+                || item.cell.cellType == 2; // check viruses
         });
 };
 
