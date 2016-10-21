@@ -1,4 +1,4 @@
-﻿function Cell(gameServer, owner, position, size) {
+function Cell(gameServer, owner, position, size) {
     this.gameServer = gameServer;
     this.owner = owner;     // playerTracker that owns this cell
     
@@ -82,8 +82,10 @@ Cell.prototype.getMass = function () {
 Cell.prototype.getSpeed = function () {
     if (this._speed == null) {
         var speed = 2.1106 / Math.pow(this.getSize(), 0.449);
-        // tickStep=40ms
-        this._speed = speed * 40 * this.gameServer.config.playerSpeed;
+        // tickStep = 40ms
+        this._speed = (this.owner.customspeed > 0) ? 
+        speed * 40 * this.owner.customspeed : // Set by command
+        speed * 40 * this.gameServer.config.playerSpeed;
     }
     return this._speed;
 };
