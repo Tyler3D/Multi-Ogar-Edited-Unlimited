@@ -7,7 +7,6 @@
     HungerGames: require('./HungerGames'),
     Rainbow: require('./Rainbow'),
     Zombie: require('./Zombie'),
-    TeamZ: require('./TeamZ.js'),
     TeamX: require('./TeamX.js')
 };
 
@@ -28,9 +27,6 @@ var get = function (id) {
             break;
         case 12:// Zombie
             mode = new module.exports.Zombie();
-            break;
-        case 13:// Zombie Team
-            mode = new module.exports.TeamZ();
             break;
         case 14:// Experimental Team
             mode = new module.exports.TeamX();
