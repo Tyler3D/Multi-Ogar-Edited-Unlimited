@@ -1,4 +1,4 @@
-﻿var Cell = require('./Cell');
+var Cell = require('./Cell');
 
 function PlayerCell() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
@@ -11,7 +11,6 @@ module.exports = PlayerCell;
 PlayerCell.prototype = new Cell();
 
 // Main Functions
-
 PlayerCell.prototype.updateRemerge = function () {
     var age = this.getAge(this.gameServer.getTick());
     if (age < 15) {
@@ -19,7 +18,7 @@ PlayerCell.prototype.updateRemerge = function () {
         this._canRemerge = false;
         return;
     }
-    var baseTtr = this.gameServer.config.playerRecombineTime;        // default baseTtr = 30
+    var baseTtr = this.gameServer.config.playerRecombineTime;
     if (baseTtr == 0) {
         // instant merge
         if (this.getSize() >= 780 / 2) {
@@ -29,11 +28,11 @@ PlayerCell.prototype.updateRemerge = function () {
         this._canRemerge = this.boostDistance < 100;
         return;
     }
-    var ttr = Math.max(baseTtr, (this.getSize() * 0.2) >> 0);   // ttr in seconds
+    var ttr = Math.max(baseTtr, (this.getSize() * 0.2) >> 0); // in seconds
     // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
     ttr *= 25;
     this._canRemerge = age >= ttr;
-}
+};
 
 PlayerCell.prototype.canRemerge = function () {
     return this._canRemerge;
@@ -45,15 +44,13 @@ PlayerCell.prototype.canEat = function (cell) {
 };
 
 PlayerCell.prototype.getSplitSize = function () {
-    return this.getSize() * splitMultiplier;
+    return this.getSize() * 1 / Math.sqrt(2);
 };
 
-var splitMultiplier = 1 / Math.sqrt(2);
-
 // Movement
-
 PlayerCell.prototype.moveUser = function (border) {
-    if (this.owner == null || this.owner.socket.isConnected === false) {
+    if (this.owner.socket.isConnected === false || 
+        this.owner == null || this.owner.frozen) {
         return;
     }
     var x = this.owner.mouse.x;
@@ -83,8 +80,6 @@ PlayerCell.prototype.moveUser = function (border) {
     this.position.y += ny * speed;
     this.checkBorder(border);
 };
-
-// Override
 
 PlayerCell.prototype.onAdd = function (gameServer) {
     // Gamemode actions
