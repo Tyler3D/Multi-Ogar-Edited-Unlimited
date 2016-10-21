@@ -757,6 +757,7 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
                 };
                 if (!size) {
                     size = Math.max(eject.getSize(), this.config.playerStartSize);
+                    if (player.spawnmass > 0) size = player.spawnmass;
                 }
             }
         }
@@ -772,6 +773,8 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
     if (size == null) {
         // Get starting mass
         size = this.config.playerStartSize;
+        if (player.spawnmass > 0) 
+        size = player.spawnmass;
     }
     
     // Spawn player and add to world
@@ -1128,7 +1131,12 @@ GameServer.prototype.updateMoveEngine = function () {
 };
 
 GameServer.prototype.splitCells = function (client) {
-    // it seems that vanilla uses order by cell age
+    // Player is frozen 
+    if (client.frozen) {
+        return;
+    }
+    
+    // It seems that vanilla uses order by cell age
     var cellToSplit = [];
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
@@ -1200,13 +1208,13 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass) {
 
 GameServer.prototype.canEjectMass = function (client) {
     var tick = this.getTick();
-    if (client.lastEject == null) {
+    if (client.lastEject == null || !client.frozen) {
         // first eject
         client.lastEject = tick;
         return true;
     }
     var dt = tick - client.lastEject;
-    if (dt < this.config.ejectCooldown) {
+    if (dt < this.config.ejectCooldown || client.frozen ) {
         // reject (cooldown)
         return false;
     }
