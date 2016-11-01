@@ -1,4 +1,4 @@
-﻿module.exports = {
+module.exports = {
     Mode: require('./Mode'),
     FFA: require('./FFA'),
     Teams: require('./Teams'),
@@ -6,8 +6,6 @@
     Tournament: require('./Tournament'),
     HungerGames: require('./HungerGames'),
     Rainbow: require('./Rainbow'),
-    Zombie: require('./Zombie'),
-    TeamX: require('./TeamX.js')
 };
 
 var get = function (id) {
@@ -24,12 +22,6 @@ var get = function (id) {
             break;
         case 11:// Hunger Games
             mode = new module.exports.HungerGames();
-            break;
-        case 12:// Zombie
-            mode = new module.exports.Zombie();
-            break;
-        case 14:// Experimental Team
-            mode = new module.exports.TeamX();
             break;
         case 20:// Rainbow
             mode = new module.exports.Rainbow();
