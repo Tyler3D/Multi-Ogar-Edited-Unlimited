@@ -1,5 +1,7 @@
-﻿# MultiOgar
+﻿# MultiOgar - Edited
 Ogar game server with fast and smooth vanilla physics and multi-protocol support.
+
+Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
 Current version: **1.2.69**
 
@@ -109,8 +111,10 @@ URL | Protocol | Description
 --- | --- | ---
 http://agar.io/?ip=127.0.0.1:443 | 8 | Vanilla
 http://ogar.mivabe.nl/?ip=127.0.0.1:443 | early 5 | MivaBe, pretty smooth, custom graphics (anime)
-http://play.ogarul.tk/?ip=127.0.0.1:443 | 4 | OgarUL, vanilla style
-http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | vanilla style
+http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
+http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
+http://astr.io/?ip=127.0.0.1:443 | 5 | Extension like
+http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 
 ###MultiOgar Servers
 
@@ -126,6 +130,8 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 
 
 ## What's new:
+* 1.2.8: Removed unnecessary/broken commands & gamemodes, added some custom commands
+* 1.2.7: Fixed many bugs that the original MultiOgar had
 * 1.2.47: Improved stability and performance; added mute/unmute command
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
@@ -138,7 +144,6 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 * Significant performance improvement and more smooth physics
 * Added protocol optimizations to reduce lags on cell multi split
 * Fixed pop-split behavior
-* Added spectate walk through feature (use Space key in spectate mode to lock the current player or to lock the next one. Use key Q to reset into the normal mode. Locked player is highlighted on leaderboard)
 * Fixed cell-split order, now split-run works ok
 * A little performance improvement for split/eject
 * Fixed min mass to split/eject
