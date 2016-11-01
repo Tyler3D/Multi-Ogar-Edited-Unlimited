@@ -65,6 +65,7 @@ function PlayerTracker(gameServer, socket) {
     this.spawnmass = 0;
     this.frozen = false;
     this.customspeed = 0;
+    this.rec = false;
     
     // Gamemode function
     if (gameServer) {
