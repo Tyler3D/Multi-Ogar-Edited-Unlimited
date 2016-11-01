@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.2.69**
+Current version: **1.2.8**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -133,6 +133,7 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 * 1.2.8: Removed unnecessary/broken commands & gamemodes, added some custom commands
 * 1.2.7: Fixed many bugs that the original MultiOgar had
 * 1.2.47: Improved stability and performance; added mute/unmute command
+* Minions, coming soon :)
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
 * Added ejectSizeLoss
