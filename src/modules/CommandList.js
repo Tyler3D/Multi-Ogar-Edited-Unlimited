@@ -61,6 +61,7 @@ Commands.list = {
         console.log("spawnmass [PlayerID] [mass]  : sets players spawn mass");
         console.log("freeze [PlayerID]            : freezes a player");
         console.log("speed [PlayerID]             : sets a players base speed");
+        console.log("rec [PlayerID]               : puts a player in rec mode");
         console.log("st                           : alias for status");
         console.log("pl                           : alias for playerlist");
         console.log("m                            : alias for mass");
@@ -554,6 +555,44 @@ Commands.list = {
         // Log
         if (state) console.log(client.getFriendlyName() + " is now force merging");
         else console.log(client.getFriendlyName() + " isn't force merging anymore");
+    },
+    rec: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        var set = split[2];
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        
+        // Find the correct client
+        var client;
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                client = gameServer.clients[i].playerTracker;
+                break;
+            }
+        }
+        
+        // Set state for disabling/enabling
+        var state;
+        if (set == "true") {
+            client.rec = true;
+            state = true;
+        } else if (set == "false") {
+            client.rec = false;
+            state = false;
+        } else {
+            if (client == null) {
+                Logger.warn("Client does not exist!");
+                return;
+            }
+            if (client.rec) client.rec = false;
+            else client.rec = true;
+            state = client.rec;
+        }
+        
+        if (state) console.log(client.getFriendlyName() + " is now in rec mode!");
+        else console.log(client.getFriendlyName() + " is no longer in rec mode");
     },
     name: function (gameServer, split) {
         // Validation checks
