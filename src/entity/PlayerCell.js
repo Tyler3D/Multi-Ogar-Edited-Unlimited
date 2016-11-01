@@ -19,7 +19,7 @@ PlayerCell.prototype.updateRemerge = function () {
         return;
     }
     var baseTtr = this.gameServer.config.playerRecombineTime;
-    if (baseTtr == 0) {
+    if (baseTtr == 0 || this.owner.rec == true) {
         // instant merge
         if (this.getSize() >= 780 / 2) {
             this._canRemerge = age > 20;
