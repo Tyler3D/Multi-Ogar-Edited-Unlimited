@@ -986,16 +986,24 @@ GameServer.prototype.updateMoveEngine = function () {
                 continue;
             cell1.moveUser(this.border);
             cell1.move(this.border);
-
+            
+            // rec mode
+            var maxSize;
+            if (client.rec == false) {
+                maxSize = this.config.playerMaxSize;
+            } else {
+                maxSize = this.config.playerMaxSize * 3;
+            }
+            
             // check size limit
-            if (checkSize && cell1.getSize() > this.config.playerMaxSize && cell1.getAge(tick) >= 15) {
+            if (checkSize && cell1.getSize() > maxSize && cell1.getAge(tick) >= 15) {
                 if (client.cells.length >= this.config.playerMaxCells) {
                     // cannot split => just limit
-                    cell1.setSize(this.config.playerMaxSize);
+                    cell1.setSize(maxSize);
                 } else {
                     // split
                     var maxSplit = this.config.playerMaxCells - client.cells.length;
-                    var maxMass = this.config.playerMaxSize * this.config.playerMaxSize;
+                    var maxMass = maxSize * maxSize;
                     var count = (cell1.getSizeSquared() / maxMass) >> 0;
                     var count = Math.min(count, maxSplit);
                     var splitSize = cell1.getSize() / Math.sqrt(count + 1);
@@ -1138,12 +1146,20 @@ GameServer.prototype.splitCells = function (client) {
     
     // It seems that vanilla uses order by cell age
     var cellToSplit = [];
+    var maxCells;
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
         if (cell.getSize() < this.config.playerMinSplitSize) {
             continue;
         }
         cellToSplit.push(cell);
+        
+        // rec mode
+        if (client.rec == false) {
+            maxCells = this.config.playerMaxCells;
+        } else {
+            maxCells = this.config.playerMaxCells * this.config.playerMaxCells;
+        }
         if (cellToSplit.length + client.cells.length >= this.config.playerMaxCells)
             break;
     }
@@ -1160,20 +1176,19 @@ GameServer.prototype.splitCells = function (client) {
         var angle = Math.atan2(dx, dy);
         if (isNaN(angle)) angle = Math.PI / 2;
         
-        if (this.splitPlayerCell(client, cell, angle, null)) {
+        if (this.splitPlayerCell(client, cell, angle, null, maxCells)) {
             splitCells++;
         }
     }
 };
 
 // TODO: replace mass with size (Virus)
-GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass) {
+GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, maxCells) {
     // Returns boolean whether a cell has been split or not. You can use this in the future.
     
-    if (client.cells.length >= this.config.playerMaxCells) {
-        // Player cell limit
+    // Player cell limit
+    if (client.cells.length >= maxCells) 
         return false;
-    }
     
     var size1 = 0;
     var size2 = 0;
