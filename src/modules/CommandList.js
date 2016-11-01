@@ -3,7 +3,6 @@ var GameMode = require('../gamemodes');
 var Entity = require('../entity');
 var ini = require('./ini.js');
 var Logger = require('./Logger');
-var heapdump = null;
 
 function Commands() {
     this.list = {}; // Empty
@@ -39,7 +38,6 @@ Commands.list = {
         console.log("clear                        : clear console output");
         console.log("color [PlayerID] [R] [G] [B] : set cell(s) color by client ID");
         console.log("exit                         : stop the server");
-        console.log("food [X] [Y] [mass]          : spawn food at specified Location");
         console.log("gamemode [id]                : change server gamemode");
         console.log("kick [PlayerID]              : kick player or bot by client ID");
         console.log("kickall                      : kick all players and bots");
@@ -277,30 +275,6 @@ Commands.list = {
         Logger.warn("Closing server...");
         gameServer.wsServer.close();
         process.exit(1);
-    },
-    food: function (gameServer, split) {
-        var pos = {
-            x: parseInt(split[1]),
-            y: parseInt(split[2])
-        };
-        var mass = parseInt(split[3]);
-        
-        // Make sure the input values are numbers
-        if (isNaN(pos.x) || isNaN(pos.y)) {
-            Logger.warn("Invalid coordinates");
-            return;
-        }
-        
-        var size = gameServer.config.foodMinMass;
-        if (!isNaN(mass)) {
-            size = Math.sqrt(mass * 100);
-        }
-        
-        // Spawn
-        var cell = new Entity.Food(gameServer, null, pos, size);
-        cell.setColor(gameServer.getRandomColor());
-        gameServer.addNode(cell);
-        console.log("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
     },
     gamemode: function (gameServer, split) {
         try {
@@ -792,31 +766,6 @@ Commands.list = {
         var v = new Entity.Virus(gameServer, null, pos, size);
         gameServer.addNode(v);
         console.log("Spawned 1 virus at (" + pos.x + " , " + pos.y + ")");
-    },
-    heapdump: function (gameServer, args) {
-        if (heapdump == null) {
-            function tryLoadModule(name) {
-                try {
-                    return require(name);
-                } catch (err) {
-                    if (err.code === 'MODULE_NOT_FOUND')
-                        return null;
-                    Logger.error(err);
-                }
-                return null;
-            }            
-            heapdump = tryLoadModule('heapdump');
-        }
-        if (heapdump == null) {
-            Logger.warn("heapdump module not installed!");
-            return;
-        }
-        heapdump.writeSnapshot(function (err, filename) {
-            if (err)
-                Logger.error(err);
-            else
-                Logger.print('heapdump written to ' + filename);
-        });
     },
     
     //Aliases
