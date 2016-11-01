@@ -11,22 +11,22 @@ module.exports = {
 var get = function (id) {
     var mode;
     switch (id) {
-        case 1:// Teams
+        case 1: // Teams
             mode = new module.exports.Teams();
             break;
-        case 2:// Experimental
+        case 2: // Experimental
             mode = new module.exports.Experimental();
             break;
-        case 10:// Tournament
+        case 3: // Tournament
             mode = new module.exports.Tournament();
             break;
-        case 11:// Hunger Games
+        case 4: // Hunger Games
             mode = new module.exports.HungerGames();
             break;
-        case 20:// Rainbow
+        case 5: // Rainbow
             mode = new module.exports.Rainbow();
             break;
-        default:// FFA is default
+        default: // FFA is default
             mode = new module.exports.FFA();
             break;
     }
