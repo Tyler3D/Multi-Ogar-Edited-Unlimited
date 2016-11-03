@@ -34,7 +34,6 @@ function Cell(gameServer, owner, position, size) {
 
 module.exports = Cell;
 
-
 // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
 
 Cell.prototype.setColor = function (color) {
@@ -117,9 +116,6 @@ Cell.prototype.getKiller = function () {
 };
 
 Cell.prototype.setPosition = function (pos) {
-    if (pos == null || isNaN(pos.x) || isNaN(pos.y)) {
-        throw new TypeError("Cell.setPosition: position is NaN");
-    }
     this.position.x = pos.x;
     this.position.y = pos.y;
 };
@@ -272,9 +268,7 @@ Cell.prototype.checkBorder = function (border) {
     }
 };
 
-
 // Lib
-
 function findLineIntersection(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) {
     var z1 = p1x - p0x;
     var z2 = p3x - p2x;
