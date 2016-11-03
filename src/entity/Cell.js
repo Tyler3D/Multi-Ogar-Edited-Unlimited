@@ -127,9 +127,21 @@ Cell.prototype.canEat = function (cell) {
     return false;
 };
 
+// Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
-    // Called to eat prey cell
-    this.setSize(Math.sqrt(this.getSizeSquared() + prey.getSizeSquared()));
+    // Cant grow from cells under 17 mass (vanilla)
+    // Prevents players from getting big quickly with minions/bots
+    if (this.getMass() >= 625 && prey.getMass() <= 17) {
+        var addSize = Math.sqrt(this.getSizeSquared() + 0);
+    } else {
+        // Normal eat
+        addSize = Math.sqrt(this.getSizeSquared() + prey.getSizeSquared());
+    }
+    // Exception for ejected cells
+    if (this.cellType == 3 || prey.cellType == 3) {
+        addSize = Math.sqrt(this.getSizeSquared() + prey.getSizeSquared());
+    }
+    this.setSize(addSize);
 };
 
 Cell.prototype.onEaten = function (hunter) {
