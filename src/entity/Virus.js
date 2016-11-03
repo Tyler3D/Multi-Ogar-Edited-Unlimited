@@ -13,6 +13,8 @@ function Virus() {
 module.exports = Virus;
 Virus.prototype = new Cell();
 
+// Main Functions
+
 Virus.prototype.canEat = function (cell) {
     return cell.cellType == 3; // virus can eat ejected mass only
 };
@@ -30,32 +32,47 @@ Virus.prototype.onEat = function (prey) {
 Virus.prototype.onEaten = function (consumer) {
     var client = consumer.owner;
     if (client == null) return;
-
-    var angle = null; // Starting angle
-    var maxSplits = Math.floor(consumer.getMass() / 16) - 1; // Maximum amount of splits
-    var numSplits = this.gameServer.config.playerMaxCells - client.cells.length; // Get number of splits
-        numSplits = Math.min(numSplits, maxSplits);
-    var splitMass = Math.min(consumer.getMass() / (numSplits + 1), 24); // Maximum size of new splits
     
-    // Cell cannot split any further
-    if (numSplits <= 0) {
-        return;
-    }
+    var mass = consumer.getMass(),
+    maxSplits = Math.floor(mass / 16) - 1, // maximum amount of splits
+    cellsLeft = this.gameServer.config.playerMaxCells - client.cells.length,
+    numSplits = Math.min(cellsLeft, maxSplits), // get number of splits
+    splitMass = Math.min(consumer.getMass() / (numSplits + 1), 24); 
 
-    var mass = consumer.getMass(); // Mass of the consumer
-    var bigSplits = []; // Big splits
-
-    // Big cells will split into cells larger than 24 mass
-    // won't do the regular way unless it can split more than 4 times
+    // cannot split any further
+    if (numSplits <= 0) return;
+    
+    // won't split regular way unless numSplits > 4
+    var bigSplits = [];
     if (numSplits == 1) bigSplits = [mass / 2];
     else if (numSplits == 2) bigSplits = [mass / 4, mass / 4];
     else if (numSplits == 3) bigSplits = [mass / 4, mass / 4, mass / 7];
     else if (numSplits == 4) bigSplits = [mass / 5, mass / 7, mass / 8, mass / 10];
     else {
         var m = mass - numSplits * splitMass;
-        if (m > 466) { // Threshold
-            // While can split into an even smaller cell
-            var mult = 3.33;
+        var exp = Math.random() * 3;
+        
+        // vanilla 1
+        if (exp <= 1 && m > 466) { // threshold
+            var mult = (mass => 6500 && mass <= 8000) ? 3.8 : 4;
+            while (m / mult > 24) {
+                m /= mult;
+                mult = (mass => 6500 && mass <= 8000) ? 2.3 : 2.5;
+                bigSplits.push(m >> 0);
+            }
+        } 
+        // vanilla 2
+        else if (exp <= 2 && m > 466) {
+            mult = 3.7;
+            while (m / mult > 24) {
+                m /= mult;
+                mult = 2.25;
+                bigSplits.push(m >> 0);
+            }
+        }
+        // vanilla 3
+        else if (m > 466) {
+            mult = 3.33;
             while (m / mult > 24) {
                 m /= mult;
                 mult = 2;
@@ -63,15 +80,23 @@ Virus.prototype.onEaten = function (consumer) {
             }
         }
     }
-    // Big splits
+    numSplits -= bigSplits.length;
+    
+    // big splits
+    var angle = 0;
     for (var k = 0; k < bigSplits.length; k++) {
-        angle = 2 * Math.PI * Math.random(); // Random directions
-        this.gameServer.splitPlayerCell(client, consumer, angle, bigSplits[k]);
+        angle = 2 * Math.PI * Math.random(); // random directions
+        this.gameServer.splitPlayerCell(
+            client, consumer, angle, bigSplits[k]
+        );
     }
-    // Small splits
+
+    // small splits
     for (var k = 0; k < numSplits; k++) {
-        angle = 2 * Math.PI * Math.random(); // Random directions
-        this.gameServer.splitPlayerCell(client, consumer, angle, splitMass);
+        angle = 2 * Math.PI * Math.random(); // random directions
+        this.gameServer.splitPlayerCell(
+            client, consumer, angle, splitMass
+        );
     }
 };
 
@@ -84,6 +109,6 @@ Virus.prototype.onRemove = function (gameServer) {
     if (index != -1) {
         gameServer.nodesVirus.splice(index, 1);
     } else {
-        Logger.error("Virus.onRemove: Tried to remove a non existing virus!");
+        Logger.warn("Virus.onRemove: Tried to remove a non existing virus!");
     }
 };
