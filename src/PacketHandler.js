@@ -118,29 +118,82 @@ PacketHandler.prototype.message_onMouse = function (message) {
 };
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
-    this.pressSpace = true;
+    var player = this.socket.playerTracker;
+    var g = this.gameServer;
+    
+    // minion split
+    if (player.mi == 1) {
+        for (var i in g.clients) {
+            var client = g.clients[i].playerTracker;
+            if (client.isMi == true) {
+                g.splitCells(client);
+            }
+        }
+    // player split
+    } else {
+        this.pressSpace = true;
+    }
 };
 
 PacketHandler.prototype.message_onKeyQ = function (message) {
+    var g = this.gameServer;
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = g.getTick();
     var dt = tick - this.lastQTick;
-    if (dt < this.gameServer.config.ejectCooldown) {
+    if (dt < g.config.ejectCooldown) {
         return;
     }
     this.lastQTick = tick;
-    this.pressQ = true;
+    
+    // client has minions
+    var client = this.socket.playerTracker;
+    var color = g.getGrayColor(client.getColor());
+    var randomColor = g.getRandomColor(client.getColor());
+    if (client.minionControl) {
+        if (client.mi == 1) {
+            client.mi = 0;
+            client.setColor(randomColor);
+            client.cells.forEach(function (cell) {
+                cell.setColor(randomColor);
+            }, this);
+        } else {
+            client.mi = 1;
+            client.setColor(color);
+            client.setSkin("");
+            client.cells.forEach(function (cell) {
+                cell.setColor(color);
+            }, this);
+        }
+        
+    // client doesn't have minions
+    } else {
+        this.pressQ = true;
+    }
 };
 
 PacketHandler.prototype.message_onKeyW = function (message) {
+    var g = this.gameServer;
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = g.getTick();
     var dt = tick - this.lastWTick;
-    if (dt < this.gameServer.config.ejectCooldown) {
+    if (dt < g.config.ejectCooldown) {
         return;
     }
     this.lastWTick = tick;
-    this.pressW = true;
+    
+    // minion eject
+    var player = this.socket.playerTracker;
+    if (player.mi == 1) {
+        for (var i in g.clients) {
+            var client = g.clients[i].playerTracker;
+            if (client.isMi == true) {
+                g.ejectMass(client);
+            }
+        }
+    // player eject
+    } else {
+        this.pressW = true;
+    }
 };
 
 PacketHandler.prototype.message_onChat = function (message) {
