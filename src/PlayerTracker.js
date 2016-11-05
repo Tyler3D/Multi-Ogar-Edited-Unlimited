@@ -67,6 +67,11 @@ function PlayerTracker(gameServer, socket) {
     this.customspeed = 0;
     this.rec = false;
     
+    // Minions
+    this.miQ = 0;
+    this.isMi = false;
+    this.minionControl = false;
+    
     // Gamemode function
     if (gameServer) {
         this.connectedTime = gameServer.stepDateTime;
