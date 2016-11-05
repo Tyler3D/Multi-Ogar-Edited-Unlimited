@@ -102,11 +102,6 @@ Commands.list = {
             return;
         }
         
-        // If no amount is specified
-        if (isNaN(add)) {
-            add = 1; 
-        }
-        
         // Default minion names
         if (typeof g.minionName == "undefined") {
             g.minionName = "minion";
@@ -128,6 +123,8 @@ Commands.list = {
                 } else {
                     g.minionEnabled = true;
                     client.minionControl = true;
+                    // If no amount is specified
+                    if (isNaN(add)) add = 1; 
                     // Add minions for client
                     for (var i = 0; i < add; i++) {
                         g.minions.addBot(client);
