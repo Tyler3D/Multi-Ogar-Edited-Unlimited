@@ -122,7 +122,7 @@ PacketHandler.prototype.message_onKeySpace = function (message) {
     var g = this.gameServer;
     
     // minion split
-    if (player.mi == 1) {
+    if (player.miQ == 1) {
         for (var i in g.clients) {
             var client = g.clients[i].playerTracker;
             if (client.isMi == true) {
@@ -150,14 +150,14 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
     var color = g.getGrayColor(client.getColor());
     var randomColor = g.getRandomColor(client.getColor());
     if (client.minionControl) {
-        if (client.mi == 1) {
-            client.mi = 0;
+        if (client.miQ == 1) {
+            client.miQ = 0;
             client.setColor(randomColor);
             client.cells.forEach(function (cell) {
                 cell.setColor(randomColor);
             }, this);
         } else {
-            client.mi = 1;
+            client.miQ = 1;
             client.setColor(color);
             client.setSkin("");
             client.cells.forEach(function (cell) {
@@ -183,7 +183,7 @@ PacketHandler.prototype.message_onKeyW = function (message) {
     
     // minion eject
     var player = this.socket.playerTracker;
-    if (player.mi == 1) {
+    if (player.miQ == 1) {
         for (var i in g.clients) {
             var client = g.clients[i].playerTracker;
             if (client.isMi == true) {
