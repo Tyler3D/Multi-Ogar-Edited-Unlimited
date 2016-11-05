@@ -557,7 +557,7 @@ PlayerTracker.prototype.getSpectateTarget = function () {
 
 PlayerTracker.prototype.updateVisibleNodes = function () {
     this.viewNodes = [];
-    if (!this.isMinion) {
+    if (!this.isMinion || !this.isMi) {
         var self = this;
         this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
             if (quadItem.cell.owner != self)
