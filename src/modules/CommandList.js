@@ -89,6 +89,54 @@ Commands.list = {
         console.log("Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true));
         console.log("Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
     },
+    minion: function(gameServer, split) {
+        var g = gameServer;
+        var id = parseInt(split[1]);
+        var add = parseInt(split[2]);
+        g.minionName = split[3];
+            
+        // Error! ID is NaN
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player id!");
+            return;
+        }
+        
+        // If no amount is specified
+        if (isNaN(add)) {
+            add = 1; 
+        }
+        
+        // Default minion names
+        if (typeof g.minionName == "undefined") {
+            g.minionName = "minion";
+        }
+        
+        // Find ID specified and add/remove minions for them
+        for (var i in g.clients) {
+            g.minionLeader = g.clients[i].playerTracker;
+            var client = g.minionLeader;
+            
+            if (client.pID == id) {
+                // Remove minions
+                if (client.minionControl == true && isNaN(add)) {
+                    g.minionEnabled = false,
+                    client.mi = 0;
+                    client.minionControl = false,
+                    console.log("Succesfully removed minions for " + client.getFriendlyName());
+                // Add minions
+                } else {
+                    g.minionEnabled = true;
+                    client.minionControl = true;
+                    // Add minions for client
+                    for (var i = 0; i < add; i++) {
+                        g.minions.addBot(client);
+                    }
+                    console.log("Added " + add + " minions for " + client.getFriendlyName());
+                }
+                break;
+            }
+        }
+    },
     addbot: function (gameServer, split) {
         var add = parseInt(split[1]);
         if (isNaN(add)) {
