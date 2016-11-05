@@ -28,7 +28,7 @@ var fillChar = function (data, char, fieldLength, rTL) {
 Commands.list = {
     help: function (gameServer, split) {
         console.log("======================== HELP ======================");
-        console.log("addbot [number]              : add bot to the server");
+        console.log("addbot [number]              : adds bots to the server");
         console.log("kickbot [number]             : kick a number of bots");
         console.log("ban [PlayerID | IP]          : bans a(n) (player's) IP");
         console.log("banlist                      : get list of banned IPs.");
@@ -56,6 +56,7 @@ Commands.list = {
         console.log("tp [PlayerID] [X] [Y]        : teleport player to specified location");
         console.log("unban [IP]                   : unban an IP");
         console.log("virus [X] [Y] [mass]         : spawn virus at a specified Location");
+        console.log("minion [PlayerID] [#] [name] : adds suicide minions to the server");
         console.log("spawnmass [PlayerID] [mass]  : sets players spawn mass");
         console.log("freeze [PlayerID]            : freezes a player");
         console.log("speed [PlayerID]             : sets a players base speed");
