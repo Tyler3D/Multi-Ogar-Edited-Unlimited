@@ -16,6 +16,7 @@ var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
 var Gamemode = require('./gamemodes');
 var BotLoader = require('./ai/BotLoader');
+var MinionLoader = require('./ai/MinionLoader');
 var Logger = require('./modules/Logger');
 var UserRoleEnum = require('./enum/UserRoleEnum');
 
@@ -114,6 +115,7 @@ function GameServer() {
         playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
         playerMinSplitSize: 60,     // Minimum player cell size allowed to split (mass = 60*60/100 = 36) 
         playerStartSize: 64,        // Start size of the player cell (mass = 64*64/100 = 41)
+        minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         playerMaxCells: 16,         // Max cells the player is allowed to have
         playerSpeed: 1,             // Player speed multiplier
         playerDecayRate: .002,      // Amount of player cell size lost per second
@@ -145,6 +147,12 @@ function GameServer() {
     
     // Gamemodes
     this.gameMode = Gamemode.get(this.config.serverGamemode);
+    
+    // Minions
+    this.minionLeader;
+    this.minionName = "";
+    this.minionEnabled = false;
+    this.minions = new MinionLoader(this);
 }
 
 module.exports = GameServer;
@@ -757,7 +765,13 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
                 };
                 if (!size) {
                     size = Math.max(eject.getSize(), this.config.playerStartSize);
-                    if (player.spawnmass > 0) size = player.spawnmass;
+                    // Spawnmass command
+                    if (player.spawnmass > 0 && !player.isMi && !this.minionLeader) {
+                        size = player.spawnmass;
+                    // Minion spawnmass
+                    } else if (player.isMi) {
+                        size = this.config.minionStartSize;
+                    }
                 }
             }
         }
@@ -773,8 +787,13 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
     if (size == null) {
         // Get starting mass
         size = this.config.playerStartSize;
-        if (player.spawnmass > 0) 
-        size = player.spawnmass;
+        // Spawnmass command
+        if (player.spawnmass > 0 && !player.isMi && !this.minionLeader) {
+            size = player.spawnmass;
+        // Minion spawnmass
+        } else if (player.isMi) {
+            size = this.config.minionStartSize;
+        }
     }
     
     // Spawn player and add to world
