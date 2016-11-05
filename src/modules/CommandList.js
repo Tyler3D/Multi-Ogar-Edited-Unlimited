@@ -121,7 +121,7 @@ Commands.list = {
                 // Remove minions
                 if (client.minionControl == true && isNaN(add)) {
                     g.minionEnabled = false,
-                    client.mi = 0;
+                    client.miQ = 0;
                     client.minionControl = false,
                     console.log("Succesfully removed minions for " + client.getFriendlyName());
                 // Add minions
