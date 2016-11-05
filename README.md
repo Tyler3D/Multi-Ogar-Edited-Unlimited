@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.2.9**
+Current version: **1.3.0**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -113,7 +113,7 @@ http://agar.io/?ip=127.0.0.1:443 | 8 | Vanilla
 http://ogar.mivabe.nl/?ip=127.0.0.1:443 | early 5 | MivaBe, pretty smooth, custom graphics (anime)
 http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
 http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
-http://astr.io/?ip=127.0.0.1:443 | 5 | Extension like
+http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
 http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 
 ###MultiOgar Servers
@@ -130,11 +130,11 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 
 
 ## What's new:
+* 1.3.0: Added minions! With a few new features too :)
 * 1.2.9: Matched virus explosions to vanilla, added anti-bot grow measure from vanilla
 * 1.2.8: Removed unnecessary/broken commands & gamemodes, added some custom commands
 * 1.2.7: Fixed many bugs that the original MultiOgar had
 * 1.2.47: Improved stability and performance; added mute/unmute command
-* Minions, coming soon :)
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
 * Added ejectSizeLoss
