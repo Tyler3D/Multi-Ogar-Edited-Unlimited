@@ -54,10 +54,10 @@ Virus.prototype.onEaten = function (consumer) {
         
         // vanilla 1
         if (exp <= 1 && m > 466) { // threshold
-            var mult = (mass => 6500 && mass <= 8000) ? 3.8 : 4;
+            var mult = (mass >= 6500 && mass <= 8000) ? 3.8 : 4;
             while (m / mult > 24) {
                 m /= mult;
-                mult = (mass => 6500 && mass <= 8000) ? 2.3 : 2.5;
+                mult = (mass >= 6500 && mass <= 8000) ? 2.3 : 2.5;
                 bigSplits.push(m >> 0);
             }
         } 
