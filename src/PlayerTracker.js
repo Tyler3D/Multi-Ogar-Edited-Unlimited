@@ -189,6 +189,7 @@ PlayerTracker.prototype.getScore = function () {
 };
 
 PlayerTracker.prototype.getScale = function () {
+    if (this.isMi) return;
     if (this.isMassChanged)
         this.updateMass();
     return this._scale;
@@ -289,12 +290,13 @@ PlayerTracker.prototype.checkConnection = function () {
 };
 
 PlayerTracker.prototype.updateTick = function () {
+    if (this.isMi) return; // No need to update for minions
     this.socket.packetHandler.process();
     if (this.spectate) {
         if (this.freeRoam || this.getSpectateTarget() == null) {
             // free roam
             this.updateCenterFreeRoam();
-            this._scale = this.gameServer.config.serverSpectatorScale;//0.25;
+            this._scale = this.gameServer.config.serverSpectatorScale;// 0.25;
         } else {
             // spectate target
             return;
@@ -312,12 +314,11 @@ PlayerTracker.prototype.sendUpdate = function () {
         !this.socket.packetHandler.protocol ||
         !this.socket.isConnected || 
         (this.socket._socket.writable != null && !this.socket._socket.writable) || 
-        this.socket.readyState != this.socket.OPEN) {
-        // do not send update for disconnected clients
+        this.socket.readyState != this.socket.OPEN || this.isMi) {
+        // do not send update for disconnected clients or minions
         // also do not send if initialization is not complete yet
         return;
     }
-    
     if (this.spectate) {
         if (!this.freeRoam) {
             // spectate target
@@ -424,11 +425,8 @@ PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cell
         count++;
     }
     if (count == 0) return;
-    cx /= count;
-    cy /= count;
-    cx = (this.centerPos.x + cx) / 2;
-    cy = (this.centerPos.y + cy) / 2;
-    this.setCenterPos(cx, cy);
+    this.centerPos.x = cx / count;
+	this.centerPos.y = cy / count;
 };
 
 PlayerTracker.prototype.updateCenterFreeRoam = function () {
@@ -453,6 +451,7 @@ PlayerTracker.prototype.updateCenterFreeRoam = function () {
 };
 
 PlayerTracker.prototype.updateViewBox = function () {
+    if (this.isMi) return; // No need to update for minions
     var scale = this.getScale();
     scale = Math.max(scale, this.gameServer.config.serverMinScale);
     this._scaleF += 0.1 * (scale - this._scaleF);
@@ -556,6 +555,7 @@ PlayerTracker.prototype.getSpectateTarget = function () {
 };
 
 PlayerTracker.prototype.updateVisibleNodes = function () {
+    if (this.isMi) return; // No need to update for minions
     this.viewNodes = [];
     if (!this.isMinion || !this.isMi) {
         var self = this;
@@ -581,6 +581,7 @@ PlayerTracker.prototype.setCenterPos = function (x, y) {
 };
 
 PlayerTracker.prototype.sendCameraPacket = function () {
+    if (this.isMi) return; // Don't send if minion
     this.socket.sendPacket(new Packet.UpdatePosition(
         this,
         this.centerPos.x,
