@@ -766,7 +766,7 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
                 if (!size) {
                     size = Math.max(eject.getSize(), this.config.playerStartSize);
                     // Spawnmass command
-                    if (player.spawnmass > 0 && !player.isMi && !this.minionLeader) {
+                    if (player.spawnmass > 0 && !player.isMi) {
                         size = player.spawnmass;
                     // Minion spawnmass
                     } else if (player.isMi) {
@@ -788,7 +788,7 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
         // Get starting mass
         size = this.config.playerStartSize;
         // Spawnmass command
-        if (player.spawnmass > 0 && !player.isMi && !this.minionLeader) {
+        if (player.spawnmass > 0 && !player.isMi) {
             size = player.spawnmass;
         // Minion spawnmass
         } else if (player.isMi) {
