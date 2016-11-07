@@ -1,7 +1,6 @@
-﻿// Project imports
-var fs = require("fs");
-var Logger = require('../modules/Logger');
+// Project imports
 var BotPlayer = require('./BotPlayer');
+var MinionPlayer = require('./MinionPlayer');
 var FakeSocket = require('./FakeSocket');
 var PacketHandler = require('../PacketHandler');
 
@@ -28,6 +27,7 @@ BotLoader.prototype.getName = function () {
 
 BotLoader.prototype.loadNames = function () {
     this.randomNames = [];
+    var fs = require("fs");
     
     if (fs.existsSync("./botnames.txt")) {
         // Read and parse the names - filter out whitespace-only names
@@ -48,4 +48,16 @@ BotLoader.prototype.addBot = function () {
     
     // Add to world
     s.packetHandler.setNickname(this.getName());
+};
+
+BotLoader.prototype.addMinion = function() {
+    var s = new FakeSocket(this.gameServer);
+    s.playerTracker = new MinionPlayer(this.gameServer, s);
+    s.packetHandler = new PacketHandler(this.gameServer, s);
+    
+    // Add to client list
+    this.gameServer.clients.push(s);
+
+    // Add to world & set name
+    s.packetHandler.setNickname(this.gameServer.minionName);
 };
