@@ -16,7 +16,6 @@ var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
 var Gamemode = require('./gamemodes');
 var BotLoader = require('./ai/BotLoader');
-var MinionLoader = require('./ai/MinionLoader');
 var Logger = require('./modules/Logger');
 var UserRoleEnum = require('./enum/UserRoleEnum');
 
