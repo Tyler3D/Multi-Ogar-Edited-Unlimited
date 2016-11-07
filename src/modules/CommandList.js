@@ -94,7 +94,7 @@ Commands.list = {
         var g = gameServer;
         var id = parseInt(split[1]);
         var add = parseInt(split[2]);
-        g.minionName = split[3];
+        g.minionName = split.slice(3, split.length).join(' ');
             
         // Error! ID is NaN
         if (isNaN(id)) {
@@ -103,7 +103,7 @@ Commands.list = {
         }
         
         // Default minion names
-        if (typeof g.minionName == "undefined") {
+        if (typeof g.minionName == "undefined" || g.minionName == "") {
             g.minionName = "minion";
         }
         
@@ -127,7 +127,7 @@ Commands.list = {
                     if (isNaN(add)) add = 1; 
                     // Add minions for client
                     for (var i = 0; i < add; i++) {
-                        g.minions.addBot(client);
+                        g.bots.addMinion(client);
                     }
                     console.log("Added " + add + " minions for " + client.getFriendlyName());
                 }
