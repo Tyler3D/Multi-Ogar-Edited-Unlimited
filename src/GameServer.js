@@ -151,7 +151,7 @@ function GameServer() {
     this.minionLeader;
     this.minionName = "";
     this.minionEnabled = false;
-    this.minions = new MinionLoader(this);
+    this.minions = new BotLoader(this);
 }
 
 module.exports = GameServer;
