@@ -1,4 +1,4 @@
-﻿var pjson = require('../package.json');
+var pjson = require('../package.json');
 var Packet = require('./packet');
 var BinaryReader = require('./packet/BinaryReader');
 
@@ -12,6 +12,7 @@ function PacketHandler(gameServer, socket) {
     this.lastChatTick = 0;
     this.lastStatTick = 0;
     this.lastWTick = 0;
+    this.lastRTick = 0;
     this.lastQTick = 0;
     this.lastSpaceTick = 0;
     
@@ -64,8 +65,10 @@ PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
         16: this.message_onMouse.bind(this),
         17: this.message_onKeySpace.bind(this),
         18: this.message_onKeyQ.bind(this),
-        //19: AFK
         21: this.message_onKeyW.bind(this),
+        22: this.message_onKeyE.bind(this),
+        23: this.message_onKeyR.bind(this),
+        24: this.message_onKeyT.bind(this),
         99: this.message_onChat.bind(this),
         254: this.message_onStat.bind(this),
     };
@@ -118,15 +121,12 @@ PacketHandler.prototype.message_onMouse = function (message) {
 };
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
-    var player = this.socket.playerTracker;
-    var g = this.gameServer;
-    
     // minion split
-    if (player.miQ == 1) {
-        for (var i in g.clients) {
-            var client = g.clients[i].playerTracker;
+    if (this.socket.playerTracker.miQ == 1) {
+        for (var i in this.gameServer.clients) {
+            var client = this.gameServer.clients[i].playerTracker;
             if (client.isMi == true) {
-                g.splitCells(client);
+                this.gameServer.splitCells(client);
             }
         }
     // player split
@@ -136,20 +136,19 @@ PacketHandler.prototype.message_onKeySpace = function (message) {
 };
 
 PacketHandler.prototype.message_onKeyQ = function (message) {
-    var g = this.gameServer;
     if (message.length !== 1) return;
-    var tick = g.getTick();
+    var tick = this.gameServer.getTick();
     var dt = tick - this.lastQTick;
-    if (dt < g.config.ejectCooldown) {
+    if (dt < this.gameServer.config.ejectCooldown) {
         return;
     }
     this.lastQTick = tick;
     
     // client has minions
     var client = this.socket.playerTracker;
-    var color = g.getGrayColor(client.getColor());
-    var randomColor = g.getRandomColor(client.getColor());
-    if (client.minionControl) {
+    var color = this.gameServer.getGrayColor(client.getColor());
+    var randomColor = this.gameServer.getRandomColor(client.getColor());
+    if (client.minionControl && this.gameServer.config.disableERT === 1) {
         if (client.miQ == 1) {
             client.miQ = 0;
             client.setColor(randomColor);
@@ -172,27 +171,71 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
 };
 
 PacketHandler.prototype.message_onKeyW = function (message) {
-    var g = this.gameServer;
     if (message.length !== 1) return;
-    var tick = g.getTick();
+    var tick = this.gameServer.getTick();
     var dt = tick - this.lastWTick;
-    if (dt < g.config.ejectCooldown) {
+    if (dt < this.gameServer.config.ejectCooldown) {
         return;
     }
     this.lastWTick = tick;
     
     // minion eject
-    var player = this.socket.playerTracker;
-    if (player.miQ == 1) {
-        for (var i in g.clients) {
-            var client = g.clients[i].playerTracker;
+    if (this.socket.playerTracker.miQ == 1) {
+        for (var i in this.gameServer.clients) {
+            var client = this.gameServer.clients[i].playerTracker;
             if (client.isMi == true) {
-                g.ejectMass(client);
+                this.gameServer.ejectMass(client);
             }
         }
     // player eject
     } else {
         this.pressW = true;
+    }
+};
+
+PacketHandler.prototype.message_onKeyE = function (message) {
+    if (this.gameServer.config.disableERT === 1) return;
+    
+    // minion split
+    for (var i in this.gameServer.clients) {
+        var client = this.gameServer.clients[i].playerTracker;
+        if (client.isMi == true) { 
+            this.gameServer.splitCells(client);
+        }
+    }
+};
+
+PacketHandler.prototype.message_onKeyR = function (message) {
+    if (this.gameServer.config.disableERT === 1) return;
+    
+    if (message.length !== 1) return;
+    var tick = this.gameServer.getTick();
+    var dt = tick - this.lastRTick;
+    if (dt < this.gameServer.config.ejectCooldown) {
+        return;
+    }
+    this.lastRTick = tick;
+    
+    // minion eject
+    for (var i in this.gameServer.clients) {
+        var client = this.gameServer.clients[i].playerTracker;
+        if (client.isMi == true) {
+            this.gameServer.ejectMass(client);
+        }
+    }
+};
+
+PacketHandler.prototype.message_onKeyT = function (message) {
+    if (this.gameServer.config.disableERT === 1) return;
+    
+    // freeze minions
+    var player = this.socket.playerTracker;
+    player.minionFrozen = !player.minionFrozen;
+    for (var i in this.gameServer.clients) {
+        var client = this.gameServer.clients[i].playerTracker;
+        if (client.isMi == true) {
+            client.frozen = player.minionFrozen;
+        }
     }
 };
 
