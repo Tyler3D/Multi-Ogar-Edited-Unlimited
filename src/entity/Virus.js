@@ -49,33 +49,33 @@ Virus.prototype.onEaten = function (consumer) {
     else if (numSplits == 3) bigSplits = [mass / 4, mass / 4, mass / 7];
     else if (numSplits == 4) bigSplits = [mass / 5, mass / 7, mass / 8, mass / 10];
     else {
-        var m = mass - numSplits * splitMass;
-        var exp = Math.random() * 3;
+        var m = mass - numSplits * splitMass; // threshold
+        var exp = Math.random() * 3; // 1 of 3 explosions selected randomly
         
-        // vanilla 1
-        if (exp <= 1 && m > 466) { // threshold
-            var mult = (mass >= 6500 && mass <= 8000) ? 3.8 : 4;
-            while (m / mult > 24) {
-                m /= mult;
-                mult = (mass >= 6500 && mass <= 8000) ? 2.3 : 2.5;
-                bigSplits.push(m >> 0);
+        // Diverse explosions
+        if (m > 466) {
+            // vanilla 1
+            if (exp <= 1) { 
+                var mult = (mass >= 6500 && mass <= 8000) ? ((Math.random() * (4 - 3.8)) + 3.8).toFixed(2) : 4;
+            // vanilla 2
+            } else if (exp <= 2) { 
+                mult = ((Math.random() * (3.8 - 3.7)) + 3.7).toFixed(2);
+            // vanilla 3
+            } else  { 
+                mult = ((Math.random() * (3.7 - 3.33)) + 3.33).toFixed(2);
             }
-        } 
-        // vanilla 2
-        else if (exp <= 2 && m > 466) {
-            mult = 3.7;
             while (m / mult > 24) {
                 m /= mult;
-                mult = 2.25;
-                bigSplits.push(m >> 0);
-            }
-        }
-        // vanilla 3
-        else if (m > 466) {
-            mult = 3.33;
-            while (m / mult > 24) {
-                m /= mult;
-                mult = 2;
+                // vanilla 1
+                if (exp <= 1) {
+                    mult = (mass >= 6500 && mass <= 8000) ? ((Math.random() * (2.5 - 2.3)) + 2.3).toFixed(2) : 2.5;
+                // vanilla 2
+                } else if (exp <= 2) {
+                    mult = ((Math.random() * (2.3 - 2.25)) + 2.25).toFixed(2);
+                // vanilla 3
+                } else {
+                    mult = ((Math.random() * (2.25 - 2)) + 2).toFixed(2);
+                }
                 bigSplits.push(m >> 0);
             }
         }
