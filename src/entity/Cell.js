@@ -84,7 +84,7 @@ Cell.prototype.getSpeed = function () {
         // tickStep = 40ms
         this._speed = (this.owner.customspeed > 0) ? 
         speed * 40 * this.owner.customspeed : // Set by command
-        speed * 40 * this.gameServer.config.playerSpeed;
+        speed * 40 * this.gameServer.config.playerSpeed / 2;
     }
     return this._speed;
 };
