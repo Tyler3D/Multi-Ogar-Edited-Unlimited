@@ -1393,7 +1393,7 @@ GameServer.prototype.checkSkinName = function (skinName) {
 var fileNameConfig = './gameserver.ini';
 var fileNameBadWords = './badwords.txt';
 var fileNameIpBan = './ipbanlist.txt';
-var fileNameUsers = './userRoles.json';
+var fileNameUsers = './enum/userRoles.json';
 
 GameServer.prototype.loadConfig = function () {
     try {
