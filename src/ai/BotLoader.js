@@ -29,9 +29,9 @@ BotLoader.prototype.loadNames = function () {
     this.randomNames = [];
     var fs = require("fs");
     
-    if (fs.existsSync("./botnames.txt")) {
+    if (fs.existsSync("./ai/BotNames.txt")) {
         // Read and parse the names - filter out whitespace-only names
-        this.randomNames = fs.readFileSync("./botnames.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
+        this.randomNames = fs.readFileSync("./ai/BotNames.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
             return x != ''; // filter empty names
         });
     }
