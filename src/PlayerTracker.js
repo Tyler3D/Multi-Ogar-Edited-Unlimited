@@ -70,6 +70,7 @@ function PlayerTracker(gameServer, socket) {
     // Minions
     this.miQ = 0;
     this.isMi = false;
+    this.minionFrozen = false;
     this.minionControl = false;
     
     // Gamemode function
