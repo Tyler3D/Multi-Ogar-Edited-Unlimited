@@ -122,6 +122,7 @@ function GameServer() {
         playerDisconnectTime: 60,   // The time in seconds it takes for a player cell to be removed after disconnection (If set to -1, cells are never removed)
         
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
+        minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERT: 0,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
         
         tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
@@ -751,27 +752,30 @@ GameServer.prototype.spawnVirus = function () {
 };
 
 GameServer.prototype.spawnPlayer = function (player, pos, size) {
+    var index = (this.nodesEjected.length - 1) * Math.random() >>> 0;
+    var eject = this.nodesEjected[index];
     // Check if can spawn from ejected mass
-    if (!pos && this.config.ejectSpawnPlayer && this.nodesEjected.length > 0) {
-        if (Math.random() >= 0.5) {
-            // Spawn from ejected mass
-            var index = (this.nodesEjected.length - 1) * Math.random() >>> 0;
-            var eject = this.nodesEjected[index];
-            if (!eject.isRemoved) {
-                this.removeNode(eject);
-                pos = {
-                    x: eject.position.x,
-                    y: eject.position.y
-                };
-                if (!size) {
-                    size = Math.max(eject.getSize(), this.config.playerStartSize);
-                    // Spawnmass command
-                    if (player.spawnmass > 0 && !player.isMi) {
-                        size = player.spawnmass;
-                    // Minion spawnmass
-                    } else if (player.isMi) {
-                        size = this.config.minionStartSize;
-                    }
+    if (!pos && this.config.ejectSpawnPlayer && this.nodesEjected.length > 0 
+        && Math.random() >= 0.5 && !eject.isRemoved) {
+        // Spawn from ejected mass
+        this.removeNode(eject);
+        pos = {
+            x: eject.position.x,
+            y: eject.position.y
+        };
+        if (!size) {
+            size = Math.max(eject.getSize(), this.config.playerStartSize);
+            // Spawnmass command
+            if (player.spawnmass > 0 && !player.isMi) {
+                size = player.spawnmass;
+            // Minion spawnmass
+            } else if (player.isMi) {
+                var start = this.config.minionStartSize;
+                var max = this.config.minionMaxStartSize;
+                if (max > start) {
+                    size = ~~((Math.random() * (max - start)) + start);
+                } else {
+                    size = this.config.minionStartSize;
                 }
             }
         }
@@ -792,7 +796,13 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
             size = player.spawnmass;
         // Minion spawnmass
         } else if (player.isMi) {
-            size = this.config.minionStartSize;
+            start = this.config.minionStartSize;
+            max = this.config.minionMaxStartSize;
+            if (max > start) {
+                size = ~~((Math.random() * (max - start)) + start);
+            } else {
+                size = this.config.minionStartSize;
+            }
         }
     }
     
