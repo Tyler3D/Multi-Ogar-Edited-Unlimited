@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.3.2**
+Current version: **1.3.3**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -130,6 +130,7 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 
 
 ## What's new:
+* 1.3.3: Moved files, fixed some bugs, improved popsplits, and added some new features for minions :)
 * 1.3.0: Added minions! With a few new features too :)
 * 1.2.9: Matched virus explosions to vanilla, added anti-bot grow measure from vanilla
 * 1.2.8: Removed unnecessary/broken commands & gamemodes, added some custom commands
