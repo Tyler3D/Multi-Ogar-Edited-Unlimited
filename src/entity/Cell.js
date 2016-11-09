@@ -22,7 +22,7 @@ function Cell(gameServer, owner, position, size) {
     
     if (this.gameServer != null) {
         this.nodeId = this.gameServer.getNextNodeId();
-        this.tickOfBirth = this.gameServer.getTick();
+        this.tickOfBirth = this.gameServer.tickCounter;
         if (size != null) {
             this.setSize(size);
         }
