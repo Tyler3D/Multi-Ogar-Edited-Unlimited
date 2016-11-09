@@ -12,7 +12,7 @@ PlayerCell.prototype = new Cell();
 
 // Main Functions
 PlayerCell.prototype.updateRemerge = function () {
-    var age = this.getAge(this.gameServer.getTick());
+    var age = this.getAge(this.gameServer.tickCounter);
     if (age < 15) {
         // do not remerge if cell age is smaller than 15 ticks
         this._canRemerge = false;
