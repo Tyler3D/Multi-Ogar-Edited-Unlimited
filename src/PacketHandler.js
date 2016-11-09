@@ -20,7 +20,7 @@ function PacketHandler(gameServer, socket) {
     this.pressW = false;
     this.pressSpace = false;
     this.mouseData = null;
-
+ 
     this.handler = {
         254: this.handshake_onProtocol.bind(this),
     };
@@ -90,7 +90,7 @@ PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
 
 
 PacketHandler.prototype.message_onJoin = function (message) {
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCounter;
     var dt = tick - this.lastJoinTick;
     this.lastJoinTick = tick;
     if (dt < 25 || this.socket.playerTracker.cells.length !== 0) {
@@ -137,7 +137,7 @@ PacketHandler.prototype.message_onKeySpace = function (message) {
 
 PacketHandler.prototype.message_onKeyQ = function (message) {
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCoutner;
     var dt = tick - this.lastQTick;
     if (dt < this.gameServer.config.ejectCooldown) {
         return;
@@ -172,7 +172,7 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
 
 PacketHandler.prototype.message_onKeyW = function (message) {
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCounter;
     var dt = tick - this.lastWTick;
     if (dt < this.gameServer.config.ejectCooldown) {
         return;
@@ -209,7 +209,7 @@ PacketHandler.prototype.message_onKeyR = function (message) {
     if (this.gameServer.config.disableERT === 1) return;
     
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCounter;
     var dt = tick - this.lastRTick;
     if (dt < this.gameServer.config.ejectCooldown) {
         return;
@@ -241,7 +241,7 @@ PacketHandler.prototype.message_onKeyT = function (message) {
 
 PacketHandler.prototype.message_onChat = function (message) {
     if (message.length < 3) return;
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCounter;
     var dt = tick - this.lastChatTick;
     this.lastChatTick = tick;
     if (dt < 25 * 2) {
@@ -265,7 +265,7 @@ PacketHandler.prototype.message_onChat = function (message) {
 
 PacketHandler.prototype.message_onStat = function (message) {
     if (message.length !== 1) return;
-    var tick = this.gameServer.getTick();
+    var tick = this.gameServer.tickCounter;
     var dt = tick - this.lastStatTick;
     this.lastStatTick = tick;
     if (dt < 25) {
@@ -329,10 +329,6 @@ PacketHandler.prototype.setNickname = function (text) {
                 skinName = "";
             userName = text.slice(n + 1);
         }
-        //else if (text[0] == "|" && (n = text.indexOf('|', 1)) >= 0) {
-        //    skinName = ":http://i.imgur.com/" + text.slice(1, n) + ".png";
-        //    userName = text.slice(n + 1);
-        //}
         if (skinName && !this.gameServer.checkSkinName(skinName)) {
             skinName = null;
             userName = text;
