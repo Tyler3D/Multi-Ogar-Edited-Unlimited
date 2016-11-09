@@ -145,7 +145,7 @@ PlayerTracker.prototype.setSkin = function (skin) {
         this._skinUtf8 = null;
         return;
     }
-    var writer = new BinaryWriter()
+    var writer = new BinaryWriter();
     writer.writeStringZeroUtf8(skin);
     this._skinUtf8 = writer.toBuffer();
 };
@@ -242,13 +242,14 @@ PlayerTracker.prototype.joinGame = function (name, skin) {
         this.socket.sendPacket(new Packet.SetBorder(this, this.gameServer.border));
     }
     else if (this.gameServer.config.serverScrambleLevel == 3) {
+        var ran = 0x10000 + 10000000 * Math.random();
         // Scramble level 3 (no border)
         // Ruins most known minimaps
         var border = {
-            minx: this.gameServer.border.minx - (0x10000 + 10000000 * Math.random()),
-            miny: this.gameServer.border.miny - (0x10000 + 10000000 * Math.random()),
-            maxx: this.gameServer.border.maxx + (0x10000 + 10000000 * Math.random()),
-            maxy: this.gameServer.border.maxy + (0x10000 + 10000000 * Math.random())
+            minx: this.gameServer.border.minx - (ran),
+            miny: this.gameServer.border.miny - (ran),
+            maxx: this.gameServer.border.maxx + (ran),
+            maxy: this.gameServer.border.maxy + (ran)
         };
         this.socket.sendPacket(new Packet.SetBorder(this, border));
     }
@@ -275,8 +276,8 @@ PlayerTracker.prototype.checkConnection = function () {
         this.mouse.x = this.centerPos.x;
         this.mouse.y = this.centerPos.y;
         this.socket.packetHandler.pressSpace = false;
-        this.socket.packetHandler.pressW = false;
         this.socket.packetHandler.pressQ = false;
+        this.socket.packetHandler.pressW = false;
         return;
     }
     // Check timeout
@@ -336,11 +337,12 @@ PlayerTracker.prototype.sendUpdate = function () {
     if (this.gameServer.config.serverScrambleLevel == 2) {
         // scramble (moving border)
         if (this.borderCounter == 0) {
+            var b = this.gameServer.border, v = this.viewBox;
             var bound = {
-                minx: Math.max(this.gameServer.border.minx, this.viewBox.minx - this.viewBox.halfWidth),
-                miny: Math.max(this.gameServer.border.miny, this.viewBox.miny - this.viewBox.halfHeight),
-                maxx: Math.min(this.gameServer.border.maxx, this.viewBox.maxx + this.viewBox.halfWidth),
-                maxy: Math.min(this.gameServer.border.maxy, this.viewBox.maxy + this.viewBox.halfHeight)
+                minx: Math.max(b.minx, v.minx - v.halfWidth),
+                miny: Math.max(b.miny, v.miny - v.halfHeight),
+                maxx: Math.min(b.maxx, v.maxx + v.halfWidth),
+                maxy: Math.min(b.maxy, v.maxy + v.halfHeight)
             };
             this.socket.sendPacket(new Packet.SetBorder(this, bound));
         }
@@ -425,11 +427,8 @@ PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cell
         count++;
     }
     if (count == 0) return;
-    cx /= count;
-    cy /= count;
-    cx = (this.centerPos.x + cx) / 2;
-    cy = (this.centerPos.y + cy) / 2;
-    this.setCenterPos(cx, cy);
+    this.centerPos.x = cx / count;
+	this.centerPos.y = cy / count;
 };
 
 PlayerTracker.prototype.updateCenterFreeRoam = function () {
@@ -478,7 +477,7 @@ PlayerTracker.prototype.updateViewBox = function () {
 PlayerTracker.prototype.pressQ = function () {
     if (this.spectate) {
         // Check for spam first (to prevent too many add/del updates)
-        var tick = this.gameServer.getTick();
+        var tick = this.gameServer.tickCounter;
         if (tick - this.lastSpectateSwitchTick < 40)
             return;
         this.lastSpectateSwitchTick = tick;
@@ -502,7 +501,7 @@ PlayerTracker.prototype.pressW = function () {
 PlayerTracker.prototype.pressSpace = function () {
     if (this.spectate) {
         // Check for spam first (to prevent too many add/del updates)
-        var tick = this.gameServer.getTick();
+        var tick = this.gameServer.tickCounter;
         if (tick - this.lastSpectateSwitchTick < 40)
             return;
         this.lastSpectateSwitchTick = tick;
@@ -512,8 +511,7 @@ PlayerTracker.prototype.pressSpace = function () {
             return;
         this.nextSpectateTarget();
     } else if (this.gameServer.run) {
-        if (this.mergeOverride)
-            return;
+        if (this.mergeOverride) return;
         this.gameServer.splitCells(this);
     }
 };
