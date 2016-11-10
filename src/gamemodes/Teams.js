@@ -102,7 +102,7 @@ Teams.prototype.onCellMove = function (cell, gameServer) {
         // Only collide with player cells
         var check = cell.owner.visibleNodes[i];
         
-        if ((check.getType() != 0) || (cell.owner == check.owner)) {
+        if ((check.cellType != 0) || (cell.owner == check.owner)) {
             continue;
         }
         
