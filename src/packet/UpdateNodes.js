@@ -47,7 +47,7 @@ UpdateNodes.prototype.writeUpdateItems4 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt16(cellX >> 0);                // Coordinate X
         writer.writeInt16(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
@@ -79,7 +79,7 @@ UpdateNodes.prototype.writeUpdateItems4 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt16(cellX >> 0);                // Coordinate X
         writer.writeInt16(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
@@ -119,7 +119,7 @@ UpdateNodes.prototype.writeUpdateItems5 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
@@ -154,7 +154,7 @@ UpdateNodes.prototype.writeUpdateItems5 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
@@ -199,7 +199,7 @@ UpdateNodes.prototype.writeUpdateItems6 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         
         var flags = 0;
         if (node.isSpiked)
@@ -237,7 +237,7 @@ UpdateNodes.prototype.writeUpdateItems6 = function (writer) {
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);         // Cell ID
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
-        writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
+        writer.writeUInt16(node._size >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
         
         var flags = 0;
         if (node.isSpiked)
