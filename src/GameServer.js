@@ -453,7 +453,7 @@ GameServer.prototype.updateNodeQuad = function (node) {
     }
     var x = node.position.x;
     var y = node.position.y;
-    var size = node.getSize();
+    var size = node._size;
     // check for change
     if (item.x === x && item.y === y && item.size === size) {
         return;
@@ -473,7 +473,7 @@ GameServer.prototype.updateNodeQuad = function (node) {
 GameServer.prototype.addNode = function (node) {
     var x = node.position.x;
     var y = node.position.y;
-    var size = node.getSize();
+    var size = node._size;
     node.quadItem = {
         cell: node,
         x: x,
@@ -724,7 +724,7 @@ GameServer.prototype.updateVirus = function () {
 GameServer.prototype.spawnFood = function () {
     var cell = new Entity.Food(this, null, this.getRandomPosition(), this.config.foodMinSize);
     if (this.config.foodMassGrow) {
-        var size = cell.getSize();
+        var size = cell._size;
         var maxGrow = this.config.foodMaxSize - size;
         size += maxGrow * Math.random();
         cell.setSize(size);
@@ -757,7 +757,7 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
             y: eject.position.y
         };
         if (!size) {
-            size = Math.max(eject.getSize(), this.config.playerStartSize);
+            size = Math.max(eject._size, this.config.playerStartSize);
             // Spawnmass command
             if (player.spawnmass > 0 && !player.isMi) {
                 size = player.spawnmass;
@@ -840,7 +840,7 @@ GameServer.prototype.willCollide = function (pos, size) {
 // Checks cells for collision.
 // Returns collision manifold or null if there is no collision
 GameServer.prototype.checkCellCollision = function (cell, check) {
-    var r = cell.getSize() + check.getSize();
+    var r = cell._size + check._size;
     var dx = check.position.x - cell.position.x;
     var dy = check.position.y - cell.position.y;
     var squared = dx * dx + dy * dy;         // squared distance from cell to check
@@ -921,13 +921,13 @@ GameServer.prototype.resolveCollision = function (manifold) {
     // check if any cell already eaten
     if (minCell.isRemoved || maxCell.isRemoved)
         return;
-    if (minCell.getSize() > maxCell.getSize()) {
+    if (minCell._size > maxCell._size) {
         minCell = manifold.cell2;
         maxCell = manifold.cell1;
     }
     
     // check distance
-    var eatDistance = maxCell.getSize() - minCell.getSize() / 3;
+    var eatDistance = maxCell._size - minCell._size / 3;
     if (manifold.squared >= eatDistance * eatDistance) {
         // too far => can't eat
         return;
@@ -958,7 +958,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
             }
         }
         // Size check
-        if (maxCell.getSize() <= minCell.getSize() * 1.15) {
+        if (maxCell._size <= minCell._size * 1.15) {
             // too large => can't eat
             return;
         }
@@ -1015,7 +1015,7 @@ GameServer.prototype.updateMoveEngine = function () {
             }
             
             // check size limit
-            if (checkSize && cell1.getSize() > maxSize && cell1.getAge(this.tickCounter) >= 15) {
+            if (checkSize && cell1._size > maxSize && cell1.getAge(this.tickCounter) >= 15) {
                 if (client.cells.length >= this.config.playerMaxCells) {
                     // cannot split => just limit
                     cell1.setSize(maxSize);
@@ -1025,7 +1025,7 @@ GameServer.prototype.updateMoveEngine = function () {
                     var maxMass = maxSize * maxSize;
                     var count = (cell1.getSizeSquared() / maxMass) >> 0;
                         count = Math.min(count, maxSplit);
-                    var splitSize = cell1.getSize() / Math.sqrt(count + 1);
+                    var splitSize = cell1._size / Math.sqrt(count + 1);
                     var splitMass = splitSize * splitSize / 100;
                     var angle = Math.random() * 2 * Math.PI;
                     var step = 2 * Math.PI / count;
@@ -1168,7 +1168,7 @@ GameServer.prototype.splitCells = function (client) {
     var maxCells;
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
-        if (cell.getSize() < this.config.playerMinSplitSize) {
+        if (cell._size < this.config.playerMinSplitSize) {
             continue;
         }
         cellToSplit.push(cell);
@@ -1216,7 +1216,7 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, ma
         size2 = size1;
     } else {
         size2 = Math.sqrt(mass * 100);
-        size1 = Math.sqrt(parent.getSize() * parent.getSize() - size2 * size2);
+        size1 = Math.sqrt(parent._size * parent._size - size2 * size2);
     }
     if (isNaN(size1) || size1 < this.config.playerMinSize) {
         return false;
@@ -1265,7 +1265,7 @@ GameServer.prototype.ejectMass = function (client) {
             continue;
         }
         
-        if (cell.getSize() < this.config.playerMinSplitSize) {
+        if (cell._size < this.config.playerMinSplitSize) {
             continue;
         }
         var size2 = this.config.ejectSize;
@@ -1293,8 +1293,8 @@ GameServer.prototype.ejectMass = function (client) {
         
         // Get starting position
         var pos = {
-            x: cell.position.x + dx * cell.getSize(),
-            y: cell.position.y + dy * cell.getSize()
+            x: cell.position.x + dx * cell._size,
+            y: cell.position.y + dy * cell._size
         };
         
         var angle = Math.atan2(dx, dy);
@@ -1347,12 +1347,12 @@ GameServer.prototype.updateMassDecay = function () {
         var playerTracker = this.clients[i].playerTracker;
         for (var j = 0; j < playerTracker.cells.length; j++) {
             var cell = playerTracker.cells[j];
-            var size = cell.getSize();
+            var size = cell._size;
             if (size <= this.config.playerMinSize)
                 continue;
             size = Math.sqrt(size * size * decay);
             size = Math.max(size, this.config.playerMinSize);
-            if (size != cell.getSize()) {
+            if (size != cell._size) {
                 cell.setSize(size);
             }
         }
