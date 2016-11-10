@@ -16,7 +16,7 @@ ChatMessage.prototype.build = function (protocol) {
     var name = "SERVER";
     var color = { 'r': 0x9B, 'g': 0x9B, 'b': 0x9B };
     if (this.sender != null) {
-        name = this.sender.getName();
+        name = this.sender._name;
         if (name == null || name.length == 0) {
             if (this.sender.cells.length > 0)
                 name = "An unnamed cell";
