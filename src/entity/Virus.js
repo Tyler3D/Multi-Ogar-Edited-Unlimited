@@ -34,10 +34,10 @@ Virus.prototype.onEaten = function (consumer) {
     if (client == null) return;
     
     var mass = consumer.getMass(),
-    maxSplits = Math.floor(mass / 16) - 1, // maximum amount of splits
+    maxSplits = ((mass / 16) >> 0) - 1, // maximum amount of splits
     cellsLeft = this.gameServer.config.playerMaxCells - client.cells.length,
     numSplits = Math.min(cellsLeft, maxSplits), // get number of splits
-    splitMass = Math.min(consumer.getMass() / (numSplits + 1), 24); 
+    splitMass = Math.min(consumer.getMass() / numSplits, 24); 
 
     // cannot split any further
     if (numSplits <= 0) return;
@@ -50,32 +50,26 @@ Virus.prototype.onEaten = function (consumer) {
     else if (numSplits == 4) bigSplits = [mass / 5, mass / 7, mass / 8, mass / 10];
     else {
         var m = mass - numSplits * splitMass; // threshold
-        var exp = Math.random() * 3; // 1 of 3 explosions selected randomly
+        var r = Math.random(), mult = 0;      // starting mult
+        var mults = {                         // random selection
+            v1: ((r * (4 - 3.8)) + 3.8),      // vanilla mult 1
+            v2: ((r * (3.8 - 3.7)) + 3.7),    // vanilla mult 2
+            v3: ((r * (3.7 - 3.33)) + 3.33),  // vanilla mult 3
+            v4: ((r * (2.5 - 2.3)) + 2.3),    // second vanilla mult 1
+            v5: ((r * (2.3 - 2.25)) + 2.25),  // second vanilla mult 2
+            v6: ((r * (2.25 - 2)) + 2),       // second vanilla mult 3
+        };
         
-        // Diverse explosions
+        // Diverse explosions, 1 of 3 selected randomly
         if (m > 466) {
-            // vanilla 1
-            if (exp <= 1) { 
-                var mult = (mass >= 6500 && mass <= 8000) ? ((Math.random() * (4 - 3.8)) + 3.8).toFixed(2) : 4;
-            // vanilla 2
-            } else if (exp <= 2) { 
-                mult = ((Math.random() * (3.8 - 3.7)) + 3.7).toFixed(2);
-            // vanilla 3
-            } else  { 
-                mult = ((Math.random() * (3.7 - 3.33)) + 3.33).toFixed(2);
-            }
+            if (r * 3 <= 1) mult = mults.v1;
+            if (r * 3 <= 2) mult = mults.v2;
+            if (r * 3 <= 3) mult = mults.v3;
             while (m / mult > 24) {
                 m /= mult;
-                // vanilla 1
-                if (exp <= 1) {
-                    mult = (mass >= 6500 && mass <= 8000) ? ((Math.random() * (2.5 - 2.3)) + 2.3).toFixed(2) : 2.5;
-                // vanilla 2
-                } else if (exp <= 2) {
-                    mult = ((Math.random() * (2.3 - 2.25)) + 2.25).toFixed(2);
-                // vanilla 3
-                } else {
-                    mult = ((Math.random() * (2.25 - 2)) + 2).toFixed(2);
-                }
+                if (r * 3 <= 1) mult = mults.v4;
+                if (r * 3 <= 2) mult = mults.v5;
+                if (r * 3 <= 3) mult = mults.v6;
                 bigSplits.push(m >> 0);
             }
         }
