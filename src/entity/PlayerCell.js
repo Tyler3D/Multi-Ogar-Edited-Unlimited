@@ -34,17 +34,9 @@ PlayerCell.prototype.updateRemerge = function () {
     this._canRemerge = age >= ttr;
 };
 
-PlayerCell.prototype.canRemerge = function () {
-    return this._canRemerge;
-};
-
 PlayerCell.prototype.canEat = function (cell) {
     // player cell can eat anyone
     return true;
-};
-
-PlayerCell.prototype.getSplitSize = function () {
-    return this._size * 1 / Math.sqrt(2);
 };
 
 // Movement
