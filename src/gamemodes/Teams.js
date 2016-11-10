@@ -69,7 +69,7 @@ Teams.prototype.onServerInit = function (gameServer) {
         client.setColor(this.getTeamColor(client.team));
         for (var j = 0; j < client.cells.length; j++) {
             var cell = client.cells[j];
-            cell.setColor(client.getColor());
+            cell.setColor(client.color);
             this.nodes[client.team].push(cell);
         }
     }
