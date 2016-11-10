@@ -196,7 +196,7 @@ PlayerTracker.prototype.updateMass = function () {
     var totalScore = 0;
     for (var i = 0; i < this.cells.length; i++) {
         var node = this.cells[i];
-        totalSize += node.getSize();
+        totalSize += node._size;
         totalScore += node.getSizeSquared();
     }
     if (totalSize == 0) {
