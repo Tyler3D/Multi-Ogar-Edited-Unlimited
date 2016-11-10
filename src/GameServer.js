@@ -249,6 +249,7 @@ GameServer.prototype.onServerSocketError = function (error) {
 };
 
 GameServer.prototype.onClientSocketOpen = function (ws) {
+    console.log(" Player has joined the server!");
     var logip = ws._socket.remoteAddress + ":" + ws._socket.remotePort;
     ws.on('error', function (err) {
         Logger.writeError("[" + logip + "] " + err.stack);
