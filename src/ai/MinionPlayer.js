@@ -26,8 +26,7 @@ MinionPlayer.prototype.checkConnection = function () {
             this.socket.close();
         }
     }
-    if (!this.gameServer.minionLeader.socket.isConnected || 
-        this.gameServer.minionEnabled == false) {
+    if (!this.gameServer.minionLeader.socket.isConnected || this.gameServer.minionEnabled == false) {
         this.socket.close();
     }
 };
@@ -35,9 +34,6 @@ MinionPlayer.prototype.checkConnection = function () {
 // Overrides the update function from player tracker
 MinionPlayer.prototype.sendUpdate = function () { 
     // Since this is for minions, just follow the players mouse
-    if (!this.gameServer.minionLeader.isRemoved) {
-        this.mouse = this.gameServer.minionLeader.mouse;
-    } else {
-        this.mouse = this.gameServer.minionLeader.mouse;
-    }
+    var m = this.gameServer.minionLeader.mouse;
+    this.mouse = !this.gameServer.minionLeader.isRemoved ? m : m;
 };
