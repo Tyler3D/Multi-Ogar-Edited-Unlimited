@@ -82,19 +82,19 @@ Teams.prototype.onPlayerInit = function (player) {
 
 Teams.prototype.onCellAdd = function (cell) {
     // Add to team list
-    this.nodes[cell.owner.getTeam()].push(cell);
+    this.nodes[cell.owner.team].push(cell);
 };
 
 Teams.prototype.onCellRemove = function (cell) {
     // Remove from team list
-    var index = this.nodes[cell.owner.getTeam()].indexOf(cell);
+    var index = this.nodes[cell.owner.team].indexOf(cell);
     if (index != -1) {
-        this.nodes[cell.owner.getTeam()].splice(index, 1);
+        this.nodes[cell.owner.team].splice(index, 1);
     }
 };
 
 Teams.prototype.onCellMove = function (cell, gameServer) {
-    var team = cell.owner.getTeam();
+    var team = cell.owner.team;
     var r = cell._size;
     
     // Find team
@@ -107,7 +107,7 @@ Teams.prototype.onCellMove = function (cell, gameServer) {
         }
         
         // Collision with teammates
-        if (check.owner.getTeam() == team) {
+        if (check.owner.team == team) {
             
             var manifold = gameServer.checkCellCollision(cell, check); // Calculation info
             if (manifold != null) { // Collided
