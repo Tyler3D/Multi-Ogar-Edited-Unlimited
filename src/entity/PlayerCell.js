@@ -21,14 +21,14 @@ PlayerCell.prototype.updateRemerge = function () {
     var baseTtr = this.gameServer.config.playerRecombineTime;
     if (baseTtr == 0 || this.owner.rec == true) {
         // instant merge
-        if (this.getSize() >= 780 / 2) {
+        if (this._size >= 780 / 2) {
             this._canRemerge = age > 20;
             return;
         }
         this._canRemerge = this.boostDistance < 100;
         return;
     }
-    var ttr = Math.max(baseTtr, (this.getSize() * 0.2) >> 0); // in seconds
+    var ttr = Math.max(baseTtr, (this._size * 0.2) >> 0); // in seconds
     // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
     ttr *= 25;
     this._canRemerge = age >= ttr;
@@ -44,7 +44,7 @@ PlayerCell.prototype.canEat = function (cell) {
 };
 
 PlayerCell.prototype.getSplitSize = function () {
-    return this.getSize() * 1 / Math.sqrt(2);
+    return this._size * 1 / Math.sqrt(2);
 };
 
 // Movement
