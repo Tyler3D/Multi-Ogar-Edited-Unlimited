@@ -11,7 +11,7 @@ function MotherCell() {
     this.setColor({ r: 0xce, g: 0x63, b: 0x63 });
     this.motherCellMinSize = 149;   // vanilla 149 (mass = 149*149/100 = 222.01)
     this.motherCellSpawnAmount = 2;
-    if (!this.getSize()) {
+    if (!this._size) {
         this.setSize(this.motherCellMinSize);
     }
 }
@@ -29,14 +29,14 @@ MotherCell.prototype.canEat = function (cell) {
 };
 
 MotherCell.prototype.onUpdate = function () {
-    if (this.getSize() <= this.motherCellMinSize) {
+    if (this._size <= this.motherCellMinSize) {
         return;
     }
     var maxFood = this.gameServer.config.foodMaxAmount;
     if (this.gameServer.currentFood >= maxFood) {
         return;
     }
-    var size1 = this.getSize();
+    var size1 = this._size;
     var size2 = this.gameServer.config.foodMinSize;
     for (var i = 0; i < this.motherCellSpawnAmount; i++) {
         size1 = Math.sqrt(size1 * size1 - size2 * size2);
@@ -45,7 +45,7 @@ MotherCell.prototype.onUpdate = function () {
         
         // Spawn food with size2
         var angle = Math.random() * 2 * Math.PI;
-        var r = this.getSize();
+        var r = this._size;
         var pos = {
             x: this.position.x + r * Math.sin(angle),
             y: this.position.y + r * Math.cos(angle)
