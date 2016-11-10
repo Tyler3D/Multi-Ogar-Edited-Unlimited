@@ -146,8 +146,8 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
     
     // client has minions
     var client = this.socket.playerTracker;
-    var color = this.gameServer.getGrayColor(client.getColor());
-    var randomColor = this.gameServer.getRandomColor(client.getColor());
+    var color = this.gameServer.getGrayColor(client.color);
+    var randomColor = this.gameServer.getRandomColor(client.color);
     if (client.minionControl && this.gameServer.config.disableERT === 1) {
         if (client.miQ == 1) {
             client.miQ = 0;
