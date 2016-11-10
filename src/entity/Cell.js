@@ -91,10 +91,6 @@ Cell.prototype.setKiller = function (cell) {
     this.killedBy = cell;
 };
 
-Cell.prototype.getKiller = function () {
-    return this.killedBy;
-};
-
 Cell.prototype.setPosition = function (pos) {
     this.position.x = pos.x;
     this.position.y = pos.y;
