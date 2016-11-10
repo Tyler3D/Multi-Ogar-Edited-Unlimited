@@ -42,10 +42,6 @@ Cell.prototype.setColor = function (color) {
     this.color.b = color.b;
 };
 
-Cell.prototype.getColor = function () {
-    return this.color;
-};
-
 Cell.prototype.getType = function () {
     return this.cellType;
 };
