@@ -333,7 +333,7 @@ GameServer.prototype.onClientSocketClose = function (ws, code) {
     ws.sendPacket = function (data) { };
     ws.closeReason = { code: ws._closeCode, message: ws._closeMessage };
     ws.closeTime = Date.now();
-    Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker.getName() + "\"");
+    Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
     
     // disconnected effect
     var color = this.getGrayColor(ws.playerTracker.color);
@@ -899,7 +899,7 @@ GameServer.prototype.checkRigidCollision = function (manifold) {
     if (manifold.cell1.owner != manifold.cell2.owner) {
         // Different owners
         return this.gameMode.haveTeams && 
-            manifold.cell1.owner.getTeam() == manifold.cell2.owner.getTeam();
+            manifold.cell1.owner.team == manifold.cell2.owner.team;
     }
     // The same owner
     if (manifold.cell1.owner.mergeOverride)
@@ -949,7 +949,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
         
         // Team check
         if (this.gameMode.haveTeams && minCell.owner && maxCell.owner) {
-            if (minCell.owner.getTeam() == maxCell.owner.getTeam()) {
+            if (minCell.owner.team == maxCell.owner.team) {
                 // cannot eat team member
                 return;
             }
