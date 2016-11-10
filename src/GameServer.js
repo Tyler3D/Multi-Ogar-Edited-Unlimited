@@ -911,7 +911,7 @@ GameServer.prototype.checkRigidCollision = function (manifold) {
         // just splited => ignore
         return false;
     }
-    return !manifold.cell1.canRemerge() || !manifold.cell2.canRemerge();
+    return !manifold.cell1._canRemerge || !manifold.cell2._canRemerge;
 };
 
 // Resolves non-rigid body collision
@@ -942,7 +942,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
         }
         if (!minCell.owner.mergeOverride) {
             // not force remerge => check if can remerge
-            if (!minCell.canRemerge() || !maxCell.canRemerge()) {
+            if (!minCell._canRemerge || !maxCell._canRemerge) {
                 // cannot remerge
                 return;
             }
@@ -1212,7 +1212,7 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, ma
     var size1 = 0;
     var size2 = 0;
     if (mass == null) {
-        size1 = parent.getSplitSize();
+        size1 = parent._size * 1 / Math.sqrt(2);
         size2 = size1;
     } else {
         size2 = Math.sqrt(mass * 100);
