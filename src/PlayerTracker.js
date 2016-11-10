@@ -197,7 +197,7 @@ PlayerTracker.prototype.updateMass = function () {
     for (var i = 0; i < this.cells.length; i++) {
         var node = this.cells[i];
         totalSize += node._size;
-        totalScore += node.getSizeSquared();
+        totalScore += node._sizeSquared;
     }
     if (totalSize == 0) {
         //do not change scale for spectators or not in game players
