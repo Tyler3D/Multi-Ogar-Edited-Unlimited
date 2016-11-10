@@ -48,7 +48,7 @@ UpdateNodes.prototype.writeUpdateItems4 = function (writer) {
         writer.writeInt16(cellX >> 0);                // Coordinate X
         writer.writeInt16(cellY >> 0);                // Coordinate Y
         writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
-        var color = node.getColor();
+        var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
         writer.writeUInt8(color.b >>> 0);         // Color B
@@ -80,7 +80,7 @@ UpdateNodes.prototype.writeUpdateItems4 = function (writer) {
         writer.writeInt16(cellX >> 0);                // Coordinate X
         writer.writeInt16(cellY >> 0);                // Coordinate Y
         writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
-        var color = node.getColor();
+        var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
         writer.writeUInt8(color.b >>> 0);         // Color B
@@ -120,7 +120,7 @@ UpdateNodes.prototype.writeUpdateItems5 = function (writer) {
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
         writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
-        var color = node.getColor();
+        var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
         writer.writeUInt8(color.b >>> 0);         // Color B
@@ -155,7 +155,7 @@ UpdateNodes.prototype.writeUpdateItems5 = function (writer) {
         writer.writeInt32(cellX >> 0);                // Coordinate X
         writer.writeInt32(cellY >> 0);                // Coordinate Y
         writer.writeUInt16(node.getSize() >>> 0);     // Cell Size (not to be confused with mass, because mass = size*size/100)
-        var color = node.getColor();
+        var color = node.color;
         writer.writeUInt8(color.r >>> 0);         // Color R
         writer.writeUInt8(color.g >>> 0);         // Color G
         writer.writeUInt8(color.b >>> 0);         // Color B
@@ -213,7 +213,7 @@ UpdateNodes.prototype.writeUpdateItems6 = function (writer) {
         writer.writeUInt8(flags >>> 0);                  // Flags
         
         if (flags & 0x02) {
-            var color = node.getColor();
+            var color = node.color;
             writer.writeUInt8(color.r >>> 0);       // Color R
             writer.writeUInt8(color.g >>> 0);       // Color G
             writer.writeUInt8(color.b >>> 0);       // Color B
@@ -255,7 +255,7 @@ UpdateNodes.prototype.writeUpdateItems6 = function (writer) {
         writer.writeUInt8(flags >>> 0);                  // Flags
         
         if (flags & 0x02) {
-            var color = node.getColor();
+            var color = node.color;
             writer.writeUInt8(color.r >>> 0);       // Color R
             writer.writeUInt8(color.g >>> 0);       // Color G
             writer.writeUInt8(color.b >>> 0);       // Color B
