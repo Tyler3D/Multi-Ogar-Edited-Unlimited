@@ -159,15 +159,15 @@ PlayerTracker.prototype.getSkin = function () {
 
 PlayerTracker.prototype.getNameUtf8 = function () {
     return this._nameUtf8;
-}
+};
 
 PlayerTracker.prototype.getNameUnicode = function () {
     return this._nameUnicode;
-}
+};
 
 PlayerTracker.prototype.getSkinUtf8 = function () {
     return this._skinUtf8;
-}
+};
 
 PlayerTracker.prototype.setColor = function (color) {
     this.color.r = color.r;
@@ -361,7 +361,7 @@ PlayerTracker.prototype.sendUpdate = function () {
         }
         if (this.viewNodes[newIndex].nodeId > this.clientNodes[oldIndex].nodeId) {
             var node = this.clientNodes[oldIndex];
-            if (node.isRemoved && node.getKiller() != null && node.owner != node.getKiller().owner)
+            if (node.isRemoved && node.killedBy != null && node.owner != node.killedBy.owner)
                 eatNodes.push(node);
             else
                 delNodes.push(node);
@@ -381,7 +381,7 @@ PlayerTracker.prototype.sendUpdate = function () {
     }
     for (; oldIndex < this.clientNodes.length; ) {
         var node = this.clientNodes[oldIndex];
-        if (node.isRemoved && node.getKiller() != null && node.owner != node.getKiller().owner)
+        if (node.isRemoved && node.killedBy != null && node.owner != node.killedBy.owner)
             eatNodes.push(node);
         else
             delNodes.push(node);
