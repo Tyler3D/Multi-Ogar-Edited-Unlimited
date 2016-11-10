@@ -60,7 +60,7 @@ Experimental.prototype.onServerInit = function (gameServer) {
     // Special virus mechanics
     Entity.Virus.prototype.onEat = function (prey) {
         // Pushes the virus
-        var angle = prey.isMoving ? prey.getAngle() : this.getAngle();
+        var angle = prey.isMoving ? prey.boostDirection.angle : this.boostDirection.angle;
         this.setBoost(16 * 20, angle);
     };
     Entity.MotherCell.prototype.onAdd = function () {
