@@ -112,7 +112,7 @@ PlayerTracker.prototype.scramble = function () {
 };
 
 PlayerTracker.prototype.getFriendlyName = function () {
-    var name = this.getName();
+    var name = this._name;
     if (!name) name = "";
     name = name.trim();
     if (name.length == 0)
@@ -135,10 +135,6 @@ PlayerTracker.prototype.setName = function (name) {
     this._nameUtf8 = writer.toBuffer();
 };
 
-PlayerTracker.prototype.getName = function () {
-    return this._name;
-};
-
 PlayerTracker.prototype.setSkin = function (skin) {
     this._skin = skin;
     if (!skin || skin.length < 1) {
@@ -157,26 +153,10 @@ PlayerTracker.prototype.getSkin = function () {
     return this._skin;
 };
 
-PlayerTracker.prototype.getNameUtf8 = function () {
-    return this._nameUtf8;
-};
-
-PlayerTracker.prototype.getNameUnicode = function () {
-    return this._nameUnicode;
-};
-
-PlayerTracker.prototype.getSkinUtf8 = function () {
-    return this._skinUtf8;
-};
-
 PlayerTracker.prototype.setColor = function (color) {
     this.color.r = color.r;
     this.color.g = color.g;
     this.color.b = color.b;
-};
-
-PlayerTracker.prototype.getTeam = function () {
-    return this.team;
 };
 
 PlayerTracker.prototype.getScore = function () {
@@ -208,11 +188,6 @@ PlayerTracker.prototype.updateMass = function () {
     }
     this.isMassChanged = false;
 };
-
-PlayerTracker.prototype.massChanged = function () {
-    this.isMassChanged = true;
-};
-
 // Functions
 
 PlayerTracker.prototype.joinGame = function (name, skin) {
