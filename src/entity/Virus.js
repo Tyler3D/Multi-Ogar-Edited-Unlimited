@@ -23,7 +23,7 @@ Virus.prototype.onEat = function (prey) {
     // Called to eat prey cell
     this.setSize(Math.sqrt(this.getSizeSquared() + prey.getSizeSquared()));
     
-    if (this.getSize() >= this.gameServer.config.virusMaxSize) {
+    if (this._size >= this.gameServer.config.virusMaxSize) {
         this.setSize(this.gameServer.config.virusMinSize); // Reset mass
         this.gameServer.shootVirus(this, prey.getAngle());
     }
