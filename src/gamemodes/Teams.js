@@ -95,7 +95,7 @@ Teams.prototype.onCellRemove = function (cell) {
 
 Teams.prototype.onCellMove = function (cell, gameServer) {
     var team = cell.owner.getTeam();
-    var r = cell.getSize();
+    var r = cell._size;
     
     // Find team
     for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
