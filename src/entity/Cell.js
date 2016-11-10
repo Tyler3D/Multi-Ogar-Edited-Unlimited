@@ -51,8 +51,9 @@ Cell.prototype.setSize = function (size) {
     this._sizeSquared = size * size;
     this._mass = null;
     this._speed = null;
-    if (this.owner)
-        this.owner.massChanged();
+    if (this.owner) {
+        this.owner.isMassChanged = true;
+    }
 };
 
 Cell.prototype.getMass = function () {
