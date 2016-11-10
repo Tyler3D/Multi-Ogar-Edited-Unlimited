@@ -275,8 +275,8 @@ UpdateNodes.prototype.writeEatItems = function (writer) {
     for (var i = 0; i < this.eatNodes.length; i++) {
         var node = this.eatNodes[i];
         var hunterId = 0;
-        if (node.getKiller()) {
-            hunterId = node.getKiller().nodeId;
+        if (node.killedBy) {
+            hunterId = node.killedBy.nodeId;
         }
         writer.writeUInt32((hunterId ^ scrambleId) >>> 0);               // Hunter ID
         writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0);            // Prey ID
