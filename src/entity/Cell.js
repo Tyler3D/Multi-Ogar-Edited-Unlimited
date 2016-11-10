@@ -81,15 +81,11 @@ Cell.prototype.setAngle = function (angle) {
     };
 };
 
-Cell.prototype.getAngle = function () {
-    return this.boostDirection.angle;
-};
-
 // Returns cell age in ticks for specified game tick
 Cell.prototype.getAge = function (tick) {
     if (this.tickOfBirth == null) return 0;
     return Math.max(0, tick - this.tickOfBirth);
-}
+};
 
 Cell.prototype.setKiller = function (cell) {
     this.killedBy = cell;
@@ -227,7 +223,7 @@ Cell.prototype.clipVelocity = function (v, border) {
     // p - stop point on the border
     
     // reflect angle
-    var angle = this.getAngle();
+    var angle = this.boostDirection.angle;
     if (p == ph) {
         // left/right border reflection
         angle = 2 * Math.PI - angle;
