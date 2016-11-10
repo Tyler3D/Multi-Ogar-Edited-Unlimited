@@ -374,10 +374,6 @@ GameServer.prototype.setBorder = function (width, height) {
     };
 };
 
-GameServer.prototype.getMode = function () {
-    return this.gameMode;
-};
-
 GameServer.prototype.getNextNodeId = function () {
     // Resets integer
     if (this.lastNodeId > 2147483647) {
@@ -1077,12 +1073,12 @@ GameServer.prototype.updateMoveEngine = function () {
     }
     
     // resolve rigid body collisions
-        for (var k = 0; k < rigidCollisions.length; k++) {
-            var c = rigidCollisions[k];
-            var manifold = this.checkCellCollision(c.cell1, c.cell2);
-            if (manifold == null) continue;
-            this.resolveRigidCollision(manifold, this.border);
-        }
+    for (var k = 0; k < rigidCollisions.length; k++) {
+        var c = rigidCollisions[k];
+        var manifold = this.checkCellCollision(c.cell1, c.cell2);
+        if (manifold == null) continue;
+        this.resolveRigidCollision(manifold, this.border);
+    }
     
     // Update quad tree
     for (var k = 0; k < rigidCollisions.length; k++) {
@@ -1160,9 +1156,7 @@ GameServer.prototype.updateMoveEngine = function () {
 
 GameServer.prototype.splitCells = function (client) {
     // Player is frozen 
-    if (client.frozen) {
-        return;
-    }
+    if (client.frozen) return;
     
     // It seems that vanilla uses order by cell age
     var cellToSplit = [];
@@ -1202,7 +1196,6 @@ GameServer.prototype.splitCells = function (client) {
     }
 };
 
-// TODO: replace mass with size (Virus)
 GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, maxCells) {
     // Returns boolean whether a cell has been split or not. You can use this in the future.
     
