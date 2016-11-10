@@ -24,7 +24,7 @@ ChatMessage.prototype.build = function (protocol) {
                 name = "Spectator";
         }
         if (this.sender.cells.length > 0) {
-            color = this.sender.cells[0].getColor();
+            color = this.sender.cells[0].color;
         }
     }
     
