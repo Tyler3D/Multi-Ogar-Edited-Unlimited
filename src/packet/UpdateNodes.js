@@ -1,4 +1,4 @@
-﻿// Import
+// Import
 var BinaryWriter = require("./BinaryWriter");
 var Logger = require('../modules/Logger');
 
@@ -72,7 +72,7 @@ UpdateNodes.prototype.writeUpdateItems4 = function (writer) {
         var cellY = node.position.y + scrambleY;
         var cellName = null;
         if (node.owner) {
-            cellName = node.owner.getNameUnicode();
+            cellName = node.owner._nameUnicode;
         }
         
         // Write update record
@@ -146,8 +146,8 @@ UpdateNodes.prototype.writeUpdateItems5 = function (writer) {
         var skinName = null;
         var cellName = null;
         if (node.owner) {
-            skinName = node.owner.getSkinUtf8();
-            cellName = node.owner.getNameUnicode();
+            skinName = node.owner._skinUtf8;
+            cellName = node.owner._nameUnicode;
         }
         
         // Write update record
@@ -229,8 +229,8 @@ UpdateNodes.prototype.writeUpdateItems6 = function (writer) {
         var skinName = null;
         var cellName = null;
         if (node.owner) {
-            skinName = node.owner.getSkinUtf8();
-            cellName = node.owner.getNameUtf8();
+            skinName = node.owner._skinUtf8;
+            cellName = node.owner._nameUtf8;
         }
         
         // Write update record
