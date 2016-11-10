@@ -21,7 +21,7 @@ Virus.prototype.canEat = function (cell) {
 
 Virus.prototype.onEat = function (prey) {
     // Called to eat prey cell
-    this.setSize(Math.sqrt(this.getSizeSquared() + prey.getSizeSquared()));
+    this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
     
     if (this._size >= this.gameServer.config.virusMaxSize) {
         this.setSize(this.gameServer.config.virusMinSize); // Reset mass
