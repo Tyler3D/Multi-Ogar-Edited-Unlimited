@@ -395,8 +395,8 @@ GameServer.prototype.getNewPlayerID = function () {
 
 GameServer.prototype.getRandomPosition = function () {
     return {
-        x: ~~(this.border.minx + this.border.width * Math.random()),
-        y: ~~(this.border.miny + this.border.height * Math.random())
+        x: (this.border.minx + this.border.width * Math.random()) >> 0,
+        y: (this.border.miny + this.border.height * Math.random()) >> 0
     };
 };
 
@@ -672,7 +672,7 @@ GameServer.prototype.mainLoop = function () {
             this.updateVirus(); // Spawn viruses
         }
         this.gameMode.onTick(this);
-        if (((this.tickCounter + 3) & (25 - 1)) == 0) {
+        if (((this.tickCounter + 3) & (25)) == 0) {
             // once per second
             this.updateMassDecay();
         }
