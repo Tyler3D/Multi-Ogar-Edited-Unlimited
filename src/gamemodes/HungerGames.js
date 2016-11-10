@@ -99,7 +99,7 @@ HungerGames.prototype.onPlayerDeath = function (gameServer) {
     for (var i = 0; i < len; i++) {
         var node = gameServer.nodes[i];
         
-        if ((!node) || (node.getType() == 0)) {
+        if ((!node) || (node.cellType == 0)) {
             continue;
         }
         
