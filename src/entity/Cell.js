@@ -59,10 +59,6 @@ Cell.prototype.setSize = function (size) {
         this.owner.massChanged();
 };
 
-Cell.prototype.getSize = function () {
-    return this._size;
-};
-
 Cell.prototype.getSizeSquared = function () {
     return this._sizeSquared;
 };
@@ -76,7 +72,7 @@ Cell.prototype.getMass = function () {
 
 Cell.prototype.getSpeed = function () {
     if (this._speed == null) {
-        var speed = 2.1106 / Math.pow(this.getSize(), 0.449);
+        var speed = 2.1106 / Math.pow(this._size, 0.449);
         // tickStep = 40ms
         this._speed = (this.owner.customspeed > 0) ? 
         speed * 40 * this.owner.customspeed : // Set by command
@@ -196,7 +192,7 @@ Cell.prototype.clipVelocity = function (v, border) {
     };
     if (v.x == 0 && v.y == 0)
         return v; // zero move, no calculations :)
-    var r = this.getSize() / 2;
+    var r = this._size / 2;
     var bound = {
         minx: border.minx + r,
         miny: border.miny + r,
@@ -264,7 +260,7 @@ Cell.prototype.clipVelocity = function (v, border) {
 };
 
 Cell.prototype.checkBorder = function (border) {
-    var r = this.getSize() / 2;
+    var r = this._size / 2;
     var x = this.position.x;
     var y = this.position.y;
     x = Math.max(x, border.minx + r);
