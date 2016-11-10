@@ -42,10 +42,6 @@ Cell.prototype.setColor = function (color) {
     this.color.b = color.b;
 };
 
-Cell.prototype.getType = function () {
-    return this.cellType;
-};
-
 Cell.prototype.setSize = function (size) {
     if (isNaN(size)) {
         throw new TypeError("Cell.setSize: size is NaN");
@@ -59,13 +55,9 @@ Cell.prototype.setSize = function (size) {
         this.owner.massChanged();
 };
 
-Cell.prototype.getSizeSquared = function () {
-    return this._sizeSquared;
-};
-
 Cell.prototype.getMass = function () {
     if (this._mass == null) {
-        this._mass = this.getSizeSquared() / 100;
+        this._mass = this._sizeSquared / 100;
     }
     return this._mass;
 };
@@ -124,14 +116,14 @@ Cell.prototype.onEat = function (prey) {
     // Cant grow from cells under 17 mass (vanilla)
     // Prevents players from getting big quickly with minions/bots
     if (this.getMass() >= 625 && prey.getMass() <= 17) {
-        var addSize = Math.sqrt(this.getSizeSquared() + 0);
+        var addSize = Math.sqrt(this._sizeSquared + 0);
     } else {
         // Normal eat
-        addSize = Math.sqrt(this.getSizeSquared() + prey.getSizeSquared());
+        addSize = Math.sqrt(this._sizeSquared + prey._sizeSquared);
     }
     // Exception for ejected cells
     if (this.cellType == 3 || prey.cellType == 3) {
-        addSize = Math.sqrt(this.getSizeSquared() + prey.getSizeSquared());
+        addSize = Math.sqrt(this._sizeSquared + prey._sizeSquared);
     }
     this.setSize(addSize);
 };
