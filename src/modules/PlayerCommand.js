@@ -84,7 +84,7 @@ var playerCommands = {
             this.gameServer.removeNode(cell);
             // replace with food
             var food = new Entity.Food(this.gameServer, null, cell.position, this.gameServer.config.playerMinSize);
-            food.setColor(this.gameServer.getGrayColor(cell.getColor()));
+            food.setColor(this.gameServer.getGrayColor(cell.color));
             this.gameServer.addNode(food);
         }
         this.writeLine("You killed yourself");
