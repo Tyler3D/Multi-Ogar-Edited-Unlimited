@@ -169,10 +169,6 @@ PlayerTracker.prototype.getSkinUtf8 = function () {
     return this._skinUtf8;
 }
 
-PlayerTracker.prototype.getColor = function (color) {
-    return this.color;
-};
-
 PlayerTracker.prototype.setColor = function (color) {
     this.color.r = color.r;
     this.color.g = color.g;
