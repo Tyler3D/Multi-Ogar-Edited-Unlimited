@@ -335,7 +335,7 @@ GameServer.prototype.onClientSocketClose = function (ws, code) {
     Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker.getName() + "\"");
     
     // disconnected effect
-    var color = this.getGrayColor(ws.playerTracker.getColor());
+    var color = this.getGrayColor(ws.playerTracker.color);
     ws.playerTracker.setColor(color);
     ws.playerTracker.setSkin("");
     ws.playerTracker.cells.forEach(function (cell) {
@@ -487,7 +487,7 @@ GameServer.prototype.addNode = function (node) {
     
     // Adds to the owning player's screen
     if (node.owner) {
-        node.setColor(node.owner.getColor());
+        node.setColor(node.owner.color);
         node.owner.cells.push(node);
         node.owner.socket.sendPacket(new Packet.AddNode(node.owner, node));
     }
@@ -1306,7 +1306,7 @@ GameServer.prototype.ejectMass = function (client) {
         // Create cell
         var ejected = new Entity.EjectedMass(this, null, pos, size2);
         ejected.ejector = cell;
-        ejected.setColor(cell.getColor());
+        ejected.setColor(cell.color);
         ejected.setBoost(780, angle);
         
         this.addNode(ejected);
