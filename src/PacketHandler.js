@@ -315,6 +315,26 @@ PacketHandler.prototype.process = function () {
     this.processMouse();
 };
 
+PacketHandler.prototype.getRandomSkin = function () {
+    var randomSkins = [];
+    var fs = require("fs");
+    
+    if (fs.existsSync("./randomskins.txt")) {
+        // Read and parse the Skins - filter out whitespace-only Skins
+        randomSkins = fs.readFileSync("./randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
+            return x != ''; // filter empty Skins
+        });
+    }
+    
+    // Picks a random skin
+    if (randomSkins.length > 0) {
+        var index = (randomSkins.length * Math.random()) >>> 0;
+        var rSkin = randomSkins[index];
+    }
+    
+    return rSkin;
+};
+
 PacketHandler.prototype.setNickname = function (text) {
     var name = "";
     var skin = null;
@@ -323,10 +343,12 @@ PacketHandler.prototype.setNickname = function (text) {
         var userName = text;
         var n = -1;
         if (text[0] == '<' && (n = text.indexOf('>', 1)) >= 1) {
-            if (n > 1)
-                skinName = "%" + text.slice(1, n);
-            else
+            var inner = text.slice(1, n);
+            if (n > 1) {
+                skinName = (inner == "r") ? "%" + this.getRandomSkin() : "%" + inner;
+            } else {
                 skinName = "";
+            }
             userName = text.slice(n + 1);
         }
         if (skinName && !this.gameServer.checkSkinName(skinName)) {
