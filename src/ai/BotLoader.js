@@ -50,14 +50,15 @@ BotLoader.prototype.addBot = function () {
     s.packetHandler.setNickname(this.getName());
 };
 
-BotLoader.prototype.addMinion = function() {
+BotLoader.prototype.addMinion = function(owner, name) {
     var s = new FakeSocket(this.gameServer);
-    s.playerTracker = new MinionPlayer(this.gameServer, s);
+    s.playerTracker = new MinionPlayer(this.gameServer, s, owner);
     s.packetHandler = new PacketHandler(this.gameServer, s);
+    s.playerTracker.owner = owner;
     
     // Add to client list
     this.gameServer.clients.push(s);
 
     // Add to world & set name
-    s.packetHandler.setNickname(this.gameServer.minionName);
+    s.packetHandler.setNickname(name);
 };
