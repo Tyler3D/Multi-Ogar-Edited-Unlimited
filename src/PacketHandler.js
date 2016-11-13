@@ -122,10 +122,11 @@ PacketHandler.prototype.message_onMouse = function (message) {
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
     // minion split
-    if (this.socket.playerTracker.miQ == 1) {
+    var player = this.socket.playerTracker;
+    if (player.miQ == 1 && player.minionControl) {
         for (var i in this.gameServer.clients) {
             var client = this.gameServer.clients[i].playerTracker;
-            if (client.isMi == true) {
+            if (client.isMi && client.owner == player) {
                 this.gameServer.splitCells(client);
             }
         }
@@ -180,10 +181,11 @@ PacketHandler.prototype.message_onKeyW = function (message) {
     this.lastWTick = tick;
     
     // minion eject
-    if (this.socket.playerTracker.miQ == 1) {
+    var player = this.socket.playerTracker;
+    if (player.miQ == 1 && player.minionControl) {
         for (var i in this.gameServer.clients) {
             var client = this.gameServer.clients[i].playerTracker;
-            if (client.isMi == true) {
+            if (client.isMi && client.owner == player) {
                 this.gameServer.ejectMass(client);
             }
         }
@@ -197,9 +199,10 @@ PacketHandler.prototype.message_onKeyE = function (message) {
     if (this.gameServer.config.disableERT === 1) return;
     
     // minion split
+    var player = this.socket.playerTracker;
     for (var i in this.gameServer.clients) {
         var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi == true) { 
+        if (client.isMi && client.owner == player) { 
             this.gameServer.splitCells(client);
         }
     }
@@ -217,9 +220,10 @@ PacketHandler.prototype.message_onKeyR = function (message) {
     this.lastRTick = tick;
     
     // minion eject
+    var player = this.socket.playerTracker;
     for (var i in this.gameServer.clients) {
         var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi == true) {
+        if (client.isMi && client.owner == player) {
             this.gameServer.ejectMass(client);
         }
     }
@@ -233,7 +237,7 @@ PacketHandler.prototype.message_onKeyT = function (message) {
     player.minionFrozen = !player.minionFrozen;
     for (var i in this.gameServer.clients) {
         var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi == true) {
+        if (client.isMi && client.owner == player) {
             client.frozen = player.minionFrozen;
         }
     }
