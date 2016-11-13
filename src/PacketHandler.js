@@ -149,7 +149,7 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
     var client = this.socket.playerTracker;
     var color = this.gameServer.getGrayColor(client.color);
     var randomColor = this.gameServer.getRandomColor(client.color);
-    if (client.minionControl && this.gameServer.config.disableERT === 1) {
+    if (client.minionControl) {
         if (client.miQ == 1) {
             client.miQ = 0;
             client.setColor(randomColor);
