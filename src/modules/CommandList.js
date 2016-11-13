@@ -91,10 +91,9 @@ Commands.list = {
         console.log("Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
     },
     minion: function(gameServer, split) {
-        var g = gameServer;
         var id = parseInt(split[1]);
         var add = parseInt(split[2]);
-        g.minionName = split.slice(3, split.length).join(' ');
+        var name = split.slice(3, split.length).join(' ');
             
         // Error! ID is NaN
         if (isNaN(id)) {
@@ -103,31 +102,28 @@ Commands.list = {
         }
         
         // Default minion names
-        if (typeof g.minionName == "undefined" || g.minionName == "") {
-            g.minionName = "minion";
+        if (typeof name == "undefined" || name == "") {
+            name = "minion";
         }
         
         // Find ID specified and add/remove minions for them
-        for (var i in g.clients) {
-            g.minionLeader = g.clients[i].playerTracker;
-            var client = g.minionLeader;
+        for (var i in gameServer.clients) {
+            var client = gameServer.clients[i].playerTracker;
             
             if (client.pID == id) {
                 // Remove minions
                 if (client.minionControl == true && isNaN(add)) {
-                    g.minionEnabled = false,
+                    client.minionControl = false;
                     client.miQ = 0;
-                    client.minionControl = false,
                     console.log("Succesfully removed minions for " + client.getFriendlyName());
                 // Add minions
                 } else {
-                    g.minionEnabled = true;
                     client.minionControl = true;
                     // If no amount is specified
                     if (isNaN(add)) add = 1; 
                     // Add minions for client
                     for (var i = 0; i < add; i++) {
-                        g.bots.addMinion(client);
+                        gameServer.bots.addMinion(client, name);
                     }
                     console.log("Added " + add + " minions for " + client.getFriendlyName());
                 }
