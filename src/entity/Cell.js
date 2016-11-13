@@ -17,7 +17,7 @@ function Cell(gameServer, owner, position, size) {
     
     this.boostDistance = 0;
     this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
-    this.boostMaxSpeed = 78;    // boost speed limit, sqrt(780*780/100)
+    this.boostMaxSpeed = 78; // boost speed limit, sqrt(780*780/100)
     this.ejector = null;
     
     if (this.gameServer != null) {
@@ -132,16 +132,8 @@ Cell.prototype.onRemove = function (gameServer) {
     // Called when this cell is removed
 };
 
-// Functions
-
-// Note: maxSpeed > 78 may leads to bug when cell can fly 
-//       through other cell due to high speed
-Cell.prototype.setBoost = function (distance, angle, maxSpeed) {
-    if (isNaN(angle)) angle = Math.PI / 2;
-    if (!maxSpeed) maxSpeed = 78;
-    
+Cell.prototype.setBoost = function (distance, angle) {
     this.boostDistance = distance;
-    this.boostMaxSpeed = maxSpeed;
     this.setAngle(angle);
     this.isMoving = true;
     if (!this.owner) {
@@ -158,10 +150,7 @@ Cell.prototype.move = function (border) {
         return;
     }
     var speed = Math.sqrt(this.boostDistance * this.boostDistance / 100);
-    var speed = Math.min(speed, this.boostMaxSpeed);// limit max speed with sqrt(780*780/100)
-    speed = Math.min(speed, this.boostDistance);    // avoid overlap 0
     this.boostDistance -= speed;
-    if (this.boostDistance < 1) this.boostDistance = 0;
     
     var v = this.clipVelocity(
         { x: this.boostDirection.x * speed, y: this.boostDirection.y * speed }, 
@@ -169,12 +158,12 @@ Cell.prototype.move = function (border) {
     this.position.x += v.x;
     this.position.y += v.y;
     this.checkBorder(border);
-}
+};
 
 Cell.prototype.clipVelocity = function (v, border) {
     if (isNaN(v.x) || isNaN(v.y)) {
         throw new TypeError("Cell.clipVelocity: NaN");
-    };
+    }
     if (v.x == 0 && v.y == 0)
         return v; // zero move, no calculations :)
     var r = this._size / 2;
@@ -217,7 +206,6 @@ Cell.prototype.clipVelocity = function (v, border) {
         else
             p = pv;
     }
-    // p - stop point on the border
     
     // reflect angle
     var angle = this.boostDirection.angle;
@@ -239,7 +227,7 @@ Cell.prototype.clipVelocity = function (v, border) {
     v.x = lx;
     v.y = ly;
     this.boostDistance += Math.sqrt(ldx * ldx + ldy * ldy);
-    if (this.boostDistance < 1) this.boostDistance = 0;
+
     this.isMoving = true;
     return v;
 };
