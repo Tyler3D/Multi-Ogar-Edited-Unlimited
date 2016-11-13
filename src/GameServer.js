@@ -149,11 +149,6 @@ function GameServer() {
     
     // Gamemodes
     this.gameMode = Gamemode.get(this.config.serverGamemode);
-    
-    // Minions
-    this.minionLeader;
-    this.minionName = "";
-    this.minionEnabled = false;
 }
 
 module.exports = GameServer;
@@ -1174,7 +1169,7 @@ GameServer.prototype.splitCells = function (client) {
         } else {
             maxCells = this.config.playerMaxCells * this.config.playerMaxCells;
         }
-        if (cellToSplit.length + client.cells.length >= this.config.playerMaxCells)
+        if (cellToSplit.length + client.cells.length >= maxCells)
             break;
     }
     var splitCells = 0; // How many cells have been split
@@ -1335,6 +1330,7 @@ GameServer.prototype.updateMassDecay = function () {
     if (!this.config.playerDecayRate) {
         return;
     }
+    
     var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
     // Loop through all player cells
     for (var i = 0; i < this.clients.length; i++) {
