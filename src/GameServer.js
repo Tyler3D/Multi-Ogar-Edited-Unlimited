@@ -124,7 +124,7 @@ function GameServer() {
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERT: 0,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
-        
+
         tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
         tourneyPrepTime: 10,        // Number of ticks to wait after all players are ready (1 tick = 1000 ms)
         tourneyEndTime: 30,         // Number of ticks to wait after a player wins (1 tick = 1000 ms)
@@ -132,7 +132,6 @@ function GameServer() {
         tourneyAutoFill: 0,         // If set to a value higher than 0, the tournament match will automatically fill up with bots after this amount of seconds
         tourneyAutoFillPlayers: 1,  // The timer for filling the server with bots will not count down unless there is this amount of real players
     };
-    
     this.ipBanList = [];
     this.minionTest = [];
     this.userList = [];
@@ -917,7 +916,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
         minCell = manifold.cell2;
         maxCell = manifold.cell1;
     }
-    
+
     // check distance
     var eatDistance = maxCell._size - minCell._size / 3;
     if (manifold.squared >= eatDistance * eatDistance) {
@@ -927,7 +926,6 @@ GameServer.prototype.resolveCollision = function (manifold) {
     
     if (minCell.owner && minCell.owner == maxCell.owner) {
         // collision owned/owned => ignore or resolve or remerge
-        
         if (minCell.getAge(this.tickCoutner) < 15 || maxCell.getAge(this.tickCoutner) < 15) {
             // just splited => ignore
             return;
@@ -941,7 +939,6 @@ GameServer.prototype.resolveCollision = function (manifold) {
         }
     } else {
         // collision owned/enemy => check if can eat
-        
         // Team check
         if (this.gameMode.haveTeams && minCell.owner && maxCell.owner) {
             if (minCell.owner.team == maxCell.owner.team) {
@@ -990,43 +987,13 @@ GameServer.prototype.updateMoveEngine = function () {
     // Move player cells
     for (var i in this.clients) {
         var client = this.clients[i].playerTracker;
-        var checkSize = !client.mergeOverride || client.cells.length == 1;
         for (var j = 0; j < client.cells.length; j++) {
             var cell1 = client.cells[j];
             if (cell1.isRemoved)
                 continue;
             cell1.moveUser(this.border);
             cell1.move(this.border);
-            
-            // rec mode
-            var maxSize;
-            if (client.rec == false) {
-                maxSize = this.config.playerMaxSize;
-            } else {
-                maxSize = this.config.playerMaxSize * 3;
-            }
-            
-            // check size limit
-            if (checkSize && cell1._size > maxSize && cell1.getAge(this.tickCounter) >= 15) {
-                if (client.cells.length >= this.config.playerMaxCells) {
-                    // cannot split => just limit
-                    cell1.setSize(maxSize);
-                } else {
-                    // split
-                    var maxSplit = this.config.playerMaxCells - client.cells.length;
-                    var maxMass = maxSize * maxSize;
-                    var count = (cell1._sizeSquared / maxMass) >> 0;
-                        count = Math.min(count, maxSplit);
-                    var splitSize = cell1._size / Math.sqrt(count + 1);
-                    var splitMass = splitSize * splitSize / 100;
-                    var angle = Math.random() * 2 * Math.PI;
-                    var step = 2 * Math.PI / count;
-                    for (var k = 0; k < count; k++) {
-                        this.splitPlayerCell(client, cell1, angle, splitMass);
-                        angle += step;
-                    }
-                }
-            }
+            this.autoSplit(client, cell1);
             this.updateNodeQuad(cell1);
         }
     }
@@ -1146,6 +1113,38 @@ GameServer.prototype.updateMoveEngine = function () {
         manifold = this.checkCellCollision(c.cell1, c.cell2);
         if (manifold == null) continue;
         this.resolveCollision(manifold);
+    }
+};
+
+GameServer.prototype.autoSplit = function (client, cell1) {
+    // rec mode
+    if (client.rec == false) {
+        var maxSize = this.config.playerMaxSize;
+    } else {
+        maxSize = this.config.playerMaxSize * 3;
+    }
+    
+    // check size limit
+    var checkSize = !client.mergeOverride || client.cells.length == 1;
+    if (checkSize && cell1._size > maxSize && cell1.getAge(this.tickCounter) >= 15) {
+        if (client.cells.length >= this.config.playerMaxCells) {
+            // cannot split => just limit
+            cell1.setSize(maxSize);
+        } else {
+            // split
+            var maxSplit = this.config.playerMaxCells - client.cells.length;
+            var maxMass = maxSize * maxSize;
+            var count = (cell1._sizeSquared / maxMass) >> 0;
+                count = Math.min(count, maxSplit);
+            var splitSize = cell1._size / Math.sqrt(count + 1);
+            var splitMass = splitSize * splitSize / 100;
+            var angle = Math.random() * 2 * Math.PI;
+            var step = 2 * Math.PI / count;
+            for (var k = 0; k < count; k++) {
+                this.splitPlayerCell(client, cell1, angle, splitMass);
+                angle += step;
+            }
+        }
     }
 };
 
