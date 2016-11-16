@@ -646,7 +646,8 @@ Commands.list = {
         gameServer.unbanIp(split[1].trim());
     },
     playerlist: function (gameServer, split) {
-        Logger.print("Showing " + gameServer.clients.length + " players: ");
+        Logger.print("Current players: " + gameServer.clients.length);
+        Logger.print('Do "playerlist m" or "pl m" to list minions');
         Logger.print(" ID     | IP              | P | " + fillChar('NICK', ' ', gameServer.config.playerMaxNickLength) + " | CELLS | SCORE  | POSITION    "); // Fill space
         Logger.print(fillChar('', '-', ' ID     | IP              |   |  | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength));
         var sockets = gameServer.clients.slice(0);
@@ -654,12 +655,22 @@ Commands.list = {
         for (var i = 0; i < sockets.length; i++) {
             var socket = sockets[i];
             var client = socket.playerTracker;
+            var ip = (client.isMi) ? "[MINION]" : "[BOT]";
+            var type = split[1];
+            
+            // list minions
+            if (client.isMi) {
+                if (typeof type == "undefined" || type == "" || type != "m") {
+                    return;
+                } else if (type == "m") {
+                    ip = "[MINION]";
+                }
+            }
             
             // ID with 3 digits length
             var id = fillChar((client.pID), ' ', 6, true);
             
             // Get ip (15 digits length)
-            var ip = "[BOT]";
             if (socket.isConnected != null) {
                 ip = socket.remoteAddress;
             }
