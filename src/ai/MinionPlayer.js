@@ -22,8 +22,5 @@ MinionPlayer.prototype.checkConnection = function () {
     }
     if (!this.owner.socket.isConnected || !this.owner.minionControl) 
         this.socket.close();
-};
-
-MinionPlayer.prototype.sendUpdate = function () { 
     this.mouse = this.owner.mouse;
 };
