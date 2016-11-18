@@ -5,9 +5,9 @@ function Cell(gameServer, owner, position, size) {
     this.tickOfBirth = 0;
     this.color = { r: 0, g: 0, b: 0 };
     this.position = { x: 0, y: 0 };
-    this._size = null;
-    this._sizeSquared = null;
-    this._mass = null;
+    this._sizeSquared = 0;
+    this._size = 0;
+    this._mass = 0;
     this._speed = null;
     this.cellType = -1;     // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
     this.isSpiked = false;  // If true, then this cell has spikes around it
@@ -17,7 +17,7 @@ function Cell(gameServer, owner, position, size) {
     
     this.boostDistance = 0;
     this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
-    this.boostMaxSpeed = 78; // boost speed limit, sqrt(780*780/100)
+    this.boostMaxSpeed = 78;// boost speed limit, sqrt(780*780/100)
     this.ejector = null;
     
     if (this.gameServer != null) {
@@ -43,34 +43,19 @@ Cell.prototype.setColor = function (color) {
 };
 
 Cell.prototype.setSize = function (size) {
-    if (isNaN(size)) {
-        throw new TypeError("Cell.setSize: size is NaN");
-    }
-    if (this._size === size) return;
     this._size = size;
     this._sizeSquared = size * size;
-    this._mass = null;
-    this._speed = null;
-    if (this.owner) {
+    this._mass = this._sizeSquared / 100;
+    if (this.owner) 
         this.owner.isMassChanged = true;
-    }
-};
-
-Cell.prototype.getMass = function () {
-    if (this._mass == null) {
-        this._mass = this._sizeSquared / 100;
-    }
-    return this._mass;
 };
 
 Cell.prototype.getSpeed = function () {
-    if (this._speed == null) {
-        var speed = 2.1106 / Math.pow(this._size, 0.449);
-        // tickStep = 40ms
-        this._speed = (this.owner.customspeed > 0) ? 
-        speed * 40 * this.owner.customspeed : // Set by command
-        speed * 40 * this.gameServer.config.playerSpeed;
-    }
+    var speed = 2.1106 / Math.pow(this._size, 0.449);
+    // tickStep = 40ms
+    this._speed = (this.owner.customspeed > 0) ? 
+    speed * 40 * this.owner.customspeed : // Set by command
+    speed * 40 * this.gameServer.config.playerSpeed;
     return this._speed;
 };
 
@@ -97,39 +82,27 @@ Cell.prototype.setPosition = function (pos) {
     this.position.y = pos.y;
 };
 
-// Virtual
-
+// by default cell cannot eat anyone
 Cell.prototype.canEat = function (cell) {
-    // by default cell cannot eat anyone
     return false;
 };
 
 // Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
     // Cant grow from cells under 17 mass (vanilla)
-    // Prevents players from getting big quickly with minions/bots
-    if (this.getMass() >= 625 && prey.getMass() <= 17) {
-        var addSize = Math.sqrt(this._sizeSquared + 0);
-    } else {
-        // Normal eat
-        addSize = Math.sqrt(this._sizeSquared + prey._sizeSquared);
+    if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3) {
+        prey._sizeSquared = 0;
     }
-    // Exception for ejected cells
-    if (this.cellType == 3 || prey.cellType == 3) {
-        addSize = Math.sqrt(this._sizeSquared + prey._sizeSquared);
-    }
-    this.setSize(addSize);
+    this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };
 
 Cell.prototype.onEaten = function (hunter) {
 };
 
 Cell.prototype.onAdd = function (gameServer) {
-    // Called when this cell is added to the world
 };
 
 Cell.prototype.onRemove = function (gameServer) {
-    // Called when this cell is removed
 };
 
 Cell.prototype.setBoost = function (distance, angle) {
@@ -151,7 +124,6 @@ Cell.prototype.move = function (border) {
     }
     var speed = Math.sqrt(this.boostDistance * this.boostDistance / 100);
     this.boostDistance -= speed;
-    
     var v = this.clipVelocity(
         { x: this.boostDirection.x * speed, y: this.boostDirection.y * speed }, 
         border);
@@ -161,11 +133,8 @@ Cell.prototype.move = function (border) {
 };
 
 Cell.prototype.clipVelocity = function (v, border) {
-    if (isNaN(v.x) || isNaN(v.y)) {
-        throw new TypeError("Cell.clipVelocity: NaN");
-    }
-    if (v.x == 0 && v.y == 0)
-        return v; // zero move, no calculations :)
+    // zero move, no calculations :)
+    if (v.x == 0 && v.y == 0) return v; 
     var r = this._size / 2;
     var bound = {
         minx: border.minx + r,
@@ -191,10 +160,8 @@ Cell.prototype.clipVelocity = function (v, border) {
     var ph = pleft != null ? pleft : pright;
     var pv = ptop != null ? ptop : pbottom;
     var p = ph != null ? ph : pv;
-    if (p == null) {
-        // inside border
-        return v;
-    }
+    if (p == null) return v; // inside border
+    
     if (ph && pv) {
         // two border lines intersection => get nearest point
         var hdx = ph.x - this.position.x;
@@ -217,32 +184,22 @@ Cell.prototype.clipVelocity = function (v, border) {
         angle = angle <= Math.PI ? Math.PI - angle : 3 * Math.PI - angle;
     }
     this.setAngle(angle);
-    // new velocity
-    var lx = p.x - this.position.x;
-    var ly = p.y - this.position.y;
     // calculate rest of velocity
-    var ldx = v.x - lx;
-    var ldy = v.y - ly;
+    var ldx = v.x - (p.x - this.position.x);
+    var ldy = v.y - (p.y - this.position.y);
     // update velocity and add rest to the boostDistance
-    v.x = lx;
-    v.y = ly;
+    v.x = (p.x - this.position.x);
+    v.y = (p.y - this.position.y);
     this.boostDistance += Math.sqrt(ldx * ldx + ldy * ldy);
-
     this.isMoving = true;
     return v;
 };
 
 Cell.prototype.checkBorder = function (border) {
-    var r = this._size / 2;
-    var x = this.position.x;
-    var y = this.position.y;
-    x = Math.max(x, border.minx + r);
-    y = Math.max(y, border.miny + r);
-    x = Math.min(x, border.maxx - r);
-    y = Math.min(y, border.maxy - r);
-    if (x != this.position.x || y != this.position.y) {
-        this.setPosition({ x: x, y: y });
-    }
+    this.position.x = Math.max(this.position.x, border.minx + this._size / 2);
+    this.position.y = Math.max(this.position.y, border.miny + this._size / 2);
+    this.position.x = Math.min(this.position.x, border.maxx - this._size / 2);
+    this.position.y = Math.min(this.position.y, border.maxy - this._size / 2);
 };
 
 // Lib
