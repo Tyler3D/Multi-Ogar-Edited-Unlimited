@@ -122,77 +122,19 @@ Cell.prototype.move = function (border) {
         this.isMoving = false;
         return;
     }
+    // add speed and set direction
     var speed = Math.sqrt(this.boostDistance * this.boostDistance / 100);
     this.boostDistance -= speed;
-    var v = this.clipVelocity(
-        { x: this.boostDirection.x * speed, y: this.boostDirection.y * speed }, 
-        border);
-    this.position.x += v.x;
-    this.position.y += v.y;
-    this.checkBorder(border);
-};
-
-Cell.prototype.clipVelocity = function (v, border) {
-    // zero move, no calculations :)
-    if (v.x == 0 && v.y == 0) return v; 
+    this.position.x += this.boostDirection.x * speed;
+    this.position.y += this.boostDirection.y * speed;
+    
+    // reflect off border
     var r = this._size / 2;
-    var bound = {
-        minx: border.minx + r,
-        miny: border.miny + r,
-        maxx: border.maxx - r,
-        maxy: border.maxy - r
-    };
-    var x = this.position.x + v.x;
-    var y = this.position.y + v.y;
-    // border check
-    var pleft = x >= bound.minx ? null : findLineIntersection(
-        this.position.x, this.position.y, x, y,
-        bound.minx, bound.miny, bound.minx, bound.maxy);
-    var pright = x <= bound.maxx ? null : findLineIntersection(
-        this.position.x, this.position.y, x, y,
-        bound.maxx, bound.miny, bound.maxx, bound.maxy);
-    var ptop = y >= bound.miny ? null : findLineIntersection(
-        this.position.x, this.position.y, x, y,
-        bound.minx, bound.miny, bound.maxx, bound.miny);
-    var pbottom = y <= bound.maxy ? null : findLineIntersection(
-        this.position.x, this.position.y, x, y,
-        bound.minx, bound.maxy, bound.maxx, bound.maxy);
-    var ph = pleft != null ? pleft : pright;
-    var pv = ptop != null ? ptop : pbottom;
-    var p = ph != null ? ph : pv;
-    if (p == null) return v; // inside border
-    
-    if (ph && pv) {
-        // two border lines intersection => get nearest point
-        var hdx = ph.x - this.position.x;
-        var hdy = ph.y - this.position.y;
-        var vdx = pv.x - this.position.x;
-        var vdy = pv.y - this.position.y;
-        if (hdx * hdx + hdy * hdy < vdx * vdx + vdy * vdy)
-            p = ph;
-        else
-            p = pv;
-    }
-    
-    // reflect angle
-    var angle = this.boostDirection.angle;
-    if (p == ph) {
-        // left/right border reflection
-        angle = 2 * Math.PI - angle;
-    } else {
-        // top/bottom border reflection
-        angle = angle <= Math.PI ? Math.PI - angle : 3 * Math.PI - angle;
-    }
-    this.setAngle(angle);
-    // calculate rest of velocity
-    var ldx = v.x - (p.x - this.position.x);
-    var ldy = v.y - (p.y - this.position.y);
-    // update velocity and add rest to the boostDistance
-    v.x = (p.x - this.position.x);
-    v.y = (p.y - this.position.y);
-    this.boostDistance += Math.sqrt(ldx * ldx + ldy * ldy);
-    this.isMoving = true;
-    return v;
+    if (this.position.x < border.minx + r || this.position.x > border.maxx - r) 
+        this.boostDirection.x =- this.boostDirection.x;
+	if (this.position.y < border.miny + r || this.position.y > border.maxy - r) 
+	    this.boostDirection.y =- this.boostDirection.y;
+	this.checkBorder(border);
 };
 
 Cell.prototype.checkBorder = function (border) {
@@ -201,18 +143,3 @@ Cell.prototype.checkBorder = function (border) {
     this.position.x = Math.min(this.position.x, border.maxx - this._size / 2);
     this.position.y = Math.min(this.position.y, border.maxy - this._size / 2);
 };
-
-// Lib
-function findLineIntersection(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) {
-    var z1 = p1x - p0x;
-    var z2 = p3x - p2x;
-    var w1 = p1y - p0y;
-    var w2 = p3y - p2y;
-    var k1 = w1 * z2 - z1 * w2;
-    if (k1 == 0) return null;
-    var k2 = (z1 * (p2y - p0y) + w1 * (p0x - p2x)) / k1;
-    var px = p2x + z2 * k2;
-    var py = p2y + w2 * k2;
-    if (isNaN(px) || isNaN(py)) return null;
-    return { x: px, y: py };
-}
