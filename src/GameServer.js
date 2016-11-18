@@ -678,6 +678,7 @@ GameServer.prototype.mainLoop = function () {
                 var cell1 = client.cells[j];
                 if (cell1.isRemoved)
                     continue;
+                cell1.updateRemerge(this);
                 cell1.moveUser(this.border);
                 cell1.move(this.border);
                 this.autoSplit(client, cell1);
@@ -947,9 +948,9 @@ GameServer.prototype.resolveRigidCollision = function (manifold) {
     if (d <= 0) return;
     
     // body impulse
-    var totalSize = manifold.cell1._sizeSquared + manifold.cell2._sizeSquared;
-    var impulse1 = manifold.cell2._sizeSquared * (1 / totalSize);
-    var impulse2 = manifold.cell1._sizeSquared * (1 / totalSize);
+    var totalSize = manifold.cell1._mass + manifold.cell2._mass;
+    var impulse1 = manifold.cell2._mass * (1 / totalSize);
+    var impulse2 = manifold.cell1._mass * (1 / totalSize);
     
     // apply extrusion force
     manifold.cell1.position.x -= (((manifold.r - d) / d) * manifold.dx) * impulse1;
@@ -979,7 +980,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
     
     if (minCell.owner && minCell.owner == maxCell.owner) {
         // collision owned/owned => ignore or resolve or remerge
-        if (minCell.getAge(this.tickCoutner) < 15 || maxCell.getAge(this.tickCoutner) < 15) {
+        if (minCell.getAge(this.tickCounter) < 15 || maxCell.getAge(this.tickCounter) < 15) {
             // just splited => ignore
             return;
         }
