@@ -135,8 +135,8 @@ Teams.prototype.updateLB = function (gameServer) {
                 continue;
             }
             
-            teamMass[i] += cell.getMass();
-            total += cell.getMass();
+            teamMass[i] += cell._mass;
+            total += cell._mass;
         }
     }
     // No players
