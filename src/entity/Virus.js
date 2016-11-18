@@ -33,11 +33,11 @@ Virus.prototype.onEaten = function (consumer) {
     var client = consumer.owner;
     if (client == null) return;
     
-    var mass = consumer.getMass(),
+    var mass = consumer._mass,
     maxSplits = ((mass / 16) >> 0) - 1, // maximum amount of splits
     cellsLeft = this.gameServer.config.playerMaxCells - client.cells.length,
     numSplits = Math.min(cellsLeft, maxSplits), // get number of splits
-    splitMass = Math.min(consumer.getMass() / numSplits, 24); 
+    splitMass = Math.min(mass / numSplits, 24); 
 
     // cannot split any further
     if (numSplits <= 0) return;
