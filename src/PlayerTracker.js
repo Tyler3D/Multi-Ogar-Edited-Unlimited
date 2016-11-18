@@ -526,8 +526,8 @@ PlayerTracker.prototype.getSpectateTarget = function () {
 };
 
 PlayerTracker.prototype.updateVisibleNodes = function () {
-    // Disable visible node calculations if more than 700 minions
-    if (this.gameServer.clients.length > 700 && this.isMi) return;
+    // Disable visible node calculations if more than 800 minions
+    if (this.gameServer.clients.length > 800 && this.isMi) return;
     
     this.viewNodes = [];
     if (!this.isMinion || !this.isMi) {
