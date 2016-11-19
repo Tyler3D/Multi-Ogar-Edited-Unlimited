@@ -60,10 +60,6 @@ function GameServer() {
         serverTimeout: 300,         // Seconds to keep connection alive for non-responding client
         serverWsModule: 'ws',       // WebSocket module: 'ws' or 'uws' (install npm package before using uws)
         serverMaxConnections: 128,   // Maximum number of connections to the server. (0 for no limit)
-        serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
-        serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
-        serverMinionThreshold: 10,  // max connections within serverMinionInterval time period, which will not be marked as minion
-        serverMinionInterval: 1000, // minion detection interval [milliseconds]
         serverPort: 443,            // Server port
         serverBind: '0.0.0.0',      // Network interface binding
         serverTracker: 0,           // Set to 1 if you want to show your server on the tracker http://ogar.mivabe.nl/master
@@ -75,14 +71,20 @@ function GameServer() {
         serverSpectatorScale: 0.4,  // Scale (field of view) used for free roam spectators (low value leads to lags, vanilla=0.4, old vanilla=0.25)
         serverStatsPort: 88,        // Port for stats server. Having a negative number will disable the stats server.
         serverStatsUpdate: 60,      // Update interval of server stats in seconds
-        serverScrambleLevel: 2,     // Toggles scrambling of coordinates. 0 = No scrambling, 1 = lightweight scrambling. 2 = full scrambling (also known as scramble minimap); 3 - high scrambling (no border)
+        
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
         serverChat: 1,              // Set to 1 to allow chat; 0 to disable chat.
         serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only mode)
-        
         serverName: 'MultiOgar #1', // Server name
         serverWelcome1: 'Welcome to MultiOgar server!',      // First server welcome message
         serverWelcome2: '',         // Second server welcome message (for info, etc)
+        
+        serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
+        serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
+        serverMinionThreshold: 10,  // max connections within serverMinionInterval time period, which will not be marked as minion
+        serverMinionInterval: 1000, // minion detection interval [milliseconds]
+        serverScrambleLevel: 1,     // Toggles scrambling of coordinates. 0 = No scrambling, 1 = lightweight scrambling. 2 = full scrambling (also known as scramble minimap); 3 - high scrambling (no border)
+        playerBotGrow: 0,           // Cells greater than 625 mass cannot grow from cells under 17 mass (set to 1 to disable)
         
         borderWidth: 14142,         // Map border size (Vanilla value: 14142)
         borderHeight: 14142,        // Map border size (Vanilla value: 14142)
@@ -115,11 +117,10 @@ function GameServer() {
         playerRecombineTime: 30,    // Base time in seconds before a cell is allowed to recombine
         playerMaxNickLength: 15,    // Maximum nick length
         playerDisconnectTime: 60,   // The time in seconds it takes for a player cell to be removed after disconnection (If set to -1, cells are never removed)
-        playerBotGrow: 0,           // Players greater than 625 mass cannot grow from cells under 17 mass (set to 1 to disable)
         
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
-        disableERT: 0,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
+        disableERT: 1,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         
         tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
