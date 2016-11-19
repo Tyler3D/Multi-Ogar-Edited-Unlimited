@@ -119,6 +119,7 @@ function GameServer() {
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERT: 0,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
+        serverMinions: 0,           // Amount of minions each player gets once they spawn
         
         tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
         tourneyPrepTime: 10,        // Number of ticks to wait after all players are ready (1 tick = 1000 ms)
@@ -360,6 +361,13 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             }
             this.minionTest.push(ws.playerTracker);
         }
+    }
+    if (this.config.serverMinions > 0) {
+        for (var i = 0; i < this.config.serverMinions; i++) {
+            this.bots.addMinion(ws.playerTracker);
+            ws.playerTracker.minionControl = true;
+        }
+        Logger.info("Added " + this.config.serverMinions + " minions");
     }
 };
 
