@@ -101,11 +101,6 @@ Commands.list = {
             return;
         }
         
-        // Default minion names
-        if (typeof name == "undefined" || name == "") {
-            name = "minion";
-        }
-        
         // Find ID specified and add/remove minions for them
         for (var i in gameServer.clients) {
             var client = gameServer.clients[i].playerTracker;
