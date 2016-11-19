@@ -60,5 +60,8 @@ BotLoader.prototype.addMinion = function(owner, name) {
     this.gameServer.clients.push(s);
 
     // Add to world & set name
+    if (typeof name == "undefined" || name == "") {
+        name = this.gameServer.config.defaultName;
+    }
     s.packetHandler.setNickname(name);
 };
