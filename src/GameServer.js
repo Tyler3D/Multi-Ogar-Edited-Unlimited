@@ -122,6 +122,7 @@ function GameServer() {
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERT: 1,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
+        defaultName: "minion",      // Default name for all minions if name is not specified using command
         
         tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
         tourneyPrepTime: 10,        // Number of ticks to wait after all players are ready (1 tick = 1000 ms)
