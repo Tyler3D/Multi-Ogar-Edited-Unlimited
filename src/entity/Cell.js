@@ -90,8 +90,9 @@ Cell.prototype.canEat = function (cell) {
 // Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
     // Cant grow from cells under 17 mass (vanilla)
-    if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3) {
-        prey._sizeSquared = 0;
+    if (this.gameServer.config.playerBotGrow == 0) {
+        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3)
+            prey._sizeSquared = 0;
     }
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };
