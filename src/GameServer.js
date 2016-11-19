@@ -75,8 +75,8 @@ function GameServer() {
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
         serverChat: 1,              // Set to 1 to allow chat; 0 to disable chat.
         serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only mode)
-        serverName: 'MultiOgar #1', // Server name
-        serverWelcome1: 'Welcome to MultiOgar server!',      // First server welcome message
+        serverName: 'MultiOgar-Edited #1', // Server name
+        serverWelcome1: 'Welcome to MultiOgar-Edited!',      // First server welcome message
         serverWelcome2: '',         // Second server welcome message (for info, etc)
         
         serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
