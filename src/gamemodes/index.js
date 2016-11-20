@@ -16,10 +16,7 @@ var get = function (id) {
         case 2: // Experimental
             mode = new module.exports.Experimental();
             break;
-        case 3: // Tournament
-            mode = new module.exports.Tournament();
-            break;
-        case 4: // Rainbow
+        case 3: // Rainbow
             mode = new module.exports.Rainbow();
             break;
         default: // FFA is default
