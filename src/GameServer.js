@@ -123,13 +123,6 @@ function GameServer() {
         disableERT: 1,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
-        
-        tourneyMaxPlayers: 12,      // Maximum number of participants for tournament style game modes
-        tourneyPrepTime: 10,        // Number of ticks to wait after all players are ready (1 tick = 1000 ms)
-        tourneyEndTime: 30,         // Number of ticks to wait after a player wins (1 tick = 1000 ms)
-        tourneyTimeLimit: 20,       // Time limit of the game, in minutes.
-        tourneyAutoFill: 0,         // If set to a value higher than 0, the tournament match will automatically fill up with bots after this amount of seconds
-        tourneyAutoFillPlayers: 1,  // The timer for filling the server with bots will not count down unless there is this amount of real players
     };
     this.ipBanList = [];
     this.minionTest = [];
