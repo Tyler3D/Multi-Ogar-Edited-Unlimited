@@ -687,7 +687,6 @@ GameServer.prototype.mainLoop = function () {
                 var cell1 = client.cells[j];
                 if (cell1.isRemoved)
                     continue;
-                cell1.updateRemerge(this);
                 cell1.moveUser(this.border);
                 cell1.move(this.border);
                 this.autoSplit(client, cell1);
@@ -695,7 +694,7 @@ GameServer.prototype.mainLoop = function () {
             }
         }
         // Move moving cells
-        for (var i = 0; i < this.movingNodes.length; ) {
+        for (var i = 0; i < this.movingNodes.length;) {
             cell1 = this.movingNodes[i];
             if (cell1.isRemoved)
                 continue;
@@ -703,11 +702,8 @@ GameServer.prototype.mainLoop = function () {
             this.updateNodeQuad(cell1);
             if (!cell1.isMoving)
                 this.movingNodes.splice(i, 1);
-            else
-                i++;
+            else i++;
         }
-        
-        // === check for collisions ===
         // Scan for player cells collisions
         var self = this;
         var rigidCollisions = [];
@@ -729,27 +725,21 @@ GameServer.prototype.mainLoop = function () {
                 });
             }
         }
-        
-        // resolve rigid body collisions
+        // resolve rigid body collisions, update quad tree
         for (var k = 0; k < rigidCollisions.length; k++) {
-            var c = rigidCollisions[k];
-            var manifold = this.checkCellCollision(c.cell1, c.cell2);
-            if (manifold == null) continue;
-            this.resolveRigidCollision(manifold, this.border);
-        }
-        
-        // Update quad tree
-        for (var k = 0; k < rigidCollisions.length; k++) {
-            c = rigidCollisions[k];
-            this.updateNodeQuad(c.cell1);
-            this.updateNodeQuad(c.cell2);
+            var r = rigidCollisions[k];
+            var c = this.checkCellCollision(r.cell1, r.cell2);
+            if (c == null) continue;
+            this.resolveRigidCollision(c, this.border);
+            this.updateNodeQuad(r.cell1);
+            this.updateNodeQuad(r.cell2);
         }
         rigidCollisions = null;
         
         // resolve eat collisions
         for (var k = 0; k < eatCollisions.length; k++) {
             c = eatCollisions[k];
-            manifold = this.checkCellCollision(c.cell1, c.cell2);
+            var manifold = this.checkCellCollision(c.cell1, c.cell2);
             if (manifold == null) continue;
             this.resolveCollision(manifold);
         }
@@ -758,7 +748,6 @@ GameServer.prototype.mainLoop = function () {
         // Scan for ejected cell collisions (scan for ejected or virus only)
         rigidCollisions = [];
         eatCollisions = [];
-        self = this;
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
             if (cell1.isRemoved) continue;
@@ -786,20 +775,15 @@ GameServer.prototype.mainLoop = function () {
                 }
             });
         }
-        
         // resolve rigid body collisions
         for (var k = 0; k < rigidCollisions.length; k++) {
-            c = rigidCollisions[k];
-            manifold = this.checkCellCollision(c.cell1, c.cell2);
-            if (manifold == null) continue;
-            this.resolveRigidCollision(manifold, this.border);
+            r = rigidCollisions[k];
+            c = this.checkCellCollision(r.cell1, r.cell2);
+            if (c == null) continue;
+            this.resolveRigidCollision(c, this.border);
             // position changed! don't forgot to update quad-tree
-        }
-        // Update quad tree
-        for (var k = 0; k < rigidCollisions.length; k++) {
-            c = rigidCollisions[k];
-            this.updateNodeQuad(c.cell1);
-            this.updateNodeQuad(c.cell2);
+            this.updateNodeQuad(r.cell1);
+            this.updateNodeQuad(r.cell2);
         }
         rigidCollisions = null;
         
@@ -960,21 +944,21 @@ GameServer.prototype.checkCellCollision = function (cell, check) {
 };
 
 // Resolves rigid body collision
-GameServer.prototype.resolveRigidCollision = function (manifold) {
+GameServer.prototype.resolveRigidCollision = function (c) {
     // distance from cell1 to cell2
-    var d = Math.sqrt(manifold.squared);
+    var d = Math.sqrt(c.squared);
     if (d <= 0) return;
     
     // body impulse
-    var totalSize = manifold.cell1._mass + manifold.cell2._mass;
-    var impulse1 = manifold.cell2._mass * (1 / totalSize);
-    var impulse2 = manifold.cell1._mass * (1 / totalSize);
+    var m = c.cell1._mass + c.cell2._mass;
+    var m2 = c.cell2._mass * (1 / m);
+    var m1 = c.cell1._mass * (1 / m);
     
     // apply extrusion force
-    manifold.cell1.position.x -= (((manifold.r - d) / d) * manifold.dx) * impulse1;
-    manifold.cell1.position.y -= (((manifold.r - d) / d) * manifold.dy) * impulse1;
-    manifold.cell2.position.x += (((manifold.r - d) / d) * manifold.dx) * impulse2;
-    manifold.cell2.position.y += (((manifold.r - d) / d) * manifold.dy) * impulse2;
+    c.cell1.position.x -= (((c.r - d) / d) * c.dx) * m2;
+    c.cell1.position.y -= (((c.r - d) / d) * c.dy) * m2;
+    c.cell2.position.x += (((c.r - d) / d) * c.dx) * m1;
+    c.cell2.position.y += (((c.r - d) / d) * c.dy) * m1;
 };
 
 // Resolves non-rigid body collision
