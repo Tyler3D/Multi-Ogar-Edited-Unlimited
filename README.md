@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.3.4**
+Current version: **1.3.5**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -129,14 +129,52 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 192.34.61.57:443 | New York | FFA | http://agarlist.com/
 
 
+## Changelog:
+--------------
+#### 1.3.5: 
+* Added new gamemode: Last Man Standing! Thanks to @Tyler3D for making it :)
+* Added new minion features
+* Got rid of some more unnecessary gamemodes/commands
+* Improved performance
+
+--------------
+#### 1.3.4:
+* Fixed minion bugs
+* Improved performance
+* Added random skins feature, and more :)
+
+--------------
+#### 1.3.3:
+* Moved files
+* Fixed some bugs
+* Improved popsplits
+* Added some new features for minions
+
+--------------
+#### 1.3.0:
+* Added minions! With a few new features too :)
+
+--------------
+#### 1.2.9:
+* Matched virus explosions to vanilla
+* Added anti-bot grow measure from vanilla
+
+--------------
+#### 1.2.8:
+* Removed unnecessary/broken commands & gamemodes
+* Added some custom commands: rec, speed, freeze
+
+--------------
+#### 1.2.7:
+* Fixed many bugs that the original MultiOgar had
+
+--------------
+#### 1.2.47:
+* Improved stability and performance; 
+* Added mute/unmute command
+
+--------------
 ## What's new:
-* 1.3.4: Fixed minion bugs, reduced lag with/without them, added random skins feature, and more :)
-* 1.3.3: Moved files, fixed some bugs, improved popsplits, and added some new features for minions :)
-* 1.3.0: Added minions! With a few new features too :)
-* 1.2.9: Matched virus explosions to vanilla, added anti-bot grow measure from vanilla
-* 1.2.8: Removed unnecessary/broken commands & gamemodes, added some custom commands
-* 1.2.7: Fixed many bugs that the original MultiOgar had
-* 1.2.47: Improved stability and performance; added mute/unmute command
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
 * Added ejectSizeLoss
@@ -154,7 +192,6 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 * Fixed mass-limit behavior
 * Added chat player commands /skin and /kill (to change skin, just type /skin %shark in the chat)
 * Added scramble level 3 (anti-bot/anti-minimap protection), unsupported on some clients (unfortunately include vanilla, ogar.mivabe.nl works ok)
-* NOTE: there is major gameserver.ini change, previous version is incompatible!
 * Massive perfromance improvement & reduce network traffic
 * Split behavior - fixed;
 * Protocol code - optimized;
