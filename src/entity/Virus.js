@@ -29,68 +29,58 @@ Virus.prototype.onEat = function (prey) {
     }
 };
 
-Virus.prototype.onEaten = function (consumer) {
-    var client = consumer.owner;
-    if (client == null) return;
-    
-    var mass = consumer._mass,
-    maxSplits = ((mass / 16) >> 0) - 1, // maximum amount of splits
-    cellsLeft = this.gameServer.config.playerMaxCells - client.cells.length,
-    numSplits = Math.min(cellsLeft, maxSplits), // get number of splits
-    splitMass = Math.min(mass / numSplits, this.gameServer.config.playerMinSplitSize); 
+Virus.prototype.onEaten = function (c) {
+    if (c.owner == null) return;
 
-    // cannot split any further
-    if (numSplits <= 0) return;
+    var minSize = this.gameServer.config.playerMinSize,
+    min = (minSize == 32) ? 30 : minSize, // minimun size of small splits
+    cellsLeft = this.gameServer.config.playerMaxCells - c.owner.cells.length,
+    numSplits = cellsLeft < (c._mass / 16) ? cellsLeft : (c._mass / 16),
+    splitMass = (c._mass / numSplits) < min ? (c._mass / numSplits) : min;
     
-    // won't split regular way unless numSplits > 4
-    var bigSplits = [];
-    if (numSplits == 1) bigSplits = [mass / 2];
-    else if (numSplits == 2) bigSplits = [mass / 4, mass / 4];
-    else if (numSplits == 3) bigSplits = [mass / 4, mass / 4, mass / 7];
-    else if (numSplits == 4) bigSplits = [mass / 5, mass / 7, mass / 8, mass / 10];
+    // Diverse explosion(s)
+    var big = [];
+    if (numSplits <= 0) return; // can't split anymore
+    if (numSplits == 1) big = [c._mass/2];
+    if (numSplits == 2) big = [c._mass/4,c._mass/4];
+    if (numSplits == 3) big = [c._mass/4,c._mass/4,c._mass/7];
+    if (numSplits == 4) big = [c._mass/5,c._mass/7,c._mass/8,c._mass/10];
     else {
-        var m = mass - numSplits * splitMass; // threshold
-        var r = Math.random(), mult = 0;      // starting mult
-        var mults = {                         // random selection
-            v1: ((r * (4 - 3.8)) + 3.8),      // vanilla mult 1
-            v2: ((r * (3.8 - 3.7)) + 3.7),    // vanilla mult 2
-            v3: ((r * (3.7 - 3.33)) + 3.33),  // vanilla mult 3
-            v4: ((r * (2.5 - 2.3)) + 2.3),    // second vanilla mult 1
-            v5: ((r * (2.3 - 2.25)) + 2.25),  // second vanilla mult 2
-            v6: ((r * (2.25 - 2)) + 2),       // second vanilla mult 3
+        var threshold = c._mass - numSplits * splitMass; // ckeck size of exploding
+        var mults = {                                    // random selection
+            v1: ((Math.random() * (4 - 3.8)) + 3.8),     // vanilla mult 1
+            v2: ((Math.random() * (3.8 - 3.7)) + 3.7),   // vanilla mult 2
+            v3: ((Math.random() * (3.7 - 3.33)) + 3.33), // vanilla mult 3
+            v4: ((Math.random() * (2.5 - 2.3)) + 2.3),   // second vanilla mult 1
+            v5: ((Math.random() * (2.3 - 2.25)) + 2.25), // second vanilla mult 2
+            v6: ((Math.random() * (2.25 - 2)) + 2),      // second vanilla mult 3
         };
-        
-        // Diverse explosions, 1 of 3 selected randomly
-        if (m > 466) {
-            if (r * 3 <= 1) mult = mults.v1;
-            if (r * 3 <= 2) mult = mults.v2;
-            if (r * 3 <= 3) mult = mults.v3;
-            while (m / mult > 24) {
-                m /= mult;
-                if (r * 3 <= 1) mult = mults.v4;
-                if (r * 3 <= 2) mult = mults.v5;
-                if (r * 3 <= 3) mult = mults.v6;
-                bigSplits.push(m >> 0);
+        // Monotone explosion(s)
+        if (threshold > 466) {
+            var exp = 0; // starting mult
+            if (Math.random() * 3 <= 1) exp = mults.v1;
+            if (Math.random() * 3 <= 2) exp = mults.v2;
+            if (Math.random() * 3 <= 3) exp = mults.v3;
+            while (threshold / exp > 24) {
+                threshold /= exp;
+                if (Math.random() * 3 <= 1) exp = mults.v4;
+                if (Math.random() * 3 <= 2) exp = mults.v5;
+                if (Math.random() * 3 <= 3) exp = mults.v6;
+                big.push(threshold >> 0);
             }
         }
     }
-    numSplits -= bigSplits.length;
-    
+    numSplits -= big.length;
     // big splits
     var angle = 0;
-    for (var k = 0; k < bigSplits.length; k++) {
+    for (var k = 0; k < big.length; k++) {
         angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(
-            client, consumer, angle, bigSplits[k]
-        );
+        this.gameServer.splitPlayerCell(c.owner, c, angle, big[k]);
     }
-
     // small splits
     for (var k = 0; k < numSplits; k++) {
         angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(
-            client, consumer, angle, splitMass
-        );
+        this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
 };
 
