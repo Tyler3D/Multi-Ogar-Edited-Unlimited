@@ -260,3 +260,8 @@ star_girl
 tiger_man
 omega_blast
 major_eagle
+aer
+aqua
+ignis
+colossus
+terra
