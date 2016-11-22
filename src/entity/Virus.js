@@ -42,9 +42,9 @@ Virus.prototype.onEaten = function (c) {
     var big = [];
     if (numSplits <= 0) return; // can't split anymore
     if (numSplits == 1) big = [c._mass/2];
-    if (numSplits == 2) big = [c._mass/4,c._mass/4];
-    if (numSplits == 3) big = [c._mass/4,c._mass/4,c._mass/7];
-    if (numSplits == 4) big = [c._mass/5,c._mass/7,c._mass/8,c._mass/10];
+    else if (numSplits == 2) big = [c._mass/4,c._mass/4];
+    else if (numSplits == 3) big = [c._mass/4,c._mass/4,c._mass/7];
+    else if (numSplits == 4) big = [c._mass/5,c._mass/7,c._mass/8,c._mass/10];
     else {
         var threshold = c._mass - numSplits * splitMass; // ckeck size of exploding
         var mults = {                                    // random selection
