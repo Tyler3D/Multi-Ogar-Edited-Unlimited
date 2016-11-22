@@ -355,10 +355,6 @@ PacketHandler.prototype.setNickname = function (text) {
             }
             userName = text.slice(n + 1);
         }
-        if (skinName && !this.gameServer.checkSkinName(skinName)) {
-            skinName = null;
-            userName = text;
-        }
         skin = skinName;
         name = userName;
     }
