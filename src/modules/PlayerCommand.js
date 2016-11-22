@@ -1,7 +1,6 @@
-﻿var Entity = require('../entity');
+var Entity = require('../entity');
 var Logger = require('./Logger');
 var UserRoleEnum = require("../enum/UserRoleEnum");
-
 
 var ErrorTextInvalidCommand = "ERROR: Unknown command, type /help for command list";
 var ErrorTextBadCommand = "ERROR: Bad command!";
@@ -64,10 +63,6 @@ var playerCommands = {
         }
         var skinName = "";
         if (args) skinName = args.trim();
-        if (!this.gameServer.checkSkinName(skinName)) {
-            this.writeLine("ERROR: Invalid skin name!");
-            return;
-        }
         this.playerTracker.setSkin(skinName);
         if (skinName == "")
             this.writeLine("Your skin was removed");
