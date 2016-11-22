@@ -163,8 +163,7 @@ Commands.list = {
                 Logger.warn(logInvalid);
                 return;
             }
-            
-            gameServer.banIp(ip);
+            ban(ip);
             return;
         }
         // if input is a Player ID
@@ -174,7 +173,7 @@ Commands.list = {
             Logger.warn(logInvalid);
             return;
         }
-        var ip = null;
+        ip = null;
         for (var i in gameServer.clients) {
             var client = gameServer.clients[i];
             if (client == null || !client.isConnected)
@@ -184,10 +183,40 @@ Commands.list = {
                 break;
             }
         }
-        if (ip)
-            gameServer.banIp(ip);
-        else
-            Logger.warn("Player ID " + id + " not found!");
+        if (ip) ban(ip);
+        else Logger.warn("Player ID " + id + " not found!");
+            
+        // ban the player
+        function ban (ip) {
+            var ipBin = ip.split('.');
+            if (ipBin.length != 4) {
+                Logger.warn("Invalid IP format: " + ip);
+                return;
+            }
+            gameServer.ipBanList.push(ip);
+            if (ipBin[2] == "*" || ipBin[3] == "*") {
+                Logger.print("The IP sub-net " + ip + " has been banned");
+            } else {
+                Logger.print("The IP " + ip + " has been banned");
+            }
+            gameServer.clients.forEach(function (socket) {
+                // If already disconnected or the ip does not match
+                if (socket == null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
+                    return;
+            
+                // remove player cells
+                socket.playerTracker.cells.forEach(function (cell) {
+                    gameServer.removeNode(cell);
+                }, gameServer);
+            
+                // disconnect
+                socket.close(1000, "Banned from server");
+                var name = socket.playerTracker.getFriendlyName();
+                Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
+                gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
+            }, gameServer);
+            gameServer.saveIpBanList();
+        }
     },
     banlist: function (gameServer, split) {
         Logger.print("Showing " + gameServer.ipBanList.length + " banned IPs: ");
@@ -267,7 +296,22 @@ Commands.list = {
         } else {
             value = parseInt(value);
         }
-        gameServer.changeConfig(key, value);
+        
+        if (value == null || isNaN(value)) {
+            Logger.warn("Invalid value: " + value);
+            return;
+        }
+        if (!gameServer.config.hasOwnProperty(key)) {
+            Logger.warn("Unknown config value: " + key);
+            return;
+        }
+        gameServer.config[key] = value;
+        
+        // update/validate
+        gameServer.config.playerMinSize = Math.max(32, gameServer.config.playerMinSize);
+        Logger.setVerbosity(gameServer.config.logVerbosity);
+        Logger.setFileVerbosity(gameServer.config.logFileVerbosity);
+        Logger.print("Set " + key + " = " + gameServer.config[key]);
     },
     clear: function () {
         process.stdout.write("\u001b[2J\u001b[0;0H");
@@ -312,9 +356,29 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        gameServer.kickId(id);
-        var player = gameServer.getPlayerById(id);
-        console.log("Kicked " + player.getFriendlyName());
+        // kick player
+        var count = 0;
+        gameServer.clients.forEach(function (socket) {
+            if (socket.isConnected == false)
+               return;
+            if (id != 0 && socket.playerTracker.pID != id)
+                return;
+            // remove player cells
+            socket.playerTracker.cells.forEach(function (cell) {
+                gameServer.removeNode(cell);
+            }, gameServer);
+            // disconnect
+            socket.close(1000, "Kicked from server");
+            var name = socket.playerTracker.getFriendlyName();
+            Logger.print("Kicked \"" + name + "\"");
+            gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
+            count++;
+        }, this);
+        if (count > 0) return;
+        if (id == 0)
+            Logger.warn("No players to kick!");
+        else
+            Logger.warn("Player with ID " + id + " not found!");
     },
     mute: function (gameServer, args) {
         if (!args || args.length < 2) {
@@ -572,7 +636,15 @@ Commands.list = {
             Logger.warn("Please specify a valid IP!");
             return;
         }
-        gameServer.unbanIp(split[1].trim());
+        var ip = split[1].trim();
+        var index = gameServer.ipBanList.indexOf(ip);
+        if (index < 0) {
+            Logger.warn("IP " + ip + " is not in the ban list!");
+            return;
+        }
+        gameServer.ipBanList.splice(index, 1);
+        gameServer.saveIpBanList();
+        Logger.print("Unbanned IP: " + ip);
     },
     playerlist: function (gameServer, split) {
         Logger.print("Current players: " + gameServer.clients.length);
