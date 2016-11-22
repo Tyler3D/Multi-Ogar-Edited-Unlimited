@@ -217,8 +217,10 @@ GameServer.prototype.startStatsServer = function (port) {
 };
 
 GameServer.prototype.onHttpServerOpen = function () {
-    // Spawn starting food
-    this.startingFood();
+    // Spawns the starting amount of food cells
+    for (var i = 0; i < this.config.foodMinAmount; i++) {
+        this.spawnFood();
+    }
     
     // Start Main Loop
     setTimeout(this.timerLoopBind, 1);
@@ -233,13 +235,6 @@ GameServer.prototype.onHttpServerOpen = function () {
             this.bots.addBot();
         }
         Logger.info("Added " + this.config.serverBots + " player bots");
-    }
-};
-
-GameServer.prototype.startingFood = function () {
-    // Spawns the starting amount of food cells
-    for (var i = 0; i < this.config.foodMinAmount; i++) {
-        this.spawnFood();
     }
 };
 
@@ -1089,9 +1084,25 @@ GameServer.prototype.updateMassDecay = function () {
     }
 };
 
-GameServer.prototype.spawnPlayer = function (player, pos, size) {
-    var index = (this.nodesEjected.length - 1) * Math.random() >> 0;
-    var eject = this.nodesEjected[index];
+GameServer.prototype.spawnPlayer = function (player) {
+    var pos = this.getRandomPosition(),
+    size = this.config.playerStartSize,
+    index = (this.nodesEjected.length - 1) * Math.random() >> 0,
+    eject = this.nodesEjected[index],
+    
+    // Check for special start size(s)
+    start = this.config.minionStartSize,
+    max = this.config.minionMaxStartSize;
+    if (player.spawnmass > 0 && !player.isMi) {
+        size = player.spawnmass;
+    } else if (player.isMi) {
+        if (max > start) {
+            size = ((Math.random() * (max - start)) + start) >> 0;
+        } else {
+            size = this.config.minionStartSize;
+        }
+    }
+    
     // Check if can spawn from ejected mass
     if (!pos && this.config.ejectSpawnPlayer && this.nodesEjected.length > 0 
         && Math.random() >= 0.5 && !eject.isRemoved) {
@@ -1103,49 +1114,12 @@ GameServer.prototype.spawnPlayer = function (player, pos, size) {
             x: eject.position.x,
             y: eject.position.y
         };
-        if (!size) {
-            size = Math.max(eject._size, this.config.playerStartSize);
-            // Spawnmass command
-            if (player.spawnmass > 0 && !player.isMi) {
-                size = player.spawnmass;
-            // Minion spawnmass
-            } else if (player.isMi) {
-                var start = this.config.minionStartSize;
-                var max = this.config.minionMaxStartSize;
-                if (max > start) {
-                    size = ((Math.random() * (max - start)) + start) >> 0;
-                } else {
-                    size = this.config.minionStartSize;
-                }
-            }
-        }
+        if (!size) size = Math.max(eject._size, this.config.playerStartSize);
     }
-    if (pos == null) {
-        // Get random pos
+    // 10 attempts to find safe position
+    for (var i = 0; i < 10 && this.willCollide(pos, this.config.playerMinSize); i++) {
         pos = this.getRandomPosition();
-        // 10 attempts to find safe position
-        for (var i = 0; i < 10 && this.willCollide(pos, this.config.playerMinSize); i++) {
-            pos = this.getRandomPosition();
-        }
     }
-    if (size == null) {
-        // Get starting mass
-        size = this.config.playerStartSize;
-        // Spawnmass command
-        if (player.spawnmass > 0 && !player.isMi) {
-            size = player.spawnmass;
-        // Minion spawnmass
-        } else if (player.isMi) {
-            start = this.config.minionStartSize;
-            max = this.config.minionMaxStartSize;
-            if (max > start) {
-                size = ((Math.random() * (max - start)) + start) >> 0;
-            } else {
-                size = this.config.minionStartSize;
-            }
-        }
-    }
-    
     // Spawn player and add to world
     var cell = new Entity.PlayerCell(this, player, pos, size);
     this.addNode(cell);
@@ -1316,17 +1290,6 @@ GameServer.prototype.shootVirus = function (parent, angle) {
     this.addNode(newVirus);
 };
 
-GameServer.prototype.getNearestVirus = function (cell) {
-    // Loop through all viruses on the map. There is probably a more efficient way of doing this but whatever
-    for (var i = 0; i < this.nodesVirus.length; i++) {
-        var check = this.nodesVirus[i];
-        if (check === null) continue;
-        if (this.checkCellCollision(cell, check) != null) {
-            return check;
-        }
-    }
-};
-
 GameServer.prototype.getPlayerById = function (id) {
     if (id == null) return null;
     for (var i = 0; i < this.clients.length; i++) {
@@ -1336,25 +1299,6 @@ GameServer.prototype.getPlayerById = function (id) {
         }
     }
     return null;
-};
-
-GameServer.prototype.checkSkinName = function (skinName) {
-    if (!skinName) {
-        return true;
-    }
-    if (skinName.length == 1 || skinName.length > 25) {
-        return false;
-    }
-    if (skinName[0] != '%') {
-        return false;
-    }
-    for (var i = 1; i < skinName.length; i++) {
-        var c = skinName.charCodeAt(i);
-        if (c < 0x21 || c > 0x7F || c == '/' || c == '\\' || c == ':' || c == '%' || c == '?' || c == '&' || c == '<' || c == '>') {
-            return false;
-        }
-    }
-    return true;
 };
 
 GameServer.prototype.loadConfig = function () {
@@ -1405,25 +1349,6 @@ GameServer.prototype.loadBadWords = function () {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameBadWords + ": " + err.message);
     }
-};
-
-GameServer.prototype.changeConfig = function (name, value) {
-    if (value == null || isNaN(value)) {
-        Logger.warn("Invalid value: " + value);
-        return;
-    }
-    if (!this.config.hasOwnProperty(name)) {
-        Logger.warn("Unknown config value: " + name);
-        return;
-    }
-    this.config[name] = value;
-    
-    // update/validate
-    this.config.playerMinSize = Math.max(32, this.config.playerMinSize);
-    Logger.setVerbosity(this.config.logVerbosity);
-    Logger.setFileVerbosity(this.config.logFileVerbosity);
-    
-    Logger.print("Set " + name + " = " + this.config[name]);
 };
 
 GameServer.prototype.loadUserList = function () {
@@ -1486,6 +1411,7 @@ GameServer.prototype.userLogin = function (ip, password) {
     }
     return null;
 };
+
 var fileNameIpBan = './ipbanlist.txt';
 GameServer.prototype.loadIpBanList = function () {
     try {
@@ -1517,75 +1443,6 @@ GameServer.prototype.saveIpBanList = function () {
         Logger.error(err.stack);
         Logger.error("Failed to save " + fileNameIpBan + ": " + err.message);
     }
-};
-
-GameServer.prototype.banIp = function (ip) {
-    var ipBin = ip.split('.');
-    if (ipBin.length != 4) {
-        Logger.warn("Invalid IP format: " + ip);
-        return;
-    }
-    this.ipBanList.push(ip);
-    if (ipBin[2] == "*" || ipBin[3] == "*") {
-        Logger.print("The IP sub-net " + ip + " has been banned");
-    } else {
-        Logger.print("The IP " + ip + " has been banned");
-    }
-    this.clients.forEach(function (socket) {
-        // If already disconnected or the ip does not match
-        if (socket == null || !socket.isConnected || !this.checkIpBan(socket.remoteAddress))
-            return;
-        
-        // remove player cells
-        socket.playerTracker.cells.forEach(function (cell) {
-            this.removeNode(cell);
-        }, this);
-        
-        // disconnect
-        socket.close(1000, "Banned from server");
-        var name = socket.playerTracker.getFriendlyName();
-        Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
-        this.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
-    }, this);
-    this.saveIpBanList();
-};
-
-GameServer.prototype.unbanIp = function (ip) {
-    var index = this.ipBanList.indexOf(ip);
-    if (index < 0) {
-        Logger.warn("IP " + ip + " is not in the ban list!");
-        return;
-    }
-    this.ipBanList.splice(index, 1);
-    Logger.print("Unbanned IP: " + ip);
-    this.saveIpBanList();
-};
-
-// Kick player by ID. Use ID = 0 to kick all players
-GameServer.prototype.kickId = function (id) {
-    var count = 0;
-    this.clients.forEach(function (socket) {
-        if (socket.isConnected == false)
-           return;
-        if (id != 0 && socket.playerTracker.pID != id)
-            return;
-        // remove player cells
-        socket.playerTracker.cells.forEach(function (cell) {
-            this.removeNode(cell);
-        }, this);
-        // disconnect
-        socket.close(1000, "Kicked from server");
-        var name = socket.playerTracker.getFriendlyName();
-        Logger.print("Kicked \"" + name + "\"");
-        this.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
-        count++;
-    }, this);
-    if (count > 0)
-        return;
-    if (id == 0)
-        Logger.warn("No players to kick!");
-    else
-        Logger.warn("Player with ID " + id + " not found!");
 };
 
 GameServer.prototype.getStats = function () {
