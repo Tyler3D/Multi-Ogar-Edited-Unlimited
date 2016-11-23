@@ -425,7 +425,30 @@ Commands.list = {
         player.isMuted = false;
     },
     kickall: function (gameServer, split) {
-        gameServer.kickId(0);
+        var id = 0; //kick ALL players
+        // kick player
+        var count = 0;
+        gameServer.clients.forEach(function (socket) {
+            if (socket.isConnected == false)
+               return;
+            if (id != 0 && socket.playerTracker.pID != id)
+                return;
+            // remove player cells
+            socket.playerTracker.cells.forEach(function (cell) {
+                gameServer.removeNode(cell);
+            }, gameServer);
+            // disconnect
+            socket.close(1000, "Kicked from server");
+            var name = socket.playerTracker.getFriendlyName();
+            Logger.print("Kicked \"" + name + "\"");
+            gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
+            count++;
+        }, this);
+        if (count > 0) return;
+        if (id == 0)
+            Logger.warn("No players to kick!");
+        else
+            Logger.warn("Player with ID " + id + " not found!");
     },
     kill: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -662,7 +685,7 @@ Commands.list = {
             // list minions
             if (client.isMi) {
                 if (typeof type == "undefined" || type == "" || type != "m") {
-                    return;
+                    continue;
                 } else if (type == "m") {
                     ip = "[MINION]";
                 }
