@@ -75,6 +75,9 @@ Experimental.prototype.onServerInit = function (gameServer) {
         }
     };
 };
+Experimental.prototype.onChange = function (gameServer) {
+
+    }
     this.nodesMother = [];
     // Add back default functions
     Entity.Virus.prototype.onEat = require('../Entity/Virus').prototype.onEat;
