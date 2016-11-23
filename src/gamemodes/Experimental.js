@@ -1,4 +1,4 @@
-﻿var FFA = require('./FFA'); // Base gamemode
+var FFA = require('./FFA'); // Base gamemode
 var Entity = require('../entity');
 var Logger = require('../modules/Logger');
 
@@ -105,4 +105,3 @@ Experimental.prototype.onTick = function (gameServer) {
         this.tickMotherUpdate++;
     }
 };
-
