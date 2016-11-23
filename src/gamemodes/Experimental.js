@@ -75,12 +75,6 @@ Experimental.prototype.onServerInit = function (gameServer) {
         }
     };
 };
-
-Experimental.prototype.onChange = function (gameServer) {
-    // Remove all mother cells
-    for (var i in this.nodesMother) {
-        gameServer.removeNode(this.nodesMother[i]);
-    }
     this.nodesMother = [];
     // Add back default functions
     Entity.Virus.prototype.onEat = require('../Entity/Virus').prototype.onEat;
