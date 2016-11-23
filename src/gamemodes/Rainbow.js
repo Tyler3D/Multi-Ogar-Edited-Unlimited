@@ -156,9 +156,6 @@ Rainbow.prototype.changeColor = function (node) {
 Rainbow.prototype.onServerInit = function () {
 };
 
-Rainbow.prototype.onChange = function () {
-};
-
 Rainbow.prototype.onTick = function (gameServer) {
     var color, node;
     // Change color
