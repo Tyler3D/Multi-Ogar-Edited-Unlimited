@@ -1,4 +1,4 @@
-﻿var FFA = require('./FFA'); // Base gamemode
+var FFA = require('./FFA'); // Base gamemode
 var Entity = require('../entity');
 var Logger = require('../modules/Logger');
 
@@ -75,8 +75,11 @@ Experimental.prototype.onServerInit = function (gameServer) {
         }
     };
 };
-Experimental.prototype.onChange = function (gameServer) {
 
+Experimental.prototype.onChange = function (gameServer) {
+    // Remove all mother cells
+    for (var i in this.nodesMother) {
+        gameServer.removeNode(this.nodesMother[i]);
     }
     this.nodesMother = [];
     // Add back default functions
@@ -102,4 +105,3 @@ Experimental.prototype.onTick = function (gameServer) {
         this.tickMotherUpdate++;
     }
 };
-
