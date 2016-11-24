@@ -85,18 +85,6 @@ LMS.prototype.onServerInit = function (gameServer) {
     var startInt = setInterval(function() {self.lmsBegin()}, time);
 };
 
-LMS.prototype.onChange = function (gameServer) {
-    // Remove all mother cells
-    for (var i in this.nodesMother) {
-        gameServer.removeNode(this.nodesMother[i]);
-    }
-    this.nodesMother = [];
-    // Add back default functions
-    Entity.Virus.prototype.onEat = require('../Entity/Virus').prototype.onEat;
-    Entity.MotherCell.prototype.onAdd = require('../Entity/MotherCell').prototype.onAdd;
-    Entity.MotherCell.prototype.onRemove = require('../Entity/MotherCell').prototype.onRemove;
-};
-
 LMS.prototype.onPlayerSpawn = function (gameServer, player) {
     // Only spawn players if LMS hasnt started yet
     if (!this.lmsStart) {
