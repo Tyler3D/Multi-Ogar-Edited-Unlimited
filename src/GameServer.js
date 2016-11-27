@@ -20,7 +20,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.3.5';
+    this.version = '1.3.7';
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
     this.clients = [];
