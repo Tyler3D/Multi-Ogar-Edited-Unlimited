@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.3.5**
+Current version: **1.3.7**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -130,6 +130,14 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 
 
 ## Changelog:
+#### 1.3.7:
+* Fixed some bugs
+* Cleaned/refactored most of GameServer
+* Greatly improved performance
+* Removed/moved some files to different locations
+* Created scripts folder
+* Removed unnecessary commands aswell as functions for said commands
+
 --------------
 #### 1.3.5: 
 * Added new gamemode: Last Man Standing! Thanks to @Tyler3D for making it :)
