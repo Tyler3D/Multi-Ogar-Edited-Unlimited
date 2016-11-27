@@ -2,11 +2,10 @@
 var WebSocket = require('ws');
 var http = require('http');
 var fs = require("fs");
-var pjson = require('../package.json');
-var QuadNode = require('./modules/QuadNode.js');
 
 // Project imports
 var Packet = require('./packet');
+var QuadNode = require('./modules/QuadNode.js');
 var PlayerTracker = require('./PlayerTracker');
 var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
