@@ -1219,8 +1219,8 @@ GameServer.prototype.shootVirus = function (parent, angle) {
 };
 
 GameServer.prototype.loadConfig = function () {
-    var fileNameConfig = './gameserver.ini';
-    var ini = require('./modules/ini.js');
+    var fileNameConfig = '../src/gameserver.ini';
+    var ini = require('../src/modules/ini.js');
     try {
         if (!fs.existsSync(fileNameConfig)) {
             // No config
@@ -1250,7 +1250,7 @@ GameServer.prototype.loadConfig = function () {
 };
 
 GameServer.prototype.loadBadWords = function () {
-    var fileNameBadWords = './badwords.txt';
+    var fileNameBadWords = '../src/badwords.txt';
     try {
         if (!fs.existsSync(fileNameBadWords)) {
             Logger.warn(fileNameBadWords + " not found");
@@ -1269,8 +1269,8 @@ GameServer.prototype.loadBadWords = function () {
 };
 
 GameServer.prototype.loadUserList = function () {
-    var UserRoleEnum = require('./enum/UserRoleEnum');
-    var fileNameUsers = './enum/userRoles.json';
+    var UserRoleEnum = require('../src/enum/UserRoleEnum');
+    var fileNameUsers = '../src/enum/userRoles.json';
     try {
         this.userList = [];
         if (!fs.existsSync(fileNameUsers)) {
@@ -1314,7 +1314,7 @@ GameServer.prototype.loadUserList = function () {
     }
 };
 
-var fileNameIpBan = './ipbanlist.txt';
+var fileNameIpBan = '../src/ipbanlist.txt';
 GameServer.prototype.loadIpBanList = function () {
     try {
         if (fs.existsSync(fileNameIpBan)) {
