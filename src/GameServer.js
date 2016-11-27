@@ -21,6 +21,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
+    this.version = '1.3.5';
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
     this.clients = [];
@@ -1437,7 +1438,7 @@ GameServer.prototype.pingServerTracker = function () {
         uptime: process.uptime() >> 0,              // [mandatory] server uptime [seconds]
         w: this.border.width >> 0,                  // [mandatory] map border width [integer]
         h: this.border.height >> 0,                 // [mandatory] map border height [integer]
-        version: 'MultiOgar ' + pjson.version,      // [optional]  server version
+        version: 'MultiOgar ' + this.version,       // [optional]  server version
         stpavg: this.updateTimeAvg >> 0,            // [optional]  average server loop time
         chat: this.config.serverChat ? 1 : 0,       // [optional]  0 - chat disabled, 1 - chat enabled
         os: os.platform()                           // [optional]  operating system
@@ -1461,7 +1462,7 @@ GameServer.prototype.pingServerTracker = function () {
                '&name=Unnamed Server' +                 // we cannot use it, because other value will be used as dns name
                '&opp=' + os.platform() + ' ' + os.arch() + // "win32 x64"
                '&uptime=' + process.uptime() +          // Number of seconds server has been running
-               '&version=MultiOgar ' + pjson.version +
+               '&version=MultiOgar ' + this.version +
                '&start_time=' + this.startTime;
     trackerRequest({
         host: 'ogar.mivabe.nl',
@@ -1498,7 +1499,7 @@ WebSocket.prototype.sendPacket = function (packet) {
 
 function trackerRequest(options, type, body) {
     if (options.headers == null) options.headers = {};
-    options.headers['user-agent'] = 'MultiOgar' + pjson.version;
+    options.headers['user-agent'] = 'MultiOgar' + this.version;
     options.headers['content-type'] = type;
     options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
     var req = http.request(options, function (res) {
