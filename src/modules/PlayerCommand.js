@@ -50,6 +50,21 @@ PlayerCommand.prototype.executeCommandLine = function (commandLine) {
     }
 };
 
+PlayerCommand.prototype.userLogin = function (ip, password) {
+    if (!password) return null;
+    password = password.trim();
+    if (!password) return null;
+    for (var i = 0; i < this.gameServer.userList.length; i++) {
+        var user = this.gameServer.userList[i];
+        if (user.password != password)
+            continue;
+        if (user.ip && user.ip != ip)
+            continue;
+        return user;
+    }
+    return null;
+};
+
 var playerCommands = {
     help: function (args) {
         this.writeLine("/skin %shark - change skin");
@@ -90,7 +105,7 @@ var playerCommands = {
             this.writeLine("ERROR: missing password argument!");
             return;
         }
-        var user = this.gameServer.userLogin(this.playerTracker.socket.remoteAddress, password);
+        var user = this.userLogin(this.playerTracker.socket.remoteAddress, password);
         if (!user) {
             this.writeLine("ERROR: login failed!");
             return;
@@ -120,5 +135,3 @@ var playerCommands = {
         process.exit(0);
     }
 };
-
-
