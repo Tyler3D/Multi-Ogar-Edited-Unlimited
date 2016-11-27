@@ -390,7 +390,17 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        var player = gameServer.getPlayerById(id);
+        var playerById = function() {
+            if (id == null) return null;
+            for (var i = 0; i < gameServer.clients.length; i++) {
+                var playerTracker = gameServer.clients[i].playerTracker;
+                if (playerTracker.pID == id) {
+                    return playerTracker;
+                }
+            }
+            return null;
+        }
+        var player = playerById(id);
         if (player == null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
@@ -412,7 +422,17 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        var player = gameServer.getPlayerById(id);
+        var playerById = function() {
+            if (id == null) return null;
+            for (var i = 0; i < gameServer.clients.length; i++) {
+                var playerTracker = gameServer.clients[i].playerTracker;
+                if (playerTracker.pID == id) {
+                    return playerTracker;
+                }
+            }
+            return null;
+        }
+        var player = playerById(id);
         if (player == null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
@@ -421,7 +441,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already not muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" were unmuted");
+        Logger.print("Player \"" + player.getFriendlyName() + "\" was unmuted");
         player.isMuted = false;
     },
     kickall: function (gameServer, split) {
@@ -766,7 +786,7 @@ Commands.list = {
             }
         }
     },
-    reload: function (gameServer) {
+    reload: function (gameServer, split) {
         gameServer.loadConfig();
         gameServer.loadIpBanList();
         console.log("Reloaded the config file succesully");
