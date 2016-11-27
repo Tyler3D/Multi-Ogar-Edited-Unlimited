@@ -150,31 +150,12 @@ function GameServer() {
 module.exports = GameServer;
 
 GameServer.prototype.start = function () {
-    var HttpsServer = require('./HttpsServer');
-    var path = require('path');
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
+    this.gameMode.onServerInit(this); // Gamemode configurations
     
-    // Gamemode configurations
-    this.gameMode.onServerInit(this);
-    
-    var dirSsl = path.join(path.dirname(module.filename), '../ssl');
-    var pathKey = path.join(dirSsl, 'key.pem');
-    var pathCert = path.join(dirSsl, 'cert.pem');
-    
-    if (fs.existsSync(pathKey) && fs.existsSync(pathCert)) {
-        // HTTP/TLS
-        var options = {
-            key: fs.readFileSync(pathKey, 'utf8'),
-            cert: fs.readFileSync(pathCert, 'utf8')
-        };
-        Logger.info("TLS: supported");
-        this.httpServer = HttpsServer.createServer(options);
-    } else {
-        // HTTP only
-        Logger.warn("TLS: not supported (SSL certificate not found!)");
-        this.httpServer = http.createServer();
-    }
+    // Start the server
+    this.httpServer = http.createServer();
     var wsOptions = {
         server: this.httpServer, 
         perMessageDeflate: false,
@@ -186,7 +167,6 @@ GameServer.prototype.start = function () {
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
-    
     this.startStatsServer(this.config.serverStatsPort);
 };
 
