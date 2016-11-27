@@ -3,7 +3,7 @@ var WebSocket = require('ws');
 var http = require('http');
 var fs = require("fs");
 var pjson = require('../package.json');
-var QuadNode = require('quad-node');
+var QuadNode = require('./modules/QuadNode.js');
 
 // Project imports
 var Packet = require('./packet');
@@ -217,11 +217,6 @@ GameServer.prototype.startStatsServer = function (port) {
 };
 
 GameServer.prototype.onHttpServerOpen = function () {
-    // Spawns the starting amount of food cells
-    for (var i = 0; i < this.config.foodMinAmount; i++) {
-        this.spawnFood();
-    }
-    
     // Start Main Loop
     setTimeout(this.timerLoopBind, 1);
     
@@ -236,18 +231,6 @@ GameServer.prototype.onHttpServerOpen = function () {
         }
         Logger.info("Added " + this.config.serverBots + " player bots");
     }
-};
-
-GameServer.prototype.spawnFood = function () {
-    var cell = new Entity.Food(this, null, this.getRandomPosition(), this.config.foodMinSize);
-    if (this.config.foodMassGrow) {
-        var size = cell._size;
-        var maxGrow = this.config.foodMaxSize - size;
-        size += maxGrow * Math.random();
-        cell.setSize(size);
-    }
-    cell.setColor(this.getRandomColor());
-    this.addNode(cell);
 };
 
 GameServer.prototype.addNode = function (node) {
@@ -288,7 +271,6 @@ GameServer.prototype.onServerSocketError = function (error) {
 };
 
 GameServer.prototype.onClientSocketOpen = function (ws) {
-    console.log(" Player has joined the server!");
     var logip = ws._socket.remoteAddress + ":" + ws._socket.remotePort;
     ws.on('error', function (err) {
         Logger.writeError("[" + logip + "] " + err.stack);
@@ -330,7 +312,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
         self.onClientSocketMessage(ws, message);
     };
     var onError = function (error) {
-        self.onClientSocketError(ws, error);
+        ws.sendPacket = function (data) { };
     };
     var onClose = function (reason) {
         self.onClientSocketClose(ws, reason);
@@ -363,7 +345,6 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             this.bots.addMinion(ws.playerTracker);
             ws.playerTracker.minionControl = true;
         }
-        Logger.info("Added " + this.config.serverMinions + " minions");
     }
 };
 
@@ -400,10 +381,6 @@ GameServer.prototype.onClientSocketClose = function (ws, code) {
     ws.closeReason = { code: ws._closeCode, message: ws._closeMessage };
     ws.closeTime = Date.now();
     Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
-};
-
-GameServer.prototype.onClientSocketError = function (ws, error) {
-    ws.sendPacket = function (data) { };
 };
 
 GameServer.prototype.onClientSocketMessage = function (ws, message) {
@@ -502,9 +479,6 @@ GameServer.prototype.getRandomColor = function () {
 };
 
 GameServer.prototype.removeNode = function (node) {
-    if (node.quadItem == null) {
-        throw new TypeError("GameServer.removeNode: attempt to remove invalid node!");
-    }
     node.isRemoved = true;
     this.quadTree.remove(node.quadItem);
     node.quadItem = null;
@@ -711,9 +685,9 @@ GameServer.prototype.mainLoop = function () {
                 this.quadTree.find(cell1.quadItem.bound, function (item) {
                     var cell2 = item.cell;
                     if (cell2 == cell1) return;
-                    var manifold = self.checkCellCollision(cell1, cell2);
-                    if (manifold == null) return;
-                    if (self.checkRigidCollision(manifold))
+                    var c = self.checkCellCollision(cell1, cell2);
+                    if (c == null) return;
+                    if (self.checkRigidCollision(c))
                         rigidCollisions.push({ cell1: cell1, cell2: cell2 });
                     else
                         eatCollisions.push({ cell1: cell1, cell2: cell2 });
@@ -789,18 +763,8 @@ GameServer.prototype.mainLoop = function () {
             if (manifold == null) continue;
             this.resolveCollision(manifold);
         }
-        // check remerge
-        for (var i in this.clients) {
-            client = this.clients[i].playerTracker;
-            for (var j = 0; j < client.cells.length; j++) {
-                cell1 = client.cells[j];
-                if (cell1 === null || cell1.isRemoved) continue;
-                cell1.updateRemerge(this);
-            }
-        }
         if ((this.tickCounter & this.config.spawnInterval - 1) == 0) {
-            this.updateFood();  // Spawn food
-            this.updateVirus(); // Spawn viruses
+            this.spawnCells();
         }
         this.gameMode.onTick(this);
         if (((this.tickCounter + 3) & (25)) == 0) {
@@ -827,7 +791,7 @@ GameServer.prototype.mainLoop = function () {
 
 GameServer.prototype.autoSplit = function (client, cell1) {
     // rec mode
-    if (client.rec == false) {
+    if (!client.rec) {
         var maxSize = this.config.playerMaxSize;
     } else {
         maxSize = this.config.playerMaxSize * 3;
@@ -841,14 +805,14 @@ GameServer.prototype.autoSplit = function (client, cell1) {
             cell1.setSize(maxSize);
         } else {
             // split
-            var maxSplit = this.config.playerMaxCells - client.cells.length;
-            var maxMass = maxSize * maxSize;
-            var count = (cell1._sizeSquared / maxMass) >> 0;
-                count = Math.min(count, maxSplit);
-            var splitSize = cell1._size / Math.sqrt(count + 1);
-            var splitMass = splitSize * splitSize / 100;
-            var angle = Math.random() * 2 * Math.PI;
-            var step = 2 * Math.PI / count;
+            var maxSplit = this.config.playerMaxCells - client.cells.length,
+            maxMass = maxSize * maxSize,
+            count = (cell1._sizeSquared / maxMass) >> 0,
+            count = Math.min(count, maxSplit),
+            splitSize = cell1._size / Math.sqrt(count + 1),
+            splitMass = splitSize * splitSize / 100,
+            angle = Math.random() * 2 * Math.PI,
+            step = 2 * Math.PI / count;
             for (var k = 0; k < count; k++) {
                 this.splitPlayerCell(client, cell1, angle, splitMass);
                 angle += step;
@@ -895,9 +859,6 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, ma
 
 GameServer.prototype.updateNodeQuad = function (node) {
     var item = node.quadItem;
-    if (item == null) {
-        throw new TypeError("GameServer.updateNodeQuad: quadItem is null!");
-    }
     var x = node.position.x;
     var y = node.position.y;
     var size = node._size;
@@ -946,8 +907,8 @@ GameServer.prototype.resolveRigidCollision = function (c) {
     
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
-    var m2 = c.cell2._mass * (1 / m);
     var m1 = c.cell1._mass * (1 / m);
+    var m2 = c.cell2._mass * (1 / m);
     
     // apply extrusion force
     c.cell1.position.x -= (((c.r - d) / d) * c.dx) * m2;
@@ -1024,43 +985,30 @@ GameServer.prototype.resolveCollision = function (manifold) {
     this.removeNode(minCell);
 };
 
-GameServer.prototype.updateFood = function () {
+GameServer.prototype.spawnCells = function () {
     var maxCount = this.config.foodMinAmount - this.currentFood;
     var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
     for (var i = 0; i < spawnCount; i++) {
-        this.spawnFood();
+        var cell = new Entity.Food(this, null, this.getRandomPosition(), this.config.foodMinSize);
+        if (this.config.foodMassGrow) {
+            var size = cell._size;
+            var maxGrow = this.config.foodMaxSize - size;
+            size += maxGrow * Math.random();
+            cell.setSize(size);
+        }
+        cell.setColor(this.getRandomColor());
+        this.addNode(cell);
     }
-};
-
-GameServer.prototype.updateVirus = function () {
-    var maxCount = this.config.virusMinAmount - this.nodesVirus.length;
-    var spawnCount = Math.min(maxCount, 2);
+    maxCount = this.config.virusMinAmount - this.nodesVirus.length;
+    spawnCount = Math.min(maxCount, 2);
     for (var i = 0; i < spawnCount; i++) {
-        this.spawnVirus();
+        var pos = this.getRandomPosition();
+        for (var i = 0; i < 10 && this.willCollide(pos, this.config.virusMinSize); i++) {
+            pos = this.getRandomPosition();
+        }
+        var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
+        this.addNode(v);
     }
-};
-
-GameServer.prototype.spawnFood = function () {
-    var cell = new Entity.Food(this, null, this.getRandomPosition(), this.config.foodMinSize);
-    if (this.config.foodMassGrow) {
-        var size = cell._size;
-        var maxGrow = this.config.foodMaxSize - size;
-        size += maxGrow * Math.random();
-        cell.setSize(size);
-    }
-    cell.setColor(this.getRandomColor());
-    this.addNode(cell);
-};
-
-GameServer.prototype.spawnVirus = function () {
-    // Spawns a virus
-    var pos = this.getRandomPosition();
-    // 10 attempts to find safe position
-    for (var i = 0; i < 10 && this.willCollide(pos, this.config.virusMinSize); i++) {
-        pos = this.getRandomPosition();
-    }
-    var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
-    this.addNode(v);
 };
 
 GameServer.prototype.updateMassDecay = function () {
@@ -1148,22 +1096,22 @@ GameServer.prototype.willCollide = function (pos, size) {
 };
 
 // Checks if collision is rigid body collision
-GameServer.prototype.checkRigidCollision = function (manifold) {
-    if (!manifold.cell1.owner || !manifold.cell2.owner)
+GameServer.prototype.checkRigidCollision = function (c) {
+    if (!c.cell1.owner || !c.cell2.owner)
         return false;
-    if (manifold.cell1.owner != manifold.cell2.owner) {
+    if (c.cell1.owner != c.cell2.owner) {
         // Different owners
         return this.gameMode.haveTeams && 
-            manifold.cell1.owner.team == manifold.cell2.owner.team;
+            c.cell1.owner.team == c.cell2.owner.team;
     }
     // The same owner
-    if (manifold.cell1.owner.mergeOverride)
+    if (c.cell1.owner.mergeOverride)
         return false;
-    if (manifold.cell1.getAge(this.tickCounter) < 15 || manifold.cell2.getAge(this.tickCounter) < 15) {
+    if (c.cell1.getAge(this.tickCounter) < 15 || c.cell2.getAge(this.tickCounter) < 15) {
         // just splited => ignore
         return false;
     }
-    return !manifold.cell1._canRemerge || !manifold.cell2._canRemerge;
+    return !c.cell1._canRemerge || !c.cell2._canRemerge;
 };
 
 GameServer.prototype.splitCells = function (client) {
@@ -1290,17 +1238,6 @@ GameServer.prototype.shootVirus = function (parent, angle) {
     this.addNode(newVirus);
 };
 
-GameServer.prototype.getPlayerById = function (id) {
-    if (id == null) return null;
-    for (var i = 0; i < this.clients.length; i++) {
-        var playerTracker = this.clients[i].playerTracker;
-        if (playerTracker.pID == id) {
-            return playerTracker;
-        }
-    }
-    return null;
-};
-
 GameServer.prototype.loadConfig = function () {
     var fileNameConfig = './gameserver.ini';
     var ini = require('./modules/ini.js');
@@ -1395,21 +1332,6 @@ GameServer.prototype.loadUserList = function () {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameUsers + ": " + err.message);
     }
-};
-
-GameServer.prototype.userLogin = function (ip, password) {
-    if (!password) return null;
-    password = password.trim();
-    if (!password) return null;
-    for (var i = 0; i < this.userList.length; i++) {
-        var user = this.userList[i];
-        if (user.password != password)
-            continue;
-        if (user.ip && user.ip != ip)
-            continue;
-        return user;
-    }
-    return null;
 };
 
 var fileNameIpBan = './ipbanlist.txt';
