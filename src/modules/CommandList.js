@@ -49,12 +49,14 @@ Commands.list = {
         console.log("│Playerlist                   │ Get list of players and bots                │");
         console.log("│Reload                       │ Reload config                               │");
         console.log("│Status                       │ Get server status                           │");
+        console.log("|Reset                        | Resets the server by removing all nodes     |");
         console.log("│Unban [IP]                   │ Unban an IP                                 │");
         console.log("│Minion [PlayerID] [#] [name] │ Adds suicide minions to the server          │");
         console.log("│Spawnmass [PlayerID] [mass]  │ Sets players spawn mass                     │");
         console.log("│Freeze [PlayerID]            │ Freezes a player                            │");
         console.log("│Speed [PlayerID]             │ Sets a players base speed                   │");
         console.log("│Rec [PlayerID]               │ Puts a player in rec mode                   │");
+        console.log("|Split [PlayerID] [Amount]    | Forces a player to split themselves         |");
         console.log("│St                           │ Alias for status                            │");
         console.log("│Pl                           │ Alias for playerlist                        │");
         console.log("│M                            │ Alias for mass                              │");
@@ -80,11 +82,32 @@ Commands.list = {
         console.log("Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true));
         console.log("- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells));
         console.log("- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true));
-        console.log("- Foods:        " + fillChar(gameServer.currentFood, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
+        console.log("- Foods:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
         console.log("- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount);
         console.log("Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true));
         console.log("Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true));
         console.log("Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
+    },
+    reset: function (gameServer, split) {
+        Logger.warn("Removed " + gameServer.nodes.length + " nodes");
+        for (var i = 0; i < gameServer.nodes.length; i++) {
+            gameServer.removeNode(gameServer.nodes[i]);
+        }
+        // just to make sure the jobs done
+        for (var i = 0; i < gameServer.nodesEjected.length; i++) {
+            gameServer.removeNode(gameServer.nodesEjected[i]);
+        }
+        for (var i = 0; i < gameServer.nodesFood.length; i++) {
+            gameServer.removeNode(gameServer.nodesFood[i]);
+        }
+        for (var i = 0; i < gameServer.nodesVirus.length; i++) {
+            gameServer.removeNode(gameServer.nodesVirus[i]);
+        }
+        for (var i in gameServer.clients) {
+            for (var i = 0; i < gameServer.clients[i].playerTracker.cells.length; i++) {
+                gameServer.removeNode(gameServer.clients.playerTracker.cells[0]);
+            }
+        }
     },
     minion: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -627,6 +650,32 @@ Commands.list = {
                 client.rec = !client.rec;
                 if (client.rec) console.log(client.getFriendlyName() + " is now in rec mode!");
                 else console.log(client.getFriendlyName() + " is no longer in rec mode");
+            }
+        }
+    },
+    split: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        var count = parseInt(split[2]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        if (isNaN(count)) {
+            console.log("Split player 4 times");
+            count = 4;
+        }
+        if (count > gameServer.config.playerMaxCells) {
+            console.log("Split player to playerMaxCells");
+            count = gameServer.config.playerMaxCells;
+        }
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                for (var i = 0; i < count; i++) {
+                    gameServer.splitCells(client);
+                }
+                console.log("Forced " + client.getFriendlyName() + " to split " + count + " times");
+                break;
             }
         }
     },
