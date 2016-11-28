@@ -123,6 +123,7 @@ function GameServer() {
         disableERT: 1,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
+		minionCollectPellets: 0,    // Enable collect pellets mode. Warning: this disables Q controls, so make sure that disableERT is 0.
         
         lastManStandingShortest: 60, // Shortest amount of time possible before LMS happens in minutes
         lastManStandingLongest: 120, // Longest amount of time possible before LMS happens in minutes
