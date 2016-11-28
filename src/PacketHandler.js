@@ -322,9 +322,9 @@ PacketHandler.prototype.getRandomSkin = function () {
     var randomSkins = [];
     var fs = require("fs");
     
-    if (fs.existsSync("./randomskins.txt")) {
+    if (fs.existsSync("../src/randomskins.txt")) {
         // Read and parse the Skins - filter out whitespace-only Skins
-        randomSkins = fs.readFileSync("./randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
+        randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
             return x != ''; // filter empty Skins
         });
     }
