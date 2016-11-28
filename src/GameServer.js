@@ -1323,8 +1323,8 @@ GameServer.prototype.loadUserList = function () {
     }
 };
 
-var fileNameIpBan = '../src/ipbanlist.txt';
 GameServer.prototype.loadIpBanList = function () {
+    var fileNameIpBan = '../src/ipbanlist.txt';
     try {
         if (fs.existsSync(fileNameIpBan)) {
             // Load and input the contents of the ipbanlist file
@@ -1338,21 +1338,6 @@ GameServer.prototype.loadIpBanList = function () {
     } catch (err) {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
-    }
-};
-
-GameServer.prototype.saveIpBanList = function () {
-    try {
-        var blFile = fs.createWriteStream(fileNameIpBan);
-        // Sort the blacklist and write.
-        this.ipBanList.sort().forEach(function (v) {
-            blFile.write(v + '\n');
-        });
-        blFile.end();
-        Logger.info(this.ipBanList.length + " IP ban records saved.");
-    } catch (err) {
-        Logger.error(err.stack);
-        Logger.error("Failed to save " + fileNameIpBan + ": " + err.message);
     }
 };
 
