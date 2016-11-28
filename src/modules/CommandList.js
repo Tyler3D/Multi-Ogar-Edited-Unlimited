@@ -24,44 +24,48 @@ var fillChar = function (data, char, fieldLength, rTL) {
 // Commands
 Commands.list = {
     help: function (gameServer, split) {
-        console.log("======================== HELP ======================");
-        console.log("addbot [number]              : adds bots to the server");
-        console.log("kickbot [number]             : kick a number of bots");
-        console.log("ban [PlayerID | IP]          : bans a(n) (player's) IP");
-        console.log("banlist                      : get list of banned IPs.");
-        console.log("board [string] [string] ...  : set scoreboard text");
-        console.log("change [setting] [value]     : change specified settings");
-        console.log("clear                        : clear console output");
-        console.log("color [PlayerID] [R] [G] [B] : set cell(s) color by client ID");
-        console.log("exit                         : stop the server");
-        console.log("kick [PlayerID]              : kick player or bot by client ID");
-        console.log("kickall                      : kick all players and bots");
-        console.log("mute [PlayerID]              : mute player (block chat messages from him)");
-        console.log("unmute [PlayerID]            : unmute player (allow chat messages from him)");
-        console.log("kill [PlayerID]              : kill cell(s) by client ID");
-        console.log("killall                      : kill everyone");
-        console.log("mass [PlayerID] [mass]       : set cell(s) mass by client ID");
-        console.log("merge [PlayerID]             : merge all client's cells once");
-        console.log("name [PlayerID] [name]       : change cell(s) name by client ID");
-        console.log("playerlist                   : get list of players and bots");
-        console.log("pause                        : pause game , freeze all cells");
-        console.log("reload                       : reload config");
-        console.log("status                       : get server status");
-        console.log("unban [IP]                   : unban an IP");
-        console.log("minion [PlayerID] [#] [name] : adds suicide minions to the server");
-        console.log("spawnmass [PlayerID] [mass]  : sets players spawn mass");
-        console.log("freeze [PlayerID]            : freezes a player");
-        console.log("speed [PlayerID]             : sets a players base speed");
-        console.log("rec [PlayerID]               : puts a player in rec mode");
-        console.log("st                           : alias for status");
-        console.log("pl                           : alias for playerlist");
-        console.log("m                            : alias for mass");
-        console.log("sm                           : alias for spawnmass");
-        console.log("ka                           : alias for killall");
-        console.log("k                            : alias for kill");
-        console.log("mg                           : alias for merge");
-        console.log("s                            : alias for speed");
-        console.log("====================================================");
+        console.log("╭──────────────╮");
+        console.log("│ COMMAND LIST │");
+        console.log("├──────────────┴──────────────┬─────────────────────────────────────────────╮");
+        console.log("│Addbot [number]              │ Adds bots to the server                     │");
+        console.log("│Kickbot [number]             │ Kick a number of bots                       │");
+        console.log("│Ban [PlayerID | IP]          │ Bans a(n) (player's) IP                     │");
+        console.log("│Banlist                      │ Get list of banned IPs.                     │");
+        console.log("│Board [string] [string] ...  │ Set scoreboard text                         │");
+        console.log("│Change [setting] [value]     │ Change specified settings                   │");
+        console.log("│Clear                        │ Clear console output                        │");
+        console.log("│Color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID              │");
+        console.log("│Exit                         │ Stop the server                             │");
+        console.log("│Kick [PlayerID]              │ Kick player or bot by client ID             │");
+        console.log("│Kickall                      │ Kick all players and bots                   │");
+        console.log("│Mute [PlayerID]              │ Mute player (block chat messages from him)  │");
+        console.log("│Unmute [PlayerID]            │ Unmute player (allow chat messages from him)│");
+        console.log("│Kill [PlayerID]              │ Kill cell(s) by client ID                   │");
+        console.log("│Killall                      │ Kill everyone                               │");
+        console.log("│Mass [PlayerID] [mass]       │ Set cell(s) mass by client ID               │");
+        console.log("│Merge [PlayerID]             │ Merge all client's cells once               │");
+        console.log("│Name [PlayerID] [name]       │ Change cell(s) name by client ID            │");
+        console.log("│Pause                        │ Pause game , freeze all cells               │");
+        console.log("│Playerlist                   │ Get list of players and bots                │");
+        console.log("│Reload                       │ Reload config                               │");
+        console.log("│Status                       │ Get server status                           │");
+        console.log("│Unban [IP]                   │ Unban an IP                                 │");
+        console.log("│Minion [PlayerID] [#] [name] │ Adds suicide minions to the server          │");
+        console.log("│Spawnmass [PlayerID] [mass]  │ Sets players spawn mass                     │");
+        console.log("│Freeze [PlayerID]            │ Freezes a player                            │");
+        console.log("│Speed [PlayerID]             │ Sets a players base speed                   │");
+        console.log("│Rec [PlayerID]               │ Puts a player in rec mode                   │");
+        console.log("│St                           │ Alias for status                            │");
+        console.log("│Pl                           │ Alias for playerlist                        │");
+        console.log("│M                            │ Alias for mass                              │");
+        console.log("│Sm                           │ Alias for spawnmass                         │");
+        console.log("│Ka                           │ Alias for killall                           │");
+        console.log("│K                            │ Alias for kill                              │");
+        console.log("│Mg                           │ Alias for merge                             │");
+        console.log("│S                            │ Alias for speed                             │");
+        console.log("├─────────────────────────────┴─────────────────────────────────────────────┤");
+        console.log("│DISCLAIMER: commands do not have to be capitalized!                        │");
+        console.log("╰───────────────────────────────────────────────────────────────────────────╯");
     },
     debug: function (gameServer, split) {
         // Used for checking node lengths (for now)
@@ -215,7 +219,7 @@ Commands.list = {
                 Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
                 gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
             }, gameServer);
-            gameServer.saveIpBanList();
+            saveIpBanList(gameServer);
         }
     },
     banlist: function (gameServer, split) {
@@ -390,17 +394,7 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        var playerById = function() {
-            if (id == null) return null;
-            for (var i = 0; i < gameServer.clients.length; i++) {
-                var playerTracker = gameServer.clients[i].playerTracker;
-                if (playerTracker.pID == id) {
-                    return playerTracker;
-                }
-            }
-            return null;
-        }
-        var player = playerById(id);
+        var player = playerById(id, gameServer);
         if (player == null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
@@ -422,17 +416,7 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        var playerById = function() {
-            if (id == null) return null;
-            for (var i = 0; i < gameServer.clients.length; i++) {
-                var playerTracker = gameServer.clients[i].playerTracker;
-                if (playerTracker.pID == id) {
-                    return playerTracker;
-                }
-            }
-            return null;
-        }
-        var player = playerById(id);
+        var player = playerById(id, gameServer);
         if (player == null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
@@ -686,7 +670,7 @@ Commands.list = {
             return;
         }
         gameServer.ipBanList.splice(index, 1);
-        gameServer.saveIpBanList();
+        saveIpBanList(gameServer);
         Logger.print("Unbanned IP: " + ip);
     },
     playerlist: function (gameServer, split) {
@@ -838,3 +822,32 @@ Commands.list = {
         Commands.list.speed(gameServer, split);
     }
 };
+
+// functions from GameServer
+
+function playerById (id, gameServer) {
+    if (id == null) return null;
+    for (var i = 0; i < gameServer.clients.length; i++) {
+        var playerTracker = gameServer.clients[i].playerTracker;
+        if (playerTracker.pID == id) {
+            return playerTracker;
+        }
+    }
+    return null;
+}
+
+function saveIpBanList (gameServer) {
+    var fs = require("fs");
+    try {
+        var blFile = fs.createWriteStream('../src/ipbanlist.txt');
+        // Sort the blacklist and write.
+        gameServer.ipBanList.sort().forEach(function (v) {
+            blFile.write(v + '\n');
+        });
+        blFile.end();
+        Logger.info(gameServer.ipBanList.length + " IP ban records saved.");
+    } catch (err) {
+        Logger.error(err.stack);
+        Logger.error("Failed to save " + '../src/ipbanlist.txt' + ": " + err.message);
+    }
+}
