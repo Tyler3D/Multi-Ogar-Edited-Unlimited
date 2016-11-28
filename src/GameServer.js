@@ -26,12 +26,12 @@ function GameServer() {
     this.clients = [];
     this.socketCount = 0;
     this.largestClient; // Required for spectators
-    this.nodes = [];
+    this.nodes = [];        // Total nodes
     this.nodesVirus = [];   // Virus nodes
+    this.nodesFood = [];    // Food nodes
     this.nodesEjected = []; // Ejected mass nodes
     this.quadTree = null;
     
-    this.currentFood = 0;
     this.movingNodes = []; // For move engine
     this.leaderboard = [];
     this.leaderboardType = -1; // no type
@@ -975,7 +975,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
 };
 
 GameServer.prototype.spawnCells = function () {
-    var maxCount = this.config.foodMinAmount - this.currentFood;
+    var maxCount = this.config.foodMinAmount - this.nodesFood.length;
     var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
     for (var i = 0; i < spawnCount; i++) {
         var cell = new Entity.Food(this, null, this.getRandomPosition(), this.config.foodMinSize);
