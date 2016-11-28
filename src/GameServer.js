@@ -743,6 +743,15 @@ GameServer.prototype.mainLoop = function () {
             if (manifold == null) continue;
             this.resolveCollision(manifold);
         }
+        // check remerge
+        for (var i in this.clients) {
+            client = this.clients[i].playerTracker;
+            for (var j = 0; j < client.cells.length; j++) {
+                cell1 = client.cells[j];
+                if (cell1 === null || cell1.isRemoved) continue;
+                cell1.updateRemerge(this);
+            }
+        }
         if ((this.tickCounter & this.config.spawnInterval - 1) == 0) {
             this.spawnCells();
         }
