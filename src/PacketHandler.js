@@ -149,6 +149,9 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
     var color = this.gameServer.getGrayColor(client.color);
     var randomColor = this.gameServer.getRandomColor(client.color);
     if (client.minionControl) {
+		if (this.gameServer.config.minionCollectPellets) {
+			client.minionCollectPellets=!client.minionCollectPellets;
+		} else {
         if (client.miQ == 1) {
             client.miQ = 0;
             client.setColor(randomColor);
@@ -163,6 +166,7 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
                 cell.setColor(color);
             }, this);
         }
+		}
         
     // client doesn't have minions
     } else {

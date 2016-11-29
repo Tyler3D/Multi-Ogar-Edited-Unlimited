@@ -25,6 +25,7 @@ function PlayerTracker(gameServer, socket) {
     this._scaleF = 1;
     this.isMassChanged = true;
     this.borderCounter = 0;
+	this.minionCollectPellets = false;
     
     this.mouse = {
         x: 0,
