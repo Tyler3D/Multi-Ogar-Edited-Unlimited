@@ -5,12 +5,9 @@ var fs = require("fs");
 
 // Project imports
 var Packet = require('./packet');
-var QuadNode = require('./modules/QuadNode.js');
 var PlayerTracker = require('./PlayerTracker');
 var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
-var Gamemode = require('./gamemodes');
-var BotLoader = require('./ai/BotLoader');
 var Logger = require('./modules/Logger');
 
 // GameServer implementation
@@ -21,6 +18,7 @@ function GameServer() {
     // Startup
     this.run = true;
     this.version = '1.3.7';
+    this.commands;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
     this.clients = [];
@@ -36,8 +34,8 @@ function GameServer() {
     this.leaderboard = [];
     this.leaderboardType = -1; // no type
     
+    var BotLoader = require('./ai/BotLoader');
     this.bots = new BotLoader(this);
-    this.commands; // Command handler
     
     // Main loop tick
     this.startTime = Date.now();
@@ -47,11 +45,8 @@ function GameServer() {
     this.updateTimeAvg = 0;
     this.timerLoopBind = null;
     this.mainLoopBind = null;
-    
     this.tickCounter = 0;
-    
-    this.setBorder(10000, 10000);
-    
+
     // Config
     this.config = {
         logVerbosity: 4,            // Console log level (0=NONE; 1=FATAL; 2=ERROR; 3=WARN; 4=INFO; 5=DEBUG)
@@ -81,7 +76,7 @@ function GameServer() {
         
         serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
         serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
-        serverMinionThreshold: 10,  // max connections within serverMinionInterval time period, which will not be marked as minion
+        serverMinionThreshold: 10,  // max connections within serverMinionInterval time period, which l not be marked as minion
         serverMinionInterval: 1000, // minion detection interval [milliseconds]
         serverScrambleLevel: 1,     // Toggles scrambling of coordinates. 0 = No scrambling, 1 = lightweight scrambling. 2 = full scrambling (also known as scramble minimap); 3 - high scrambling (no border)
         playerBotGrow: 0,           // Cells greater than 625 mass cannot grow from cells under 17 mass (set to 1 to disable)
@@ -120,10 +115,10 @@ function GameServer() {
         
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
-        disableERT: 1,              // Whether or not to disable E, R, and T controls for minions on clients that support it. (Set to 0 to enable)
+        disableERTP: 1,             // Whether or not to disable E, R, T, and P controls for minions on clients that support it. (Set to 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
-		minionCollectPellets: 0,    // Enable collect pellets mode. Warning: this disables Q controls, so make sure that disableERT is 0.
+        collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
         
         lastManStandingShortest: 60, // Shortest amount of time possible before LMS happens in minutes
         lastManStandingLongest: 120, // Longest amount of time possible before LMS happens in minutes
@@ -141,10 +136,12 @@ function GameServer() {
     this.loadUserList();
     this.loadBadWords();
     
+    var QuadNode = require('./modules/QuadNode.js');
     this.setBorder(this.config.borderWidth, this.config.borderHeight);
     this.quadTree = new QuadNode(this.border, 64, 32);
     
     // Gamemodes
+    var Gamemode = require('./gamemodes');
     this.gameMode = Gamemode.get(this.config.serverGamemode);
 }
 
@@ -410,15 +407,6 @@ GameServer.prototype.getRandomPosition = function () {
     return {
         x: (this.border.minx + this.border.width * Math.random()) >> 0,
         y: (this.border.miny + this.border.height * Math.random()) >> 0
-    };
-};
-
-GameServer.prototype.getGrayColor = function (rgb) {
-    var luminance = Math.min(255, (rgb.r * 0.2125 + rgb.g * 0.7154 + rgb.b * 0.0721)) >> 0;
-    return {
-        r: luminance,
-        g: luminance,
-        b: luminance
     };
 };
 
@@ -971,7 +959,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
         
     // update bounds & Remove cell
     this.updateNodeQuad(maxCell);
-    minCell.setKiller(maxCell);
+    minCell.killedBy = maxCell;
     this.removeNode(minCell);
 };
 
