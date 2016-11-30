@@ -18,7 +18,6 @@ function Experimental() {
     this.motherSpawnInterval = 25 * 5;  // How many ticks it takes to spawn another mother cell (5 seconds)
     this.motherUpdateInterval = 2;     // How many ticks it takes to spawn mother food (1 second)
     this.motherMinAmount = 20;
-    this.motherMaxAmount = 30;
 }
 
 module.exports = Experimental;
@@ -48,16 +47,8 @@ Experimental.prototype.onServerInit = function (gameServer) {
     // Called when the server starts
     gameServer.run = true;
     
-    var mapSize = Math.max(gameServer.border.width, gameServer.border.height);
-    
-    // 7 mother cells for vanilla map size
-    //this.motherMinAmount = Math.ceil(mapSize / 2000);
-    //this.motherMaxAmount = this.motherMinAmount * 2;
-    
+    // Ovveride functions for special virus mechanics
     var self = this;
-    // Override
-    
-    // Special virus mechanics
     Entity.Virus.prototype.onEat = function (prey) {
         // Pushes the virus
         var angle = prey.isMoving ? prey.boostDirection.angle : this.boostDirection.angle;
@@ -68,11 +59,8 @@ Experimental.prototype.onServerInit = function (gameServer) {
     };
     Entity.MotherCell.prototype.onRemove = function () {
         var index = self.nodesMother.indexOf(this);
-        if (index != -1) {
+        if (index != -1) 
             self.nodesMother.splice(index, 1);
-        } else {
-            Logger.error("Experimental.onServerInit.MotherVirus.onRemove: Tried to remove a non existing virus!");
-        }
     };
 };
 
