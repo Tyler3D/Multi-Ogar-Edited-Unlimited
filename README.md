@@ -115,6 +115,7 @@ http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
 http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
 http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
 http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
+http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
 ###MultiOgar Servers
 
@@ -130,6 +131,18 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 
 
 ## Changelog:
+#### 1.4.0: 
+* Added pellet mode for minions! All thanks to @ZfsrGhS953 =D
+* Cleaned/refactored the rest of GameServer
+* Improved performance
+* Added controls for pellet mode
+* Refactored minion controls
+* Created "run" folder to hold the server run files/logs
+* Added two new commands: reset and split
+* Made help command look alot better, thanks to @Agarian 
+* Skipped version 1.3.8-1.3.9 for some reason
+
+
 #### 1.3.7:
 * Fixed some bugs
 * Cleaned/refactored most of GameServer
