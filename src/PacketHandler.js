@@ -118,7 +118,7 @@ PacketHandler.prototype.message_onMouse = function (message) {
 };
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
-    if (this.socket.playerTracker.miQ == 1 && this.socket.playerTracker.minionControl) {
+    if (this.socket.playerTracker.miQ) {
         this.socket.playerTracker.minionSplit = true;
     } else {
         this.pressSpace = true;
@@ -133,13 +133,9 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
         return;
     }
     this.lastQTick = tick;
-    
-    var client = this.socket.playerTracker;
-    if (client.minionControl) {
-        if (this.gameServer.config.collectPellets)
-			client.collectPellets = !client.collectPellets;
-		else
-            client.miQ = !client.miQ;
+    if (!this.gameServer.config.disableQ) {
+        if (this.socket.playerTracker.minionControl)
+            this.socket.playerTracker.miQ = !this.socket.playerTracker.miQ;
     } else {
         this.pressQ = true;
     }
@@ -153,7 +149,7 @@ PacketHandler.prototype.message_onKeyW = function (message) {
         return;
     }
     this.lastWTick = tick;
-    if (this.socket.playerTracker.miQ == 1 && this.socket.playerTracker.minionControl) {
+    if (this.socket.playerTracker.miQ) {
         this.socket.playerTracker.minionEject = true;
     } else {
         this.pressW = true;
@@ -161,22 +157,22 @@ PacketHandler.prototype.message_onKeyW = function (message) {
 };
 
 PacketHandler.prototype.message_onKeyE = function (message) {
-    if (this.gameServer.config.disableERTP === 1) return;
+    if (this.gameServer.config.disableERTP) return;
     this.socket.playerTracker.minionSplit = true;
 };
 
 PacketHandler.prototype.message_onKeyR = function (message) {
-    if (this.gameServer.config.disableERTP === 1) return;
+    if (this.gameServer.config.disableERTP) return;
     this.socket.playerTracker.minionEject = true;
 };
 
 PacketHandler.prototype.message_onKeyT = function (message) {
-    if (this.gameServer.config.disableERTP === 1) return;
+    if (this.gameServer.config.disableERTP) return;
     this.socket.playerTracker.minionFrozen = !this.socket.playerTracker.minionFrozen;
 };
 
 PacketHandler.prototype.message_onKeyP = function (message) {
-    if (this.gameServer.config.disableERTP === 1) return;
+    if (this.gameServer.config.disableERTP) return;
     if (this.gameServer.config.collectPellets) {
         this.socket.playerTracker.collectPellets = !this.socket.playerTracker.collectPellets;
     }
