@@ -4,6 +4,7 @@ function PlayerCell() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
     
     this.cellType = 0;
+    this._speed = null;
     this._canRemerge = false;
 }
 
@@ -11,32 +12,24 @@ module.exports = PlayerCell;
 PlayerCell.prototype = new Cell();
 
 // Main Functions
+
 PlayerCell.prototype.updateRemerge = function () {
     var age = this.getAge(this.gameServer.tickCounter);
-    if (age < 15) {
-        // do not remerge if cell age is smaller than 15 ticks
-        this._canRemerge = false;
-        return;
-    }
-    var baseTtr = this.gameServer.config.playerRecombineTime;
-    if (baseTtr == 0 || this.owner.rec == true) {
+    var r = this.gameServer.config.playerRecombineTime;
+    var ttr = Math.max(r, (this._size * 0.2) >> 0); // seconds
+    if (age < 15) this._canRemerge = false;
+    if (r == 0 || this.owner.rec) {
         // instant merge
-        if (this._size >= 780 / 2) {
-            this._canRemerge = age > 20;
-            return;
-        }
         this._canRemerge = this.boostDistance < 100;
         return;
     }
-    var ttr = Math.max(baseTtr, (this._size * 0.2) >> 0); // in seconds
     // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
     ttr *= 25;
     this._canRemerge = age >= ttr;
 };
 
 PlayerCell.prototype.canEat = function (cell) {
-    // player cell can eat anyone
-    return true;
+    return true; // player cell can eat anyone
 };
 
 // Movement
@@ -55,13 +48,10 @@ PlayerCell.prototype.moveUser = function (border) {
     var squared = dx * dx + dy * dy;
     if (squared < 1) return;
     
-    // distance
+    // distance, normal
     var d = Math.sqrt(squared);
-    
-    // normal
-    var invd = 1 / d;
-    var nx = dx * invd;
-    var ny = dy * invd;
+    var nx = dx * (1 / d);
+    var ny = dy * (1 / d);
     
     // normalized distance (0..1)
     d = Math.min(d, 32) / 32;
@@ -73,15 +63,23 @@ PlayerCell.prototype.moveUser = function (border) {
     this.checkBorder(border);
 };
 
+PlayerCell.prototype.getSpeed = function () {
+    var speed = 2.1106 / Math.pow(this._size, 0.449);
+    // tickStep = 40ms
+    this._speed = (this.owner.customspeed > 0) ? 
+    speed * 40 * this.owner.customspeed : // Set by command
+    speed * 40 * this.gameServer.config.playerSpeed;
+    return this._speed;
+};
+
 PlayerCell.prototype.onAdd = function (gameServer) {
     // Gamemode actions
     gameServer.gameMode.onCellAdd(this);
 };
 
 PlayerCell.prototype.onRemove = function (gameServer) {
-    var index;
     // Remove from player cell list
-    index = this.owner.cells.indexOf(this);
+    var index = this.owner.cells.indexOf(this);
     if (index != -1) {
         this.owner.cells.splice(index, 1);
     }
