@@ -287,13 +287,28 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
     
     var self = this;
     var onMessage = function (message) {
-        self.onClientSocketMessage(ws, message);
+        if (message.length == 0) {
+            return;
+        }
+        if (message.length > 256) {
+            ws.close(1009, "Spam");
+            return;
+        }
+        ws.packetHandler.handleMessage(message);
     };
     var onError = function (error) {
         ws.sendPacket = function (data) { };
     };
     var onClose = function (reason) {
-        self.onClientSocketClose(ws, reason);
+        if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
+            ws._socket.destroy();
+        }
+        this.socketCount--;
+        ws.isConnected = false;
+        ws.sendPacket = function (data) { };
+        ws.closeReason = { reason: ws._closeCode, message: ws._closeMessage };
+        ws.closeTime = Date.now();
+        Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
     };
     ws.on('message', onMessage);
     ws.on('error', onError);
@@ -349,58 +364,11 @@ GameServer.prototype.checkIpBan = function (ipAddress) {
     return false;
 };
 
-GameServer.prototype.onClientSocketClose = function (ws, code) {
-    if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
-        ws._socket.destroy();
-    }
-    this.socketCount--;
-    ws.isConnected = false;
-    ws.sendPacket = function (data) { };
-    ws.closeReason = { code: ws._closeCode, message: ws._closeMessage };
-    ws.closeTime = Date.now();
-    Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
-};
-
-GameServer.prototype.onClientSocketMessage = function (ws, message) {
-    if (message.length == 0) {
-        return;
-    }
-    if (message.length > 256) {
-        ws.close(1009, "Spam");
-        return;
-    }
-    ws.packetHandler.handleMessage(message);
-};
-
 GameServer.prototype.setBorder = function (width, height) {
-    var hw = width / 2;
-    var hh = height / 2;
+    var hw = width / 2, hh = height / 2;
     this.border = {
-        minx: -hw,
-        miny: -hh,
-        maxx: hw,
-        maxy: hh,
-        width: width,
-        height: height,
-        centerx: 0,
-        centery: 0
+        minx: -hw, miny: -hh, maxx: hw, maxy: hh, width: width, height: height, centerx: 0, centery: 0
     };
-};
-
-GameServer.prototype.getNextNodeId = function () {
-    // Resets integer
-    if (this.lastNodeId > 2147483647) {
-        this.lastNodeId = 1;
-    }
-    return this.lastNodeId++ >> 0;
-};
-
-GameServer.prototype.getNewPlayerID = function () {
-    // Resets integer
-    if (this.lastPlayerId > 2147483647) {
-        this.lastPlayerId = 1;
-    }
-    return this.lastPlayerId++ >> 0;
 };
 
 GameServer.prototype.getRandomPosition = function () {
@@ -553,11 +521,6 @@ GameServer.prototype.onChatMessage = function (from, to, message) {
             this.sendChatMessage(null, from, "Stop insulting others! Keep calm and be friendly please");
         }
         return;
-    }
-    if (from) {
-        Logger.writeDebug("[CHAT][" + from.socket.remoteAddress + ":" + from.socket.remotePort + "][" + from.getFriendlyName() + "] " + message);
-    } else {
-        Logger.writeDebug("[CHAT][][]: " + message);
     }
     this.sendChatMessage(from, to, message);
 };
@@ -774,7 +737,7 @@ GameServer.prototype.autoSplit = function (client, cell1) {
     } else {
         maxSize = this.config.playerMaxSize * 3;
     }
-    
+    if (cell1._size < maxSize) return;
     // check size limit
     var checkSize = !client.mergeOverride || client.cells.length == 1;
     if (checkSize && cell1._size > maxSize && cell1.getAge(this.tickCounter) >= 15) {
@@ -784,14 +747,13 @@ GameServer.prototype.autoSplit = function (client, cell1) {
         } else {
             // split
             var maxSplit = this.config.playerMaxCells - client.cells.length,
-            maxMass = maxSize * maxSize,
-            count = (cell1._sizeSquared / maxMass) >> 0,
-            count = Math.min(count, maxSplit),
-            splitSize = cell1._size / Math.sqrt(count + 1),
+            count = (cell1._sizeSquared / (maxSize * maxSize)) >> 0,
+            count1 = Math.min(count, maxSplit),
+            splitSize = cell1._size / Math.sqrt(count1 + 1),
             splitMass = splitSize * splitSize / 100,
             angle = Math.random() * 2 * Math.PI,
-            step = 2 * Math.PI / count;
-            for (var k = 0; k < count; k++) {
+            step = 2 * Math.PI / count1;
+            for (var k = 0; k < count1; k++) {
                 this.splitPlayerCell(client, cell1, angle, splitMass);
                 angle += step;
             }
@@ -906,7 +868,6 @@ GameServer.prototype.resolveCollision = function (manifold) {
         minCell = manifold.cell2;
         maxCell = manifold.cell1;
     }
-
     // check distance
     var eatDistance = maxCell._size - minCell._size / 3;
     if (manifold.squared >= eatDistance * eatDistance) {
