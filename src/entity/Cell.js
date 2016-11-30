@@ -8,7 +8,6 @@ function Cell(gameServer, owner, position, size) {
     this._sizeSquared = 0;
     this._size = 0;
     this._mass = 0;
-    this._speed = null;
     this.cellType = -1;     // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
     this.isSpiked = false;  // If true, then this cell has spikes around it
     this.isAgitated = false;// If true, then this cell has waves on it's outline
@@ -23,11 +22,10 @@ function Cell(gameServer, owner, position, size) {
     if (this.gameServer != null) {
         this.nodeId = this.gameServer.getNextNodeId();
         this.tickOfBirth = this.gameServer.tickCounter;
-        if (size != null) {
-            this.setSize(size);
-        }
+        if (size != null) this.setSize(size);
         if (position != null) {
-            this.setPosition(position);
+            this.position.x = position.x;
+            this.position.y = position.y;
         }
     }
 }
@@ -50,36 +48,10 @@ Cell.prototype.setSize = function (size) {
         this.owner.isMassChanged = true;
 };
 
-Cell.prototype.getSpeed = function () {
-    var speed = 2.1106 / Math.pow(this._size, 0.449);
-    // tickStep = 40ms
-    this._speed = (this.owner.customspeed > 0) ? 
-    speed * 40 * this.owner.customspeed : // Set by command
-    speed * 40 * this.gameServer.config.playerSpeed;
-    return this._speed;
-};
-
-Cell.prototype.setAngle = function (angle) {
-    this.boostDirection = {
-        x: Math.sin(angle),
-        y: Math.cos(angle),
-        angle: angle
-    };
-};
-
 // Returns cell age in ticks for specified game tick
 Cell.prototype.getAge = function (tick) {
     if (this.tickOfBirth == null) return 0;
     return Math.max(0, tick - this.tickOfBirth);
-};
-
-Cell.prototype.setKiller = function (cell) {
-    this.killedBy = cell;
-};
-
-Cell.prototype.setPosition = function (pos) {
-    this.position.x = pos.x;
-    this.position.y = pos.y;
 };
 
 // by default cell cannot eat anyone
@@ -97,18 +69,13 @@ Cell.prototype.onEat = function (prey) {
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };
 
-Cell.prototype.onEaten = function (hunter) {
-};
-
-Cell.prototype.onAdd = function (gameServer) {
-};
-
-Cell.prototype.onRemove = function (gameServer) {
-};
-
 Cell.prototype.setBoost = function (distance, angle) {
     this.boostDistance = distance;
-    this.setAngle(angle);
+    this.boostDirection = {
+        x: Math.sin(angle),
+        y: Math.cos(angle),
+        angle: angle
+    };
     this.isMoving = true;
     if (!this.owner) {
         var index = this.gameServer.movingNodes.indexOf(this);
@@ -144,3 +111,7 @@ Cell.prototype.checkBorder = function (border) {
     this.position.x = Math.min(this.position.x, border.maxx - this._size / 2);
     this.position.y = Math.min(this.position.y, border.maxy - this._size / 2);
 };
+
+Cell.prototype.onEaten = function (hunter) { };
+Cell.prototype.onAdd = function (gameServer) { };
+Cell.prototype.onRemove = function (gameServer) { };
