@@ -20,12 +20,22 @@ MinionPlayer.prototype.checkConnection = function () {
         this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
         if (this.cells.length == 0) this.socket.close();
     }
-    if (!this.owner.socket.isConnected || !this.owner.minionControl) 
+    // remove if owner loses control or disconnects
+    if (!this.owner.socket.isConnected || !this.owner.minionControl)
         this.socket.close();
-	if(this.owner.minionCollectPellets){
-		if (this.gameServer.tickCounter % 10 == 0) {
-		this.updateCenterInGame();
-		this.updateViewBox();
+    // frozen or not
+    if (this.owner.minionFrozen) this.frozen = true;
+    else this.frozen = false;
+    // split cells
+    if (this.owner.minionSplit) 
+        this.socket.packetHandler.pressSpace = true;
+    // eject mass
+    if (this.owner.minionEject)
+        this.socket.packetHandler.pressW = true;
+    // follow owners mouse by default
+    this.mouse = this.owner.mouse;
+    // pellet-collecting mode
+    if (this.owner.collectPellets) {
 		this.viewNodes = [];
 		var self = this;
 		this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
@@ -34,19 +44,13 @@ MinionPlayer.prototype.checkConnection = function () {
         });
 		var bestDistance = 1e999;
 		for (var i in this.viewNodes) {
-			var cell = this.viewNodes[i];
-			var dx = this.cells[0].position.x - cell.position.x;
-			var dy = this.cells[0].position.y - cell.position.y;
-			var distance = dx * dx + dy * dy;
-			if (distance < bestDistance) {
-			bestDistance = distance;
-			this.mouse.x = cell.position.x;
-			this.mouse.y = cell.position.y;
-			}
+		    var cell = this.viewNodes[i];
+		    var dx = this.cells[0].position.x - cell.position.x;
+		    var dy = this.cells[0].position.y - cell.position.y;
+		    if (dx * dx + dy * dy < bestDistance) {
+		        bestDistance = dx * dx + dy * dy;
+		    	this.mouse = cell.position;
+		    }
 		}
-		}
-	} else {
-		this.mouse.x = this.owner.mouse.x;
-	    this.mouse.y = this.owner.mouse.y;
-	}
+    }
 };
