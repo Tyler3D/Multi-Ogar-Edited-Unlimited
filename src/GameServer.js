@@ -115,7 +115,8 @@ function GameServer() {
         
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
-        disableERTP: 1,             // Whether or not to disable E, R, T, and P controls for minions on clients that support it. (Set to 0 to enable)
+        disableERTP: 1,             // Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
+        disableQ: 0,                // Whether or not to disable Q controls for minions. (Set 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
