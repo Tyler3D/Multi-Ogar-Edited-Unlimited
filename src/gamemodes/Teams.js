@@ -94,9 +94,6 @@ Teams.prototype.onCellRemove = function (cell) {
 };
 
 Teams.prototype.onCellMove = function (cell, gameServer) {
-    var team = cell.owner.team;
-    var r = cell._size;
-    
     // Find team
     for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
         // Only collide with player cells
@@ -107,8 +104,8 @@ Teams.prototype.onCellMove = function (cell, gameServer) {
         }
         
         // Collision with teammates
+        var team = cell.owner.team;
         if (check.owner.team == team) {
-            
             var manifold = gameServer.checkCellCollision(cell, check); // Calculation info
             if (manifold != null) { // Collided
                 // Call gameserver's function to collide cells
@@ -130,11 +127,7 @@ Teams.prototype.updateLB = function (gameServer) {
         // Loop through cells
         for (var j = 0; j < this.nodes[i].length; j++) {
             var cell = this.nodes[i][j];
-            
-            if (!cell) {
-                continue;
-            }
-            
+            if (!cell) continue;
             teamMass[i] += cell._mass;
             total += cell._mass;
         }
@@ -144,7 +137,7 @@ Teams.prototype.updateLB = function (gameServer) {
         for (var i = 0; i < this.teamAmount; i++) {
             gameServer.leaderboard[i] = 0;
         }
-        return
+        return;
     }
     // Calc percentage
     for (var i = 0; i < this.teamAmount; i++) {
