@@ -80,7 +80,7 @@ function PlayerTracker(gameServer, socket) {
         this.centerPos.x = gameServer.border.centerx;
         this.centerPos.y = gameServer.border.centery;
         // Player id
-        this.pID = gameServer.getNewPlayerID();
+        this.pID = this.getNewPlayerID();
         // Gamemode function
         gameServer.gameMode.onPlayerInit(this);
         // Only scramble if enabled in config
@@ -93,6 +93,13 @@ function PlayerTracker(gameServer, socket) {
 module.exports = PlayerTracker;
 
 // Setters/Getters
+
+PlayerTracker.prototype.getNewPlayerID = function () {
+    if (this.gameServer.lastPlayerId > 2147483647) {
+        this.gameServer.lastPlayerId = 1;
+    }
+    return this.gameServer.lastPlayerId++ >> 0;
+};
 
 PlayerTracker.prototype.scramble = function () {
     if (!this.gameServer.config.serverScrambleLevel) {
