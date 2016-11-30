@@ -1,7 +1,5 @@
 var FFA = require('./FFA'); // Base gamemode
 var Entity = require('../entity');
-var Logger = require('../modules/Logger');
-//Experimental based gamemode
 //LMS or "Last Man Standing"
 //After a set time interval the Server will not allow players to spawn and will only let them specate
 //Some time later, the Server will disconnect all players and restart the cycle.
@@ -21,9 +19,6 @@ function LMS () {
     this.motherSpawnInterval = 25 * 5;  // How many ticks it takes to spawn another mother cell (5 seconds)
     this.motherUpdateInterval = 2;      // How many ticks it takes to spawn mother food (1 second)
     this.motherMinAmount = 20;
-    this.motherMaxAmount = 30;
-    this.contenders = [];
-    this.maxcontenders = 1500;
     
     // Whether last man standing has started or not
     this.lmsStart = false;
@@ -68,17 +63,13 @@ LMS.prototype.onServerInit = function (gameServer) {
     };
     Entity.MotherCell.prototype.onRemove = function () {
         var index = self.nodesMother.indexOf(this);
-        if (index != -1) {
+        if (index != -1) 
             self.nodesMother.splice(index, 1);
-        } else {
-            Logger.error("Tried to remove a non existing virus!");
-        }
     };
     var short = gameServer.config.lastManStandingShortest * 60000;
     var long = gameServer.config.lastManStandingLongest * 60000;
     var shortkick = gameServer.config.lastManStandingKickShortest * 60000;
     var longkick = gameServer.config.lastManStandingKickLongest * 60000;
-    var self = this;
     var time = Math.floor((Math.random() * (long - short)) + short);
     var kickingTime = Math.floor((Math.random() * (longkick - shortkick)) + shortkick);
     var endInt = setInterval(function() {self.lmsKick()}, kickingTime);
@@ -99,12 +90,12 @@ LMS.prototype.onPlayerDeath = function (gameServer){
 	
 LMS.prototype.lmsKick = function (gameServer, player) {
     this.lmsStart = false;
-    Logger.info("You can now join");
+    console.log("You can now join");
 };
 
 LMS.prototype.lmsBegin = function () {
     this.lmsStart = true;
-    Logger.info("LMS HAS STARTED!");
+    console.log("LMS HAS STARTED!");
 };
 
 LMS.prototype.onTick = function (gameServer) {
