@@ -1,6 +1,4 @@
 // Project imports
-var BotPlayer = require('./BotPlayer');
-var MinionPlayer = require('./MinionPlayer');
 var FakeSocket = require('./FakeSocket');
 var PacketHandler = require('../PacketHandler');
 
@@ -39,6 +37,7 @@ BotLoader.prototype.loadNames = function () {
 };
 
 BotLoader.prototype.addBot = function () {
+    var BotPlayer = require('./BotPlayer');
     var s = new FakeSocket(this.gameServer);
     s.playerTracker = new BotPlayer(this.gameServer, s);
     s.packetHandler = new PacketHandler(this.gameServer, s);
@@ -51,6 +50,7 @@ BotLoader.prototype.addBot = function () {
 };
 
 BotLoader.prototype.addMinion = function(owner, name) {
+    var MinionPlayer = require('./MinionPlayer');
     var s = new FakeSocket(this.gameServer);
     s.playerTracker = new MinionPlayer(this.gameServer, s, owner);
     s.packetHandler = new PacketHandler(this.gameServer, s);
