@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         13 macro's for Agar.io :)
+// @name         11 macro's for Agar.io :)
 // @version      0.3
-// @description  13 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
+// @description  11 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
 // @author       Megabyte918
 // @match        http://agar.io/*
 // @match        http://old.ogarul.io/*
@@ -13,7 +13,7 @@ document.getElementById("nick").maxLength = "100";
 //List instructions
 var i = document.getElementById("instructions");
 i.innerHTML += "<center>Press & hold <b>W</b> for macro feed</center>";
-i.innerHTML += "<center>Press <b>E</b>, <b>T</b>, or <b>4</b> to split 4x</center>";
+i.innerHTML += "<center>Press <b>Shift</b> to split 4x</center>";
 i.innerHTML += "<center>Press <b>A</b> or <b>3</b> to split 3x</center>";
 i.innerHTML += "<center>Press <b>D</b> or <b>2</b> to split 2x</center>";
 i.innerHTML += "<center>Press <b>S</b> or <b>1</b> to split 1x</center>";
@@ -39,14 +39,7 @@ function keydown(event) {
             canFeed = true;
             feed();
             break;
-        case 84: //Tricksplit Macro (t)
-            var t = 35;
-            for (var t2 = 0; t2 < 4; t2++) {
-                setTimeout(split, t);
-                t *= 2;
-            }
-            break;
-        case 69: //Tricksplit Macro (e)
+        case 16: //Tricksplit Macro (shift)
             var e = 35;
             for (var e2 = 0; e2 < 4; e2++) {
                 setTimeout(split, e);
