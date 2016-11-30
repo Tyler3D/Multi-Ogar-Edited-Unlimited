@@ -1,11 +1,9 @@
 var Cell = require('./Cell');
-var Logger = require('../modules/Logger');
 
 function Virus() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
     this.cellType = 2;
     this.isSpiked = true;
-    this.fed = 0;
     this.isMotherCell = false; // Not to confuse bots
     this.setColor({ r: 0x33, g: 0xff, b: 0x33 });
 }
@@ -90,9 +88,6 @@ Virus.prototype.onAdd = function (gameServer) {
 
 Virus.prototype.onRemove = function (gameServer) {
     var index = gameServer.nodesVirus.indexOf(this);
-    if (index != -1) {
+    if (index != -1) 
         gameServer.nodesVirus.splice(index, 1);
-    } else {
-        Logger.warn("Virus.onRemove: Tried to remove a non existing virus!");
-    }
 };
