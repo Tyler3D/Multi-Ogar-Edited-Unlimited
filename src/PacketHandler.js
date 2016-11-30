@@ -11,15 +11,12 @@ function PacketHandler(gameServer, socket) {
     this.lastChatTick = 0;
     this.lastStatTick = 0;
     this.lastWTick = 0;
-    this.lastRTick = 0;
     this.lastQTick = 0;
     this.lastSpaceTick = 0;
-    
     this.pressQ = false;
     this.pressW = false;
     this.pressSpace = false;
     this.mouseData = null;
- 
     this.handler = {
         254: this.handshake_onProtocol.bind(this),
     };
@@ -68,6 +65,7 @@ PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
         22: this.message_onKeyE.bind(this),
         23: this.message_onKeyR.bind(this),
         24: this.message_onKeyT.bind(this),
+        25: this.message_onKeyP.bind(this),
         99: this.message_onChat.bind(this),
         254: this.message_onStat.bind(this),
     };
@@ -120,16 +118,8 @@ PacketHandler.prototype.message_onMouse = function (message) {
 };
 
 PacketHandler.prototype.message_onKeySpace = function (message) {
-    // minion split
-    var player = this.socket.playerTracker;
-    if (player.miQ == 1 && player.minionControl) {
-        for (var i in this.gameServer.clients) {
-            var client = this.gameServer.clients[i].playerTracker;
-            if (client.isMi && client.owner == player) {
-                this.gameServer.splitCells(client);
-            }
-        }
-    // player split
+    if (this.socket.playerTracker.miQ == 1 && this.socket.playerTracker.minionControl) {
+        this.socket.playerTracker.minionSplit = true;
     } else {
         this.pressSpace = true;
     }
@@ -144,31 +134,12 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
     }
     this.lastQTick = tick;
     
-    // client has minions
     var client = this.socket.playerTracker;
-    var color = this.gameServer.getGrayColor(client.color);
-    var randomColor = this.gameServer.getRandomColor(client.color);
     if (client.minionControl) {
-		if (this.gameServer.config.minionCollectPellets) {
-			client.minionCollectPellets=!client.minionCollectPellets;
-		} else {
-        if (client.miQ == 1) {
-            client.miQ = 0;
-            client.setColor(randomColor);
-            client.cells.forEach(function (cell) {
-                cell.setColor(randomColor);
-            }, this);
-        } else {
-            client.miQ = 1;
-            client.setColor(color);
-            client.setSkin("");
-            client.cells.forEach(function (cell) {
-                cell.setColor(color);
-            }, this);
-        }
-		}
-        
-    // client doesn't have minions
+        if (this.gameServer.config.collectPellets)
+			client.collectPellets = !client.collectPellets;
+		else
+            client.miQ = !client.miQ;
     } else {
         this.pressQ = true;
     }
@@ -182,67 +153,32 @@ PacketHandler.prototype.message_onKeyW = function (message) {
         return;
     }
     this.lastWTick = tick;
-    
-    // minion eject
-    var player = this.socket.playerTracker;
-    if (player.miQ == 1 && player.minionControl) {
-        for (var i in this.gameServer.clients) {
-            var client = this.gameServer.clients[i].playerTracker;
-            if (client.isMi && client.owner == player) {
-                this.gameServer.ejectMass(client);
-            }
-        }
-    // player eject
+    if (this.socket.playerTracker.miQ == 1 && this.socket.playerTracker.minionControl) {
+        this.socket.playerTracker.minionEject = true;
     } else {
         this.pressW = true;
     }
 };
 
 PacketHandler.prototype.message_onKeyE = function (message) {
-    if (this.gameServer.config.disableERT === 1) return;
-    
-    // minion split
-    var player = this.socket.playerTracker;
-    for (var i in this.gameServer.clients) {
-        var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi && client.owner == player) { 
-            this.gameServer.splitCells(client);
-        }
-    }
+    if (this.gameServer.config.disableERTP === 1) return;
+    this.socket.playerTracker.minionSplit = true;
 };
 
 PacketHandler.prototype.message_onKeyR = function (message) {
-    if (this.gameServer.config.disableERT === 1) return;
-    
-    if (message.length !== 1) return;
-    var tick = this.gameServer.tickCounter;
-    var dt = tick - this.lastRTick;
-    if (dt < this.gameServer.config.ejectCooldown) {
-        return;
-    }
-    this.lastRTick = tick;
-    
-    // minion eject
-    var player = this.socket.playerTracker;
-    for (var i in this.gameServer.clients) {
-        var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi && client.owner == player) {
-            this.gameServer.ejectMass(client);
-        }
-    }
+    if (this.gameServer.config.disableERTP === 1) return;
+    this.socket.playerTracker.minionEject = true;
 };
 
 PacketHandler.prototype.message_onKeyT = function (message) {
-    if (this.gameServer.config.disableERT === 1) return;
-    
-    // freeze minions
-    var player = this.socket.playerTracker;
-    player.minionFrozen = !player.minionFrozen;
-    for (var i in this.gameServer.clients) {
-        var client = this.gameServer.clients[i].playerTracker;
-        if (client.isMi && client.owner == player) {
-            client.frozen = player.minionFrozen;
-        }
+    if (this.gameServer.config.disableERTP === 1) return;
+    this.socket.playerTracker.minionFrozen = !this.socket.playerTracker.minionFrozen;
+};
+
+PacketHandler.prototype.message_onKeyP = function (message) {
+    if (this.gameServer.config.disableERTP === 1) return;
+    if (this.gameServer.config.collectPellets) {
+        this.socket.playerTracker.collectPellets = !this.socket.playerTracker.collectPellets;
     }
 };
 
@@ -319,26 +255,29 @@ PacketHandler.prototype.process = function () {
         this.socket.playerTracker.pressQ();
         this.pressQ = false;
     }
+    if (this.socket.playerTracker.minionSplit) {
+        this.socket.playerTracker.minionSplit = false;
+    }
+    if (this.socket.playerTracker.minionEject) {
+        this.socket.playerTracker.minionEject = false;
+    }
     this.processMouse();
 };
 
 PacketHandler.prototype.getRandomSkin = function () {
     var randomSkins = [];
     var fs = require("fs");
-    
     if (fs.existsSync("../src/randomskins.txt")) {
         // Read and parse the Skins - filter out whitespace-only Skins
         randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
             return x != ''; // filter empty Skins
         });
     }
-    
     // Picks a random skin
     if (randomSkins.length > 0) {
         var index = (randomSkins.length * Math.random()) >>> 0;
         var rSkin = randomSkins[index];
     }
-    
     return rSkin;
 };
 
