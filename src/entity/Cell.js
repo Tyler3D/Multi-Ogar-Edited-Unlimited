@@ -20,8 +20,8 @@ function Cell(gameServer, owner, position, size) {
     this.ejector = null;
     
     if (this.gameServer != null) {
-        this.nodeId = this.gameServer.getNextNodeId();
         this.tickOfBirth = this.gameServer.tickCounter;
+        this.nodeId = this.getNextNodeId();
         if (size != null) this.setSize(size);
         if (position != null) {
             this.position.x = position.x;
@@ -33,6 +33,13 @@ function Cell(gameServer, owner, position, size) {
 module.exports = Cell;
 
 // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
+
+Cell.prototype.getNextNodeId = function () {
+    if (this.gameServer.lastNodeId > 2147483647) {
+        this.gameServer.lastNodeId = 1;
+    }
+    return this.gameServer.lastNodeId++ >> 0;
+};
 
 Cell.prototype.setColor = function (color) {
     this.color.r = color.r;
