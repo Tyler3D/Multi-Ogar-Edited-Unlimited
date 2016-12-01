@@ -821,13 +821,12 @@ GameServer.prototype.updateNodeQuad = function (node) {
 // Checks cells for collision.
 // Returns collision manifold or null if there is no collision
 GameServer.prototype.checkCellCollision = function (cell, check) {
-    var r = cell._size + check._size;
+    var r = ~~(cell._size + check._size);
     var dx = check.position.x - cell.position.x;
     var dy = check.position.y - cell.position.y;
-    var squared = dx * dx + dy * dy;         // squared distance from cell to check
+    var squared = dx * dx + dy * dy; // squared distance from cell to check
     if (squared > r * r) {
-        // no collision
-        return null;
+        return null; // no collision
     }
     // create collision manifold
     return {
@@ -845,17 +844,16 @@ GameServer.prototype.resolveRigidCollision = function (c) {
     // distance from cell1 to cell2
     var d = Math.sqrt(c.squared);
     if (d <= 0) return;
-    
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
     var m1 = c.cell1._mass * (1 / m);
     var m2 = c.cell2._mass * (1 / m);
-    
     // apply extrusion force
-    c.cell1.position.x -= (((c.r - d) / d) * c.dx) * m2;
-    c.cell1.position.y -= (((c.r - d) / d) * c.dy) * m2;
-    c.cell2.position.x += (((c.r - d) / d) * c.dx) * m1;
-    c.cell2.position.y += (((c.r - d) / d) * c.dy) * m1;
+    var force = Math.min((c.r - d) / d, c.r - d);
+    c.cell1.position.x -= ~~((force * ~~c.dx) * m2);
+    c.cell1.position.y -= ~~((force * ~~c.dy) * m2);
+    c.cell2.position.x += ~~((force * ~~c.dx) * m1);
+    c.cell2.position.y += ~~((force * ~~c.dy) * m1);
 };
 
 // Resolves non-rigid body collision
@@ -1047,7 +1045,7 @@ GameServer.prototype.checkRigidCollision = function (c) {
     // The same owner
     if (c.cell1.owner.mergeOverride)
         return false;
-    if (c.cell1.getAge(this.tickCounter) < 15 || c.cell2.getAge(this.tickCounter) < 15) {
+    if (c.cell1.getAge(this.tickCounter) < 14 || c.cell2.getAge(this.tickCounter) < 14) {
         // just splited => ignore
         return false;
     }
