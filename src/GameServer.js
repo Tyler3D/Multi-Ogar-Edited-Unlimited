@@ -17,7 +17,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.4.0';
+    this.version = '1.4.1';
     this.commands;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
