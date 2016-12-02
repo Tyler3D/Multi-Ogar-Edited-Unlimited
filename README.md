@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.4.0**
+Current version: **1.4.1**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -24,13 +24,13 @@ It updates server information in realtime with no need to refresh the page.
 If you want to include your server in the list. Just install the latest version of MultiOgar server and enable server tracking with `serverTracker = 1` in gameserver.ini
 
 If you have other server and want to include it in the list, just insert the code to ping ogar-tracker.tk into your server.
-You can found example in MultiOgar source code: https://github.com/Barbosik/MultiOgar/blob/master/src/GameServer.js#L1799-L1823
+You can found example in MultiOgar source code: https://github.com/Megabyte918/MultiOgar-Edited/blob/master/src/GameServer.js#L1350-L1373
 
 ## Screenshot
 
 MultiOgar console:
 
-![Screenshot](https://i.imgur.com/GiJURq0.png)
+![Screenshot](http://i.imgur.com/PtKj86E.png)
 
 Version 1.2.8: 
 * 1000 bots, 500 viruses, 1000 foods, map 14142x14142
@@ -44,7 +44,7 @@ Version 1.2.8:
 
 #### Windows:
 * Download and install node.js: https://nodejs.org/en/download/ (64-bit recommended)
-* Download MultiOgar code: https://github.com/Barbosik/MultiOgar/archive/master.zip
+* Download MultiOgar code: https://github.com/Megabyte918/MultiOgar-Edited/archive/master.zip
 * Unzip MultiOgar code into some folder
 * Start command line and execute from MultiOgar folder
 
@@ -71,7 +71,7 @@ sudo apt-get install git
 sudo apt-get install nodejs-legacy npm
 
 # Clone MultiOgar:
-git clone git://github.com/Barbosik/MultiOgar.git
+git clone git://github.com/Megabyte918/MultiOgar-Edited.git
 
 # Install dependencies:
 cd MultiOgar
@@ -87,8 +87,6 @@ sudo node index.js
 This lists Ogar clients and server trackers that I found on internet.
 
 ###Ogar server trackers
-
-Welcome to http://ogar-tracker.tk :)
 
 URL | Description
 --- | ---
@@ -116,6 +114,13 @@ http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
 ## Changelog:
+#### 1.4.1: 
+* Fixed a few bugs
+* Added back old commands
+* Added two new commands, cleaned up "help" command
+* Slightly improved performance
+* Improved splitting and collision
+
 #### 1.4.0: 
 * Added pellet mode for minions! All thanks to @ZfsrGhS953 =D
 * Cleaned/refactored the rest of GameServer
