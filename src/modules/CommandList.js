@@ -51,7 +51,8 @@ Commands.list = {
         console.log("| skin [PlayerID] [string]     | Change cell(s) skin by client ID          |");
         console.log("│ rec [PlayerID]               │ Gives a player instant-recombine          │");
         console.log("| split [PlayerID] [Amount]    | Forces a player to split                  |");
-        console.log("| tp [X] [Y] [Z]               | Teleports player(s) to coordinates        |");
+        console.log("| tp [X] [Y]                   | Teleports player(s) to XY coordinates     |");
+        console.log("| replace [PlayerID] [entity]  | Replaces a player with an entity          |");
         console.log("|                                                                          |");
         console.log("|                          ----Server Commands----                         |");
         console.log("|                                                                          |");
@@ -95,6 +96,7 @@ Commands.list = {
         console.log("| kb                          | Alias for kickbot                          |");
         console.log("| c                           | Alias for change                           |");
         console.log("| n                           | Alias for name                             |");
+        console.log("| rep                         | Alias for replace                          |");
         console.log("╰─────────────────────────────┴────────────────────────────────────────────╯");
     },
     debug: function (gameServer, split) {
@@ -895,15 +897,15 @@ Commands.list = {
     spawn: function (gameServer, split) {
         var Entity = require('../entity');
         var ent = split[1];
-        if (typeof ent == "undefined" || ent == "" || ent != ("virus" || "food" || "eject")) {
-            Logger.warn("Please specify either virus, food, or eject");
+        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food")) {
+            Logger.warn("Please specify either a virus or food");
         }
     
         var pos = {
-            x: parseInt(split[1]),
-            y: parseInt(split[2])
+            x: parseInt(split[2]),
+            y: parseInt(split[3])
         };
-        var mass = parseInt(split[3]);
+        var mass = parseInt(split[4]);
         
         // Make sure the input values are numbers
         if (isNaN(pos.x) || isNaN(pos.y)) {
@@ -916,8 +918,6 @@ Commands.list = {
             var size = gameServer.config.virusMinSize;
         } else if (ent == "food") {
             size = gameServer.config.foodMinMass;
-        } else if (ent == "eject") {
-            size = gameServer.config.ejectSize;
         }
         
         if (!isNaN(mass)) {
@@ -934,11 +934,38 @@ Commands.list = {
             food.setColor(gameServer.getRandomColor());
             gameServer.addNode(food);
             console.log("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
-        } else if (ent == "eject") {
-            var eject = new Entity.EjectedMass(gameServer, null, pos, size);
-            eject.setColor(gameServer.getRandomColor());
-            gameServer.addNode(eject);
-            console.log("Spawned 1 ejected mass cell at (" + pos.x + " , " + pos.y + ")");
+        }
+    },
+    replace: function (gameServer, split) {
+        var Entity = require('../entity');
+        var id = parseInt(split[1])
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        var ent = split[2];
+        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food")) {
+            Logger.warn("Please specify either a virus or food");
+        }
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                while (client.cells.length > 0) {
+                    var cell = client.cells[0];
+                    gameServer.removeNode(cell);
+                    // replace player with entity
+                    if (ent == "virus") {
+                        var virus = new Entity.Virus(gameServer, null, cell.position, cell._size);
+                        gameServer.addNode(virus);
+                        console.log("Replaced " + client.getFriendlyName() + " with a virus");
+                    } else if (ent == "food") {
+                        var food = new Entity.Food(gameServer, null, cell.position, cell._size);
+                        food.setColor(gameServer.getRandomColor());
+                        gameServer.addNode(food);
+                        console.log("Replaced " + client.getFriendlyName() + " with a food cell");
+                    }
+                }
+            }
         }
     },
     
@@ -985,6 +1012,9 @@ Commands.list = {
     },
     n: function (gameServer, split) { // Name
         Commands.list.name(gameServer, split);
+    },
+    rep: function (gameServer, split) {
+        Commands.list.replace(gameServer, split);
     }
 };
 
