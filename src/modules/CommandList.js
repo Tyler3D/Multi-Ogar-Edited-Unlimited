@@ -29,7 +29,7 @@ Commands.list = {
         console.log("╭──────────────────────┴────────────────────────────┴──────────────────────╮");
         console.log("|                         ----Players and AI----                           |");
         console.log("|                                                                          |");
-        console.log("│ playerlist                   │ Get list of players and bots              │");
+        console.log("│ playerlist                   │ Get list of players, bots, ID's, etc      │");
         console.log("│ minion [PlayerID] [#] [name] │ Adds suicide minions to the server        │");
         console.log("│ addbot [number]              │ Adds bots to the server                   │");
         console.log("│ kickbot [number]             │ Kick a number of bots                     │");
@@ -42,25 +42,25 @@ Commands.list = {
         console.log("|                                                                          |");
         console.log("| spawn [entity] [pos] [mass]  | Spawns an entity                          |");
         console.log("│ mass [PlayerID] [mass]       │ Set cell(s) mass by client ID             │");
-        console.log("│ merge [PlayerID]             │ Merge all client's cells once             │");
+        console.log("│ merge [PlayerID]             │ Merge all client's cells                  │");
         console.log("│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │");
         console.log("│ freeze [PlayerID]            │ Freezes a player                          │");
         console.log("│ speed [PlayerID]             │ Sets a players base speed                 │");
         console.log("│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │");
         console.log("│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │");
-        console.log("| skin [PlayerID] [string]     | Change a cells skin by client ID          |");
+        console.log("| skin [PlayerID] [string]     | Change cell(s) skin by client ID          |");
         console.log("│ rec [PlayerID]               │ Gives a player instant-recombine          │");
-        console.log("| split [PlayerID] [Amount]    | Forces a player to split themselves       |");
-        console.log("| tp [X] [Y] [Z]               | Teleports a player to coordinates         |");
+        console.log("| split [PlayerID] [Amount]    | Forces a player to split                  |");
+        console.log("| tp [X] [Y] [Z]               | Teleports player(s) to coordinates        |");
         console.log("|                                                                          |");
         console.log("|                          ----Server Commands----                         |");
         console.log("|                                                                          |");
-        console.log("│ pause                        │ Pause game , freeze all cells             │");
+        console.log("│ pause                        │ Pause game, freeze all nodes              │");
         console.log("│ board [string] [string] ...  │ Set scoreboard text                       │");
         console.log("│ change [setting] [value]     │ Change specified settings                 │");
-        console.log("│ reload                       │ Reload config                             │");
-        console.log("│ ban [PlayerID | IP]          │ Bans a(n) (player's) IP                   │");
-        console.log("│ unban [IP]                   │ Unban an IP                               │");
+        console.log("│ reload                       │ Reload config file                        │");
+        console.log("│ ban [PlayerID | IP]          │ Bans a player(s) IP                       │");
+        console.log("│ unban [IP]                   │ Unbans an IP                              │");
         console.log("│ banlist                      │ Get list of banned IPs.                   │");
         console.log("│ mute [PlayerID]              │ Mute player from chat                     │");
         console.log("│ unmute [PlayerID]            │ Unmute player from chat                   │");
@@ -98,8 +98,6 @@ Commands.list = {
         console.log("╰─────────────────────────────┴────────────────────────────────────────────╯");
     },
     debug: function (gameServer, split) {
-        // Used for checking node lengths (for now)
-        
         // Count client cells
         var clientCells = 0;
         for (var i in gameServer.clients) {
@@ -161,9 +159,8 @@ Commands.list = {
                 // Add minions
                 } else {
                     client.minionControl = true;
-                    // If no amount is specified
-                    if (isNaN(add)) add = 1; 
                     // Add minions for client
+                    if (isNaN(add)) add = 1; 
                     for (var i = 0; i < add; i++) {
                         gameServer.bots.addMinion(client, name);
                     }
@@ -218,7 +215,7 @@ Commands.list = {
                 Logger.warn(logInvalid);
                 return;
             }
-            ban(ip);
+            ban(gameServer, split, ip);
             return;
         }
         // if input is a Player ID
@@ -238,40 +235,8 @@ Commands.list = {
                 break;
             }
         }
-        if (ip) ban(ip);
+        if (ip) ban(gameServer, split, ip);
         else Logger.warn("Player ID " + id + " not found!");
-            
-        // ban the player
-        function ban (ip) {
-            var ipBin = ip.split('.');
-            if (ipBin.length != 4) {
-                Logger.warn("Invalid IP format: " + ip);
-                return;
-            }
-            gameServer.ipBanList.push(ip);
-            if (ipBin[2] == "*" || ipBin[3] == "*") {
-                Logger.print("The IP sub-net " + ip + " has been banned");
-            } else {
-                Logger.print("The IP " + ip + " has been banned");
-            }
-            gameServer.clients.forEach(function (socket) {
-                // If already disconnected or the ip does not match
-                if (socket == null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
-                    return;
-            
-                // remove player cells
-                socket.playerTracker.cells.forEach(function (cell) {
-                    gameServer.removeNode(cell);
-                }, gameServer);
-            
-                // disconnect
-                socket.close(1000, "Banned from server");
-                var name = socket.playerTracker.getFriendlyName();
-                Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
-                gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
-            }, gameServer);
-            saveIpBanList(gameServer);
-        }
     },
     banlist: function (gameServer, split) {
         Logger.print("Showing " + gameServer.ipBanList.length + " banned IPs: ");
@@ -656,7 +621,6 @@ Commands.list = {
                 client.mergeOverride = true;
                 client.mergeOverrideDuration = 100;
             }
-            
             state = client.mergeOverride;
         }
         
@@ -932,7 +896,7 @@ Commands.list = {
         var Entity = require('../entity');
         var ent = split[1];
         if (typeof ent == "undefined" || ent == "" || ent != ("virus" || "food" || "eject")) {
-            Logger.warn("Please specify either a virus or food");
+            Logger.warn("Please specify either virus, food, or eject");
         }
     
         var pos = {
@@ -1020,7 +984,7 @@ Commands.list = {
         Commands.list.change(gameServer, split);
     },
     n: function (gameServer, split) { // Name
-        Commands.list.change(gameServer, split);
+        Commands.list.name(gameServer, split);
     }
 };
 
@@ -1051,4 +1015,35 @@ function saveIpBanList (gameServer) {
         Logger.error(err.stack);
         Logger.error("Failed to save " + '../src/ipbanlist.txt' + ": " + err.message);
     }
+}
+
+function ban (gameServer, split, ip) {
+    var ipBin = ip.split('.');
+    if (ipBin.length != 4) {
+        Logger.warn("Invalid IP format: " + ip);
+        return;
+    }
+    gameServer.ipBanList.push(ip);
+    if (ipBin[2] == "*" || ipBin[3] == "*") {
+        Logger.print("The IP sub-net " + ip + " has been banned");
+    } else {
+        Logger.print("The IP " + ip + " has been banned");
+    }
+    gameServer.clients.forEach(function (socket) {
+        // If already disconnected or the ip does not match
+        if (socket == null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
+            return;
+    
+        // remove player cells
+        socket.playerTracker.cells.forEach(function (cell) {
+            gameServer.removeNode(cell);
+        }, gameServer);
+    
+        // disconnect
+        socket.close(1000, "Banned from server");
+        var name = socket.playerTracker.getFriendlyName();
+        Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
+        gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
+    }, gameServer);
+    saveIpBanList(gameServer);
 }
