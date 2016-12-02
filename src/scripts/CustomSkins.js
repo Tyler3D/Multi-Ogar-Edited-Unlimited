@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Agar.io custom skins
-// @version      0.1
+// @version      0.2
 // @description  Custom Skins for Agar.io
 // @author       Megabyte918
 // @match        *.agar.io/*
@@ -35,7 +35,7 @@ document.getElementsByClassName('form-group clearfix')[1].innerHTML += '<input p
 if (localStorage.getItem("h") && localStorage.getItem("h") == 3) {
     document.getElementById("h").checked = true;
 }
-if (localStorage.getItem("skin") && localStorage.getItem("skin").match(/^http(s)?:\/\/(.*?)+(jpg|bmp|png|gif)$/)) {
+if (localStorage.getItem("skin") && localStorage.getItem("skin").match(/(http(s?):)|([/|.|\w|\s])*\.(?:jpg|jpeg|gif|png|bmp)/)) {
     document.getElementById('skin').value = localStorage.getItem("skin");
 }
 if(document.getElementById('statsContinue')){
