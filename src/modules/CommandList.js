@@ -713,7 +713,7 @@ Commands.list = {
         if (!skin) {
             Logger.warn("Please specify skin name!");
         }
-        var player = gameServer.getPlayerById(id);
+        var player = playerById(id, gameServer);
         if (player == null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
