@@ -1,4 +1,4 @@
-﻿# MultiOgar - Edited
+# MultiOgar - Edited
 Ogar game server with fast and smooth vanilla physics and multi-protocol support.
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
@@ -14,7 +14,6 @@ Almost all physics and protocol code were rewritten and optimized.
 The [OgarProject](https://ogarproject.com) owns Ogar, and I do not claim it as mine! 
 Original Ogar found [here](https://github.com/OgarProject/Ogar)
 
-
 The goal is to make good and smooth physics and cleanup the code.
 
 ## Ogar Server Tracker
@@ -26,7 +25,6 @@ If you want to include your server in the list. Just install the latest version 
 
 If you have other server and want to include it in the list, just insert the code to ping ogar-tracker.tk into your server.
 You can found example in MultiOgar source code: https://github.com/Barbosik/MultiOgar/blob/master/src/GameServer.js#L1799-L1823
-
 
 ## Screenshot
 
@@ -42,7 +40,6 @@ Version 1.2.8:
 
 ![Screenshot](http://i.imgur.com/XsXjT0o.png)
 
-
 ## Install
 
 #### Windows:
@@ -50,17 +47,20 @@ Version 1.2.8:
 * Download MultiOgar code: https://github.com/Barbosik/MultiOgar/archive/master.zip
 * Unzip MultiOgar code into some folder
 * Start command line and execute from MultiOgar folder
-```
+
+```bash
 npm install
 ```
+
 and run the server:
-```
+
+```bash
 cd src
 node index.js
 ```
 
 #### Linux:
-```
+```bash
 # First update your packages:
 sudo apt-get update
 
@@ -82,7 +82,6 @@ cd src
 sudo node index.js
 ```
 
-
 ## Clients
 
 This lists Ogar clients and server trackers that I found on internet.
@@ -103,7 +102,6 @@ on these pages: http://ogar.mivabe.nl/master , http://c0nsume.me/tracker.php
 If you don't want to include your server to tracker list, 
 just set `serverTracker = 0` and the server will not ping the server tracker.
 
-
 ###Ogar clients
 Just replace `127.0.0.1:443` in the url to the server IP and port to play.
 
@@ -117,19 +115,6 @@ http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
 http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
-###MultiOgar Servers
-
-IP | Location | Game Mode | Web Site
---- | --- | --- | ---
-bubble-wars.tk:4444 | France | FFA | http://agar.io/?ip=bubble-wars.tk:4444 (Test server)
-bubble-wars.tk:4445 | France | FFA IM | http://agar.io/?ip=bubble-wars.tk:4445 (Test server)
-vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
-164.132.48.230:600 | France | FFA | http://c0nsume.me/private4.php?ip=164.132.48.230:600
-149.202.87.51:443 | Paris |	FFA	| http://agarlist.com/
-134.119.17.230:443 | Germany | FFA | http://agarlist.com/
-192.34.61.57:443 | New York | FFA | http://agarlist.com/
-
-
 ## Changelog:
 #### 1.4.0: 
 * Added pellet mode for minions! All thanks to @ZfsrGhS953 =D
@@ -142,7 +127,7 @@ vps.simonorj.com:24270 | Montreal | Instant Merge | https://redd.it/4mufge
 * Made help command look alot better, thanks to @Agarian 
 * Skipped version 1.3.8-1.3.9 for some reason
 
-
+--------------
 #### 1.3.7:
 * Fixed some bugs
 * Cleaned/refactored most of GameServer
