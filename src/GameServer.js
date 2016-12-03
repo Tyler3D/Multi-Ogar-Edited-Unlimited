@@ -707,6 +707,30 @@ GameServer.prototype.mainLoop = function () {
     this.updateTime = tEnd[0] * 1000 + tEnd[1] / 1000000;
 };
 
+
+GameServer.prototype.updateMassDecay = function () {
+    if (!this.config.playerDecayRate) return;
+    
+    var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
+    // Loop through all player cells
+    for (var i = 0; i < this.clients.length; i++) {
+        var playerTracker = this.clients[i].playerTracker;
+        for (var j = 0; j < playerTracker.cells.length; j++) {
+            var cell = playerTracker.cells[j];
+            if (cell === null || cell.isRemoved) 
+                continue;
+            var size = cell._size;
+            if (size <= this.config.playerMinSize)
+                continue;
+            size = Math.sqrt(size * size * decay);
+            size = Math.max(size, this.config.playerMinSize);
+            if (size != cell._size) {
+                cell.setSize(size);
+            }
+        }
+    }
+};
+
 GameServer.prototype.autoSplit = function (client, cell1) {
     if (cell1._size < this.config.playerMaxSize) return;
     
@@ -916,27 +940,6 @@ GameServer.prototype.spawnCells = function () {
         }
         var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
         this.addNode(v);
-    }
-};
-
-GameServer.prototype.updateMassDecay = function () {
-    if (!this.config.playerDecayRate) return;
-    
-    var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
-    // Loop through all player cells
-    for (var i = 0; i < this.clients.length; i++) {
-        var playerTracker = this.clients[i].playerTracker;
-        for (var j = 0; j < playerTracker.cells.length; j++) {
-            var cell = playerTracker.cells[j];
-            var size = cell._size;
-            if (size <= this.config.playerMinSize)
-                continue;
-            size = Math.sqrt(size * size * decay);
-            size = Math.max(size, this.config.playerMinSize);
-            if (size != cell._size) {
-                cell.setSize(size);
-            }
-        }
     }
 };
 
