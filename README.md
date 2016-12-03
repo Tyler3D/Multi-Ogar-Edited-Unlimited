@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.4.1**
+Current version: **1.4.2**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -114,6 +114,15 @@ http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
 ## Changelog:
+#### 1.4.2: 
+* Added "replace" command
+* Add srcFiles variable, thanks to @MastaCoder
+* Added ejectSpawnPercent config
+* Refactored some of the collision engine
+* Fixed annoying ejected mass bug
+* Greatly improved performance, now 2x better than original MultiOgar
+
+--------------
 #### 1.4.1: 
 * Fixed a few bugs
 * Added back old commands
@@ -121,6 +130,7 @@ http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style.
 * Slightly improved performance
 * Improved splitting and collision
 
+--------------
 #### 1.4.0: 
 * Added pellet mode for minions! All thanks to @ZfsrGhS953 =D
 * Cleaned/refactored the rest of GameServer
