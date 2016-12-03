@@ -897,8 +897,8 @@ Commands.list = {
     spawn: function (gameServer, split) {
         var Entity = require('../entity');
         var ent = split[1];
-        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food")) {
-            Logger.warn("Please specify either a virus or food");
+        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
+            Logger.warn("Please specify either virus, food, or mothercell");
         }
     
         var pos = {
@@ -916,6 +916,8 @@ Commands.list = {
         // Start size for each entity 
         if (ent == "virus") {
             var size = gameServer.config.virusMinSize;
+        } else if (ent == "mothercell") {
+            size = gameServer.config.virusMinSize * 2.5;
         } else if (ent == "food") {
             size = gameServer.config.foodMinMass;
         }
@@ -934,18 +936,22 @@ Commands.list = {
             food.setColor(gameServer.getRandomColor());
             gameServer.addNode(food);
             console.log("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
+        } else if (ent == "mothercell") {
+            var mother = new Entity.MotherCell(gameServer, null, pos, size);
+            gameServer.addNode(mother);
+            console.log("Spawned 1 mothercell at (" + pos.x + " , " + pos.y + ")");
         }
     },
     replace: function (gameServer, split) {
         var Entity = require('../entity');
-        var id = parseInt(split[1])
+        var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
         var ent = split[2];
-        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food")) {
-            Logger.warn("Please specify either a virus or food");
+        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
+            Logger.warn("Please specify either virus, food, or mothercell");
         }
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
@@ -963,6 +969,10 @@ Commands.list = {
                         food.setColor(gameServer.getRandomColor());
                         gameServer.addNode(food);
                         console.log("Replaced " + client.getFriendlyName() + " with a food cell");
+                    } else if (ent == "mothercell") {
+                        var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
+                        gameServer.addNode(mother);
+                        console.log("Replaced " + client.getFriendlyName() + " with a mothercell");
                     }
                 }
             }
