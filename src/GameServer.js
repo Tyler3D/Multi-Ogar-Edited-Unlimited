@@ -12,6 +12,9 @@ var Logger = require('./modules/Logger');
 
 // GameServer implementation
 function GameServer() {
+    // Location of source files - For renaming or moving source files!
+    this.srcFiles = "../src";
+
     this.httpServer = null;
     this.wsServer = null;
     
@@ -1177,8 +1180,8 @@ GameServer.prototype.shootVirus = function (parent, angle) {
 };
 
 GameServer.prototype.loadConfig = function () {
-    var fileNameConfig = '../src/gameserver.ini';
-    var ini = require('../src/modules/ini.js');
+    var fileNameConfig = this.srcFiles + '/gameserver.ini';
+    var ini = require(this.srcFiles + '/modules/ini.js');
     try {
         if (!fs.existsSync(fileNameConfig)) {
             // No config
@@ -1208,7 +1211,7 @@ GameServer.prototype.loadConfig = function () {
 };
 
 GameServer.prototype.loadBadWords = function () {
-    var fileNameBadWords = '../src/badwords.txt';
+    var fileNameBadWords = this.srcFiles + '/badwords.txt';
     try {
         if (!fs.existsSync(fileNameBadWords)) {
             Logger.warn(fileNameBadWords + " not found");
@@ -1227,8 +1230,8 @@ GameServer.prototype.loadBadWords = function () {
 };
 
 GameServer.prototype.loadUserList = function () {
-    var UserRoleEnum = require('../src/enum/UserRoleEnum');
-    var fileNameUsers = '../src/enum/userRoles.json';
+    var UserRoleEnum = require(this.srcFiles + '/enum/UserRoleEnum');
+    var fileNameUsers = this.srcFiles + '/enum/userRoles.json';
     try {
         this.userList = [];
         if (!fs.existsSync(fileNameUsers)) {
@@ -1273,7 +1276,7 @@ GameServer.prototype.loadUserList = function () {
 };
 
 GameServer.prototype.loadIpBanList = function () {
-    var fileNameIpBan = '../src/ipbanlist.txt';
+    var fileNameIpBan = this.srcFiles + '/ipbanlist.txt';
     try {
         if (fs.existsSync(fileNameIpBan)) {
             // Load and input the contents of the ipbanlist file
