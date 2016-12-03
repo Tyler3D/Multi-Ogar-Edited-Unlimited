@@ -707,6 +707,30 @@ GameServer.prototype.mainLoop = function () {
     this.updateTime = tEnd[0] * 1000 + tEnd[1] / 1000000;
 };
 
+
+GameServer.prototype.updateMassDecay = function () {
+    if (!this.config.playerDecayRate) return;
+    
+    var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
+    // Loop through all player cells
+    for (var i = 0; i < this.clients.length; i++) {
+        var playerTracker = this.clients[i].playerTracker;
+        for (var j = 0; j < playerTracker.cells.length; j++) {
+            var cell = playerTracker.cells[j];
+            if (cell === null || cell.isRemoved) 
+                continue;
+            var size = cell._size;
+            if (size <= this.config.playerMinSize)
+                continue;
+            size = Math.sqrt(size * size * decay);
+            size = Math.max(size, this.config.playerMinSize);
+            if (size != cell._size) {
+                cell.setSize(size);
+            }
+        }
+    }
+};
+
 GameServer.prototype.autoSplit = function (client, cell1) {
     if (cell1._size < this.config.playerMaxSize) return;
     
@@ -863,40 +887,25 @@ GameServer.prototype.resolveCollision = function (manifold) {
         // too far => can't eat
         return;
     }
-    
+    // collision check for players
     if (cell.cellType <= 0 || check.cellType <= 0) {
-        if (check._size < cell._size * 1.15) return; // size check #1
         if (cell.owner && cell.owner == check.owner) {
-            // collision owned/owned => ignore or resolve or remerge
-            if (cell.getAge(this.tickCounter) < 15 || check.getAge(this.tickCounter) < 15) {
+            // collision owned => ignore, resolve, or remerge
+            if (cell.getAge(this.tickCounter) < 14 || check.getAge(this.tickCounter) < 14) {
                 // just splited => ignore
                 return;
             }
-            if (!cell.owner.mergeOverride) {
-                // not force remerge => check if can remerge
-                if (!cell._canRemerge || !check._canRemerge) {
-                    // cannot remerge
-                    return;
-                }
+            // Disable mergeOverride on the last merging cell
+            if (cell.owner.cells.length <= 2) {
+                cell.owner.mergeOverride = false;
             }
-        } else if (this.gameMode.haveTeams && cell.owner && check.owner) {
-            // collision owned/enemy => check if can eat (team check)
-            if (cell.owner.team == check.owner.team) {
-                // cannot eat team member
-                return;
-            }
+        } else {
+            if (check._size < cell._size * 1.15) return; // size check
+            if (!check.canEat(cell)) return; // cell refuses to be eaten
         }
     }
-    if (!check.canEat(cell)) return; // cell refuses to be eaten
-    if (check._size < cell._size * 1.15) return; // size check #2
-    
     // Now maxCell can eat minCell
     cell.isRemoved = true;
-
-    // Disable mergeOverride on the last merging cell
-    if (cell.owner && cell.owner.cells.length <= 2) {
-        cell.owner.mergeOverride = false;
-    }
     
     // Consume effect
     check.onEat(cell);
@@ -931,27 +940,6 @@ GameServer.prototype.spawnCells = function () {
         }
         var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
         this.addNode(v);
-    }
-};
-
-GameServer.prototype.updateMassDecay = function () {
-    if (!this.config.playerDecayRate) return;
-    
-    var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
-    // Loop through all player cells
-    for (var i = 0; i < this.clients.length; i++) {
-        var playerTracker = this.clients[i].playerTracker;
-        for (var j = 0; j < playerTracker.cells.length; j++) {
-            var cell = playerTracker.cells[j];
-            var size = cell._size;
-            if (size <= this.config.playerMinSize)
-                continue;
-            size = Math.sqrt(size * size * decay);
-            size = Math.max(size, this.config.playerMinSize);
-            if (size != cell._size) {
-                cell.setSize(size);
-            }
-        }
     }
 };
 
