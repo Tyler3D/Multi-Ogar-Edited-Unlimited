@@ -108,8 +108,8 @@ Teams.prototype.onCellMove = function (cell, gameServer) {
         if (check.owner.team == team) {
             var manifold = gameServer.checkCellCollision(cell, check); // Calculation info
             if (manifold != null) { // Collided
-                // Call gameserver's function to collide cells
-                gameServer.resolveCollision(manifold);
+                // Cant eat team members
+                !manifold.cell2.canEat(manifold.cell1);
             }
         }
     }
