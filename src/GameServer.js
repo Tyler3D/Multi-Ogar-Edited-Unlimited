@@ -14,13 +14,12 @@ var Logger = require('./modules/Logger');
 function GameServer() {
     // Location of source files - For renaming or moving source files!
     this.srcFiles = "../src";
-
-    this.httpServer = null;
-    this.wsServer = null;
     
     // Startup
     this.run = true;
-    this.version = '1.4.1';
+    this.version = '1.4.2';
+    this.httpServer = null;
+    this.wsServer = null;
     this.commands;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
@@ -103,7 +102,7 @@ function GameServer() {
         ejectSize: 38,              // Size of ejected cells (vanilla 38)
         ejectSizeLoss: 43,          // Eject size which will be substracted from player cell (vanilla 43?)
         ejectCooldown: 3,           // min ticks between ejects
-        ejectSpawnPlayer: 1,        // if 1 then player may be spawned from ejected mass
+        ejectSpawnPercent: 0.5,     // Chance for a player to spawn from ejected mass. 0.5 = 50% (set to 0 to disable)
         
         playerMinSize: 32,          // Minimym size of the player cell (mass = 32*32/100 = 10.24)
         playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
@@ -169,33 +168,7 @@ GameServer.prototype.start = function () {
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
-    this.startStatsServer(this.config.serverStatsPort);
-};
-
-GameServer.prototype.startStatsServer = function (port) {
-    // Do not start the server if the port is negative
-    if (port < 1) return;
-    
-    // Create stats
-    this.stats = "Test";
-    this.getStats();
-    
-    // Show stats
-    this.httpServer = http.createServer(function (req, res) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.writeHead(200);
-        res.end(this.stats);
-    }.bind(this));
-    this.httpServer.on('error', function (err) {
-        Logger.error("Stats Server: " + err.message);
-    });
-    
-    var getStatsBind = this.getStats.bind(this);
-    this.httpServer.listen(port, function () {
-        // Stats server
-        Logger.info("Started stats server on port " + port);
-        setInterval(getStatsBind, this.config.serverStatsUpdate * 1000);
-    }.bind(this));
+    if (this.config.serverStatsPort > 0) this.startStatsServer(this.config.serverStatsPort);
 };
 
 GameServer.prototype.onHttpServerOpen = function () {
@@ -686,7 +659,7 @@ GameServer.prototype.mainLoop = function () {
             c = this.checkCellCollision(r.cell1, r.cell2);
             if (c == null) continue;
             this.resolveRigidCollision(c, this.border);
-            // position changed! don't forgot to update quad-tree
+            // position changed! don't forget to update quad-tree
             this.updateNodeQuad(r.cell1);
             this.updateNodeQuad(r.cell2);
         }
@@ -735,23 +708,18 @@ GameServer.prototype.mainLoop = function () {
 };
 
 GameServer.prototype.autoSplit = function (client, cell1) {
-    // rec mode
-    if (!client.rec) {
-        var maxSize = this.config.playerMaxSize;
-    } else {
-        maxSize = this.config.playerMaxSize * 3;
-    }
-    if (cell1._size < maxSize) return;
+    if (cell1._size < this.config.playerMaxSize) return;
+    
     // check size limit
     var checkSize = !client.mergeOverride || client.cells.length == 1;
-    if (checkSize && cell1._size > maxSize && cell1.getAge(this.tickCounter) >= 15) {
+    if (checkSize && cell1._size > this.config.playerMaxSize && cell1.getAge(this.tickCounter) >= 15) {
         if (client.cells.length >= this.config.playerMaxCells) {
             // cannot split => just limit
-            cell1.setSize(maxSize);
+            cell1.setSize(this.config.playerMaxSize);
         } else {
             // split
             var maxSplit = this.config.playerMaxCells - client.cells.length,
-            count = (cell1._sizeSquared / (maxSize * maxSize)) >> 0,
+            count = (cell1._sizeSquared / (this.config.playerMaxSize * this.config.playerMaxSize)) >> 0,
             count1 = Math.min(count, maxSplit),
             splitSize = cell1._size / Math.sqrt(count1 + 1),
             splitMass = splitSize * splitSize / 100,
@@ -821,9 +789,28 @@ GameServer.prototype.updateNodeQuad = function (node) {
     this.quadTree.update(item);
 };
 
-// Checks cells for collision.
-// Returns collision manifold or null if there is no collision
+// Checks if collision is rigid body collision
+GameServer.prototype.checkRigidCollision = function (c) {
+    if (!c.cell1.owner || !c.cell2.owner)
+        return false;
+    if (c.cell1.owner != c.cell2.owner) {
+        // Different owners
+        return this.gameMode.haveTeams && 
+            c.cell1.owner.team == c.cell2.owner.team;
+    }
+    // The same owner
+    if (c.cell1.owner.mergeOverride)
+        return false;
+    if (c.cell1.getAge(this.tickCounter) < 14 || c.cell2.getAge(this.tickCounter) < 14) {
+        // just splited => ignore
+        return false;
+    }
+    return !c.cell1._canRemerge || !c.cell2._canRemerge;
+};
+
+// Checks cells for collision
 GameServer.prototype.checkCellCollision = function (cell, check) {
+    var m = cell._mass + check._mass;
     var r = ~~(cell._size + check._size);
     var dx = check.position.x - cell.position.x;
     var dy = check.position.y - cell.position.y;
@@ -836,6 +823,7 @@ GameServer.prototype.checkCellCollision = function (cell, check) {
         cell1: cell,
         cell2: check,
         r: r,               // radius sum
+        m: m,               // body impulse
         dx: dx,             // delta x from cell1 to cell2
         dy: dy,             // delta y from cell1 to cell2
         squared: squared    // squared distance from cell1 to cell2
@@ -848,9 +836,8 @@ GameServer.prototype.resolveRigidCollision = function (c) {
     var d = Math.sqrt(c.squared);
     if (d <= 0) return;
     // body impulse
-    var m = c.cell1._mass + c.cell2._mass;
-    var m1 = c.cell1._mass * (1 / m);
-    var m2 = c.cell2._mass * (1 / m);
+    var m1 = ~~c.cell1._mass * (1 / c.m);
+    var m2 = ~~c.cell2._mass * (1 / c.m);
     // apply extrusion force
     var force = Math.min((c.r - d) / d, c.r - d);
     c.cell1.position.x -= ~~((force * ~~c.dx) * m2);
@@ -861,69 +848,64 @@ GameServer.prototype.resolveRigidCollision = function (c) {
 
 // Resolves non-rigid body collision
 GameServer.prototype.resolveCollision = function (manifold) {
-    var minCell = manifold.cell1;
-    var maxCell = manifold.cell2;
-    // check if any cell already eaten
-    if (minCell.isRemoved || maxCell.isRemoved)
-        return;
-    if (minCell._size > maxCell._size) {
-        minCell = manifold.cell2;
-        maxCell = manifold.cell1;
+    var cell = manifold.cell1;
+    var check = manifold.cell2;
+    if (cell._size > check._size) {
+        cell = manifold.cell2;
+        check = manifold.cell1;
     }
+    // check if any cell already eaten
+    if (cell.isRemoved || check.isRemoved)
+        return;
     // check distance
-    var eatDistance = maxCell._size - minCell._size / 3;
+    var eatDistance = check._size - cell._size / 3;
     if (manifold.squared >= eatDistance * eatDistance) {
         // too far => can't eat
         return;
     }
     
-    if (minCell.owner && minCell.owner == maxCell.owner) {
-        // collision owned/owned => ignore or resolve or remerge
-        if (minCell.getAge(this.tickCounter) < 15 || maxCell.getAge(this.tickCounter) < 15) {
-            // just splited => ignore
-            return;
-        }
-        if (!minCell.owner.mergeOverride) {
-            // not force remerge => check if can remerge
-            if (!minCell._canRemerge || !maxCell._canRemerge) {
-                // cannot remerge
+    if (cell.cellType <= 0 || check.cellType <= 0) {
+        if (check._size < cell._size * 1.15) return; // size check #1
+        if (cell.owner && cell.owner == check.owner) {
+            // collision owned/owned => ignore or resolve or remerge
+            if (cell.getAge(this.tickCounter) < 15 || check.getAge(this.tickCounter) < 15) {
+                // just splited => ignore
                 return;
             }
-        }
-    } else {
-        // collision owned/enemy => check if can eat (team check)
-        if (this.gameMode.haveTeams && minCell.owner && maxCell.owner) {
-            if (minCell.owner.team == maxCell.owner.team) {
+            if (!cell.owner.mergeOverride) {
+                // not force remerge => check if can remerge
+                if (!cell._canRemerge || !check._canRemerge) {
+                    // cannot remerge
+                    return;
+                }
+            }
+        } else if (this.gameMode.haveTeams && cell.owner && check.owner) {
+            // collision owned/enemy => check if can eat (team check)
+            if (cell.owner.team == check.owner.team) {
                 // cannot eat team member
                 return;
             }
         }
-        // Size check
-        if (maxCell._size < minCell._size * 1.15) {
-            // too large => can't eat
-            return;
-        }
     }
-    // maxCell don't want to eat
-    if (!maxCell.canEat(minCell))
-        return;
+    if (!check.canEat(cell)) return; // cell refuses to be eaten
+    if (check._size < cell._size * 1.15) return; // size check #2
     
     // Now maxCell can eat minCell
-    minCell.isRemoved = true;
-    
+    cell.isRemoved = true;
+
     // Disable mergeOverride on the last merging cell
-    if (minCell.owner && minCell.owner.cells.length <= 2) {
-        minCell.owner.mergeOverride = false;
+    if (cell.owner && cell.owner.cells.length <= 2) {
+        cell.owner.mergeOverride = false;
     }
     
     // Consume effect
-    maxCell.onEat(minCell);
-    minCell.onEaten(maxCell);
-        
+    check.onEat(cell);
+    cell.onEaten(check);
+    cell.killedBy = check;
+  
     // update bounds & Remove cell
-    this.updateNodeQuad(maxCell);
-    minCell.killedBy = maxCell;
-    this.removeNode(minCell);
+    this.updateNodeQuad(check);
+    this.removeNode(cell);
 };
 
 GameServer.prototype.spawnCells = function () {
@@ -993,8 +975,8 @@ GameServer.prototype.spawnPlayer = function (player) {
     }
     
     // Check if can spawn from ejected mass
-    if (!pos && this.config.ejectSpawnPlayer && this.nodesEjected.length > 0 
-        && Math.random() >= 0.5 && !eject.isRemoved) {
+    if (Math.random() <= this.config.ejectSpawnPercent && this.nodesEjected.length > 0
+        && !eject.isRemoved && !eject.boostDistance == 0) {
         // Spawn as same color
         player.setColor(eject.color);
         // Spawn from ejected mass
@@ -1036,45 +1018,21 @@ GameServer.prototype.willCollide = function (pos, size) {
         });
 };
 
-// Checks if collision is rigid body collision
-GameServer.prototype.checkRigidCollision = function (c) {
-    if (!c.cell1.owner || !c.cell2.owner)
-        return false;
-    if (c.cell1.owner != c.cell2.owner) {
-        // Different owners
-        return this.gameMode.haveTeams && 
-            c.cell1.owner.team == c.cell2.owner.team;
-    }
-    // The same owner
-    if (c.cell1.owner.mergeOverride)
-        return false;
-    if (c.cell1.getAge(this.tickCounter) < 14 || c.cell2.getAge(this.tickCounter) < 14) {
-        // just splited => ignore
-        return false;
-    }
-    return !c.cell1._canRemerge || !c.cell2._canRemerge;
-};
-
 GameServer.prototype.splitCells = function (client) {
-    // Player is frozen 
-    if (client.frozen) return;
+    if (client.frozen) return; // Player is frozen 
     
     // It seems that vanilla uses order by cell age
     var cellToSplit = [];
-    var maxCells;
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
         if (cell._size < this.config.playerMinSplitSize) {
             continue;
         }
         cellToSplit.push(cell);
-        
         // rec mode
-        if (client.rec == false) {
-            maxCells = this.config.playerMaxCells;
-        } else {
-            maxCells = this.config.playerMaxCells * this.config.playerMaxCells;
-        }
+        if (!client.rec) var maxCells = this.config.playerMaxCells;
+        else maxCells = this.config.playerMaxCells * this.config.playerMaxCells;
+            
         if (cellToSplit.length + client.cells.length >= maxCells)
             break;
     }
@@ -1291,6 +1249,30 @@ GameServer.prototype.loadIpBanList = function () {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
     }
+};
+
+
+GameServer.prototype.startStatsServer = function (port) {
+    // Create stats
+    this.stats = "Test";
+    this.getStats();
+    
+    // Show stats
+    this.httpServer = http.createServer(function (req, res) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.writeHead(200);
+        res.end(this.stats);
+    }.bind(this));
+    this.httpServer.on('error', function (err) {
+        Logger.error("Stats Server: " + err.message);
+    });
+    
+    var getStatsBind = this.getStats.bind(this);
+    this.httpServer.listen(port, function () {
+        // Stats server
+        Logger.info("Started stats server on port " + port);
+        setInterval(getStatsBind, this.config.serverStatsUpdate * 1000);
+    }.bind(this));
 };
 
 GameServer.prototype.getStats = function () {
