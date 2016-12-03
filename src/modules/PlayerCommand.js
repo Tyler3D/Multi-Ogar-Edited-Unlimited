@@ -65,20 +65,15 @@ PlayerCommand.prototype.userLogin = function (ip, password) {
 };
 
 var playerCommands = {
+    id: function (args) {
+        this.writeLine("ID: " + this.playerTracker.pID);
+    },
     help: function (args) {
-        if (this.playerTracker.userRole != (UserRoleEnum.ADMIN || UserRoleEnum.MODER || UserRoleEnum.USER)) {
-            this.writeLine("ERROR: access denied!");
-            return;
-        }
         this.writeLine("/skin %shark - change skin");
         this.writeLine("/kill - self kill");
         this.writeLine("/help - this command list");
     },
     skin: function (args) {
-        if (this.playerTracker.userRole != (UserRoleEnum.ADMIN || UserRoleEnum.MODER || UserRoleEnum.USER)) {
-            this.writeLine("ERROR: access denied!");
-            return;
-        }
         if (this.playerTracker.cells.length > 0) {
             this.writeLine("ERROR: Cannot change skin while player in game!");
             return;
@@ -92,10 +87,6 @@ var playerCommands = {
             this.writeLine("Your skin set to " + skinName);
     },
     kill: function (args) {
-        if (this.playerTracker.userRole != (UserRoleEnum.ADMIN || UserRoleEnum.MODER || UserRoleEnum.USER)) {
-            this.writeLine("ERROR: access denied!");
-            return;
-        }
         if (this.playerTracker.cells.length < 1) {
             this.writeLine("You cannot kill yourself, because you're still not joined to the game!");
             return;
@@ -103,6 +94,10 @@ var playerCommands = {
         while (this.playerTracker.cells.length > 0) {
             var cell = this.playerTracker.cells[0];
             this.gameServer.removeNode(cell);
+            // replace with food
+            var food = new Entity.Food(this.gameServer, null, cell.position, cell._size);
+            food.setColor(this.gameServer.getGrayColor(cell.getColor()));
+            this.gameServer.addNode(food);
         }
         this.writeLine("You killed yourself");
     },
