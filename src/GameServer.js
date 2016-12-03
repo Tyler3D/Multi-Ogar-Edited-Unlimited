@@ -863,40 +863,25 @@ GameServer.prototype.resolveCollision = function (manifold) {
         // too far => can't eat
         return;
     }
-    
+    // collision check for players
     if (cell.cellType <= 0 || check.cellType <= 0) {
-        if (check._size < cell._size * 1.15) return; // size check #1
         if (cell.owner && cell.owner == check.owner) {
-            // collision owned/owned => ignore or resolve or remerge
-            if (cell.getAge(this.tickCounter) < 15 || check.getAge(this.tickCounter) < 15) {
+            // collision owned => ignore, resolve, or remerge
+            if (cell.getAge(this.tickCounter) < 14 || check.getAge(this.tickCounter) < 14) {
                 // just splited => ignore
                 return;
             }
-            if (!cell.owner.mergeOverride) {
-                // not force remerge => check if can remerge
-                if (!cell._canRemerge || !check._canRemerge) {
-                    // cannot remerge
-                    return;
-                }
+            // Disable mergeOverride on the last merging cell
+            if (cell.owner.cells.length <= 2) {
+                cell.owner.mergeOverride = false;
             }
-        } else if (this.gameMode.haveTeams && cell.owner && check.owner) {
-            // collision owned/enemy => check if can eat (team check)
-            if (cell.owner.team == check.owner.team) {
-                // cannot eat team member
-                return;
-            }
+        } else {
+            if (check._size < cell._size * 1.15) return; // size check
+            if (!check.canEat(cell)) return; // cell refuses to be eaten
         }
     }
-    if (!check.canEat(cell)) return; // cell refuses to be eaten
-    if (check._size < cell._size * 1.15) return; // size check #2
-    
     // Now maxCell can eat minCell
     cell.isRemoved = true;
-
-    // Disable mergeOverride on the last merging cell
-    if (cell.owner && cell.owner.cells.length <= 2) {
-        cell.owner.mergeOverride = false;
-    }
     
     // Consume effect
     check.onEat(cell);
