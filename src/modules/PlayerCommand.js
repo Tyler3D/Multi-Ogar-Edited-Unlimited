@@ -95,8 +95,9 @@ var playerCommands = {
             var cell = this.playerTracker.cells[0];
             this.gameServer.removeNode(cell);
             // replace with food
-            var food = new Entity.Food(this.gameServer, null, cell.position, cell._size);
-            food.setColor(this.gameServer.getGrayColor(cell.getColor()));
+            var food = require('../entity/Food');
+            food = new food(this.gameServer, null, cell.position, cell._size);
+            food.setColor(cell.color);
             this.gameServer.addNode(food);
         }
         this.writeLine("You killed yourself");
