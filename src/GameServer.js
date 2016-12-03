@@ -12,8 +12,8 @@ var Logger = require('./modules/Logger');
 
 // GameServer implementation
 function GameServer() {
-	// Location of source files - For renaming or moving source files!
-	this.srcFiles = "../src";
+    // Location of source files - For renaming or moving source files!
+    this.srcFiles = "../src";
 
     this.httpServer = null;
     this.wsServer = null;
