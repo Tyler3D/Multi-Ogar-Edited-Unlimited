@@ -49,8 +49,8 @@ Version 1.2.8:
 
 *Method 1:*
 
-* Run the Install Dependencies.bat file. (It'll close automatically once it's done)
-* Run run\Start-windows.bat
+* Run the win-Install_Dep.bat file. (It'll close automatically once it's done)
+* Run run\win-Start.bat
 
 *Method 2:*
 
@@ -92,7 +92,7 @@ npm install
 
 ```bash
 cd run
-sh Start-linux.sh
+sh lin-Start.sh
 ```
 
 *Method 2:*
