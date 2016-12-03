@@ -45,16 +45,24 @@ Version 1.2.8:
 #### Windows:
 * Download and install node.js: https://nodejs.org/en/download/ (64-bit recommended)
 * Download MultiOgar code: https://github.com/Megabyte918/MultiOgar-Edited/archive/master.zip
-* Unzip MultiOgar code into some folder
-* Start command line and execute from MultiOgar folder
+* Unzip MultiOgar code into some folder.
 
-```bash
+*Method 1:*
+
+* Run the Install Dependencies.bat file. (It'll close automatically once it's done)
+* Run run\Start-windows.bat
+
+*Method 2:*
+
+Start command line and execute from MultiOgar folder.
+
+```batch
 npm install
 ```
 
 and run the server:
 
-```bash
+```batch
 cd src
 node index.js
 ```
@@ -78,6 +86,18 @@ cd MultiOgar
 npm install
 
 # Run the server:
+```
+
+*Method 1:*
+
+```bash
+cd run
+sh Start-linux.sh
+```
+
+*Method 2:*
+
+```bash
 cd src
 sudo node index.js
 ```
