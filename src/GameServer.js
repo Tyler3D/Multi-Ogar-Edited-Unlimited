@@ -518,23 +518,13 @@ GameServer.prototype.sendChatMessage = function(from, to, message) {
 
 GameServer.prototype.timerLoop = function() {
     var timeStep = 40;
-    timeStep += 5;
-    timeStep = Math.max(timeStep, 40);
-    
     var ts = Date.now();
     var dt = ts - this.timeStamp;
     if (dt < timeStep - 5) {
         setTimeout(this.timerLoopBind, ((timeStep - 5) - dt) >> 0);
         return;
     }
-    if (dt < timeStep - 1) {
-        setTimeout(this.timerLoopBind, 0);
-        return;
-    }
-    if (dt < timeStep) {
-        setTimeout(this.timerLoopBind, 0);
-        return;
-    }
+    if (dt > 120) this.timeStamp = ts - timeStep;
     // update average
     this.updateTimeAvg += 0.5 * (this.updateTime - this.updateTimeAvg);
     // calculate next
