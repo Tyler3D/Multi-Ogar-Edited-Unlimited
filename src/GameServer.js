@@ -150,7 +150,7 @@ function GameServer() {
 
 module.exports = GameServer;
 
-GameServer.prototype.start = function () {
+GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
@@ -171,7 +171,7 @@ GameServer.prototype.start = function () {
     if (this.config.serverStatsPort > 0) this.startStatsServer(this.config.serverStatsPort);
 };
 
-GameServer.prototype.onHttpServerOpen = function () {
+GameServer.prototype.onHttpServerOpen = function() {
     // Start Main Loop
     setTimeout(this.timerLoopBind, 1);
     
@@ -188,7 +188,7 @@ GameServer.prototype.onHttpServerOpen = function () {
     }
 };
 
-GameServer.prototype.addNode = function (node) {
+GameServer.prototype.addNode = function(node) {
     var x = node.position.x;
     var y = node.position.y;
     var size = node._size;
@@ -211,7 +211,7 @@ GameServer.prototype.addNode = function (node) {
     node.onAdd(this); // Special on-add actions
 };
 
-GameServer.prototype.onServerSocketError = function (error) {
+GameServer.prototype.onServerSocketError = function(error) {
     Logger.error("WebSocket: " + error.code + " - " + error.message);
     switch (error.code) {
         case "EADDRINUSE":
@@ -225,9 +225,9 @@ GameServer.prototype.onServerSocketError = function (error) {
     process.exit(1); // Exits the program
 };
 
-GameServer.prototype.onClientSocketOpen = function (ws) {
+GameServer.prototype.onClientSocketOpen = function(ws) {
     var logip = ws._socket.remoteAddress + ":" + ws._socket.remotePort;
-    ws.on('error', function (err) {
+    ws.on('error', function(err) {
         Logger.writeError("[" + logip + "] " + err.stack);
     });
     if (this.config.serverMaxConnections > 0 && this.socketCount >= this.config.serverMaxConnections) {
@@ -263,7 +263,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
     ws.playerCommand = new PlayerCommand(this, ws.playerTracker);
     
     var self = this;
-    var onMessage = function (message) {
+    var onMessage = function(message) {
         if (message.length == 0) {
             return;
         }
@@ -273,16 +273,16 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
         }
         ws.packetHandler.handleMessage(message);
     };
-    var onError = function (error) {
-        ws.sendPacket = function (data) { };
+    var onError = function(error) {
+        ws.sendPacket = function(data) { };
     };
-    var onClose = function (reason) {
+    var onClose = function(reason) {
         if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
             ws._socket.destroy();
         }
         this.socketCount--;
         ws.isConnected = false;
-        ws.sendPacket = function (data) { };
+        ws.sendPacket = function(data) { };
         ws.closeReason = { reason: ws._closeCode, message: ws._closeMessage };
         ws.closeTime = Date.now();
         Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode + ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
@@ -318,7 +318,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
     }
 };
 
-GameServer.prototype.checkIpBan = function (ipAddress) {
+GameServer.prototype.checkIpBan = function(ipAddress) {
     if (!this.ipBanList || this.ipBanList.length == 0 || ipAddress == "127.0.0.1") {
         return false;
     }
@@ -341,21 +341,21 @@ GameServer.prototype.checkIpBan = function (ipAddress) {
     return false;
 };
 
-GameServer.prototype.setBorder = function (width, height) {
+GameServer.prototype.setBorder = function(width, height) {
     var hw = width / 2, hh = height / 2;
     this.border = {
         minx: -hw, miny: -hh, maxx: hw, maxy: hh, width: width, height: height, centerx: 0, centery: 0
     };
 };
 
-GameServer.prototype.getRandomPosition = function () {
+GameServer.prototype.getRandomPosition = function() {
     return {
         x: (this.border.minx + this.border.width * Math.random()) >> 0,
         y: (this.border.miny + this.border.height * Math.random()) >> 0
     };
 };
 
-GameServer.prototype.getRandomColor = function () {
+GameServer.prototype.getRandomColor = function() {
     var h = 360 * Math.random();
     var s = 248 / 255;
     var v = 1;
@@ -392,7 +392,7 @@ GameServer.prototype.getRandomColor = function () {
     };
 };
 
-GameServer.prototype.removeNode = function (node) {
+GameServer.prototype.removeNode = function(node) {
     node.isRemoved = true;
     this.quadTree.remove(node.quadItem);
     node.quadItem = null;
@@ -413,7 +413,7 @@ GameServer.prototype.removeNode = function (node) {
     node.onRemove(this);
 };
 
-GameServer.prototype.updateClients = function () {
+GameServer.prototype.updateClients = function() {
     // check minions
     for (var i = 0; i < this.minionTest.length; ) {
         var playerTracker = this.minionTest[i];
@@ -443,7 +443,7 @@ GameServer.prototype.updateClients = function () {
     }
 };
 
-GameServer.prototype.updateLeaderboard = function () {
+GameServer.prototype.updateLeaderboard = function() {
     // Update leaderboard with the gamemode's method
     this.leaderboard = [];
     this.leaderboardType = -1;
@@ -454,7 +454,7 @@ GameServer.prototype.updateLeaderboard = function () {
         var clients = this.clients.valueOf();
         
         // Use sort function
-        clients.sort(function (a, b) {
+        clients.sort(function(a, b) {
             return b.playerTracker.getScore() - a.playerTracker.getScore();
         });
         this.largestClient = null;
@@ -465,7 +465,7 @@ GameServer.prototype.updateLeaderboard = function () {
     }
 };
 
-GameServer.prototype.onChatMessage = function (from, to, message) {
+GameServer.prototype.onChatMessage = function(from, to, message) {
     if (message == null) return;
     message = message.trim();
     if (message == "") return;
@@ -502,7 +502,7 @@ GameServer.prototype.onChatMessage = function (from, to, message) {
     this.sendChatMessage(from, to, message);
 };
 
-GameServer.prototype.checkBadWord = function (value) {
+GameServer.prototype.checkBadWord = function(value) {
     if (!value) return false;
     value = value.toLowerCase().trim();
     if (!value) return false;
@@ -514,7 +514,7 @@ GameServer.prototype.checkBadWord = function (value) {
     return false;
 };
 
-GameServer.prototype.sendChatMessage = function (from, to, message) {
+GameServer.prototype.sendChatMessage = function(from, to, message) {
     for (var i = 0; i < this.clients.length; i++) {
         var client = this.clients[i];
         if (client == null) continue;
@@ -523,7 +523,7 @@ GameServer.prototype.sendChatMessage = function (from, to, message) {
     }
 };
 
-GameServer.prototype.timerLoop = function () {
+GameServer.prototype.timerLoop = function() {
     var timeStep = 40;
     timeStep += 5;
     timeStep = Math.max(timeStep, 40);
@@ -552,7 +552,7 @@ GameServer.prototype.timerLoop = function () {
     setTimeout(this.timerLoopBind, 0);
 };
 
-GameServer.prototype.mainLoop = function () {
+GameServer.prototype.mainLoop = function() {
     this.stepDateTime = Date.now();
     var tStart = process.hrtime();
     
@@ -591,7 +591,7 @@ GameServer.prototype.mainLoop = function () {
             for (var j = 0; j < client.cells.length; j++) {
                 cell1 = client.cells[j];
                 if (cell1 == null) continue;
-                this.quadTree.find(cell1.quadItem.bound, function (item) {
+                this.quadTree.find(cell1.quadItem.bound, function(item) {
                     var cell2 = item.cell;
                     if (cell2 == cell1) return;
                     var c = self.checkCellCollision(cell1, cell2);
@@ -629,7 +629,7 @@ GameServer.prototype.mainLoop = function () {
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
             if (cell1.isRemoved) continue;
-            this.quadTree.find(cell1.quadItem.bound, function (item) {
+            this.quadTree.find(cell1.quadItem.bound, function(item) {
                 var cell2 = item.cell;
                 if (cell2 == cell1)
                     return;
@@ -708,7 +708,7 @@ GameServer.prototype.mainLoop = function () {
 };
 
 
-GameServer.prototype.updateMassDecay = function () {
+GameServer.prototype.updateMassDecay = function() {
     if (!this.config.playerDecayRate) return;
     
     var decay = 1 - this.config.playerDecayRate * this.gameMode.decayMod;
@@ -731,7 +731,7 @@ GameServer.prototype.updateMassDecay = function () {
     }
 };
 
-GameServer.prototype.autoSplit = function (client, cell1) {
+GameServer.prototype.autoSplit = function(client, cell1) {
     if (cell1._size < this.config.playerMaxSize) return;
     
     // check size limit
@@ -757,7 +757,7 @@ GameServer.prototype.autoSplit = function (client, cell1) {
     }
 };
 
-GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, maxCells) {
+GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, maxCells) {
     // Player cell limit
     if (client.cells.length >= maxCells) 
         return false;
@@ -793,7 +793,7 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass, ma
     return true;
 };
 
-GameServer.prototype.updateNodeQuad = function (node) {
+GameServer.prototype.updateNodeQuad = function(node) {
     var item = node.quadItem;
     var x = node.position.x;
     var y = node.position.y;
@@ -814,7 +814,7 @@ GameServer.prototype.updateNodeQuad = function (node) {
 };
 
 // Checks if collision is rigid body collision
-GameServer.prototype.checkRigidCollision = function (c) {
+GameServer.prototype.checkRigidCollision = function(c) {
     if (!c.cell1.owner || !c.cell2.owner)
         return false;
     if (c.cell1.owner != c.cell2.owner) {
@@ -833,7 +833,7 @@ GameServer.prototype.checkRigidCollision = function (c) {
 };
 
 // Checks cells for collision
-GameServer.prototype.checkCellCollision = function (cell, check) {
+GameServer.prototype.checkCellCollision = function(cell, check) {
     var m = cell._mass + check._mass;
     var r = ~~(cell._size + check._size);
     var dx = check.position.x - cell.position.x;
@@ -855,7 +855,7 @@ GameServer.prototype.checkCellCollision = function (cell, check) {
 };
 
 // Resolves rigid body collision
-GameServer.prototype.resolveRigidCollision = function (c) {
+GameServer.prototype.resolveRigidCollision = function(c) {
     // distance from cell1 to cell2
     var d = Math.sqrt(c.squared);
     if (d <= 0) return;
@@ -871,7 +871,7 @@ GameServer.prototype.resolveRigidCollision = function (c) {
 };
 
 // Resolves non-rigid body collision
-GameServer.prototype.resolveCollision = function (manifold) {
+GameServer.prototype.resolveCollision = function(manifold) {
     var cell = manifold.cell1;
     var check = manifold.cell2;
     if (cell._size > check._size) {
@@ -917,7 +917,7 @@ GameServer.prototype.resolveCollision = function (manifold) {
     this.removeNode(cell);
 };
 
-GameServer.prototype.spawnCells = function () {
+GameServer.prototype.spawnCells = function() {
     var maxCount = this.config.foodMinAmount - this.nodesFood.length;
     var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
     for (var i = 0; i < spawnCount; i++) {
@@ -943,7 +943,7 @@ GameServer.prototype.spawnCells = function () {
     }
 };
 
-GameServer.prototype.spawnPlayer = function (player) {
+GameServer.prototype.spawnPlayer = function(player) {
     var pos = this.getRandomPosition(),
     size = this.config.playerStartSize,
     index = (this.nodesEjected.length - 1) * Math.random() >> 0,
@@ -990,7 +990,7 @@ GameServer.prototype.spawnPlayer = function (player) {
     };
 };
 
-GameServer.prototype.willCollide = function (pos, size) {
+GameServer.prototype.willCollide = function(pos, size) {
     // Look if there will be any collision with the current nodes
     var bound = {
         minx: pos.x - size,
@@ -1000,13 +1000,13 @@ GameServer.prototype.willCollide = function (pos, size) {
     };
     return this.quadTree.any(
         bound, 
-        function (item) {
+        function(item) {
             return item.cell.cellType == 0  // check players
                 || item.cell.cellType == 2; // check viruses
         });
 };
 
-GameServer.prototype.splitCells = function (client) {
+GameServer.prototype.splitCells = function(client) {
     if (client.frozen) return; // Player is frozen 
     
     // It seems that vanilla uses order by cell age
@@ -1042,7 +1042,7 @@ GameServer.prototype.splitCells = function (client) {
     }
 };
 
-GameServer.prototype.canEjectMass = function (client) {
+GameServer.prototype.canEjectMass = function(client) {
     if (client.lastEject == null || !client.frozen) {
         // first eject
         client.lastEject = this.tickCounter;
@@ -1057,7 +1057,7 @@ GameServer.prototype.canEjectMass = function (client) {
     return true;
 };
 
-GameServer.prototype.ejectMass = function (client) {
+GameServer.prototype.ejectMass = function(client) {
     if (!this.canEjectMass(client))
         return;
     for (var i = 0; i < client.cells.length; i++) {
@@ -1112,7 +1112,7 @@ GameServer.prototype.ejectMass = function (client) {
     }
 };
 
-GameServer.prototype.shootVirus = function (parent, angle) {
+GameServer.prototype.shootVirus = function(parent, angle) {
     var parentPos = {
         x: parent.position.x,
         y: parent.position.y,
@@ -1125,7 +1125,7 @@ GameServer.prototype.shootVirus = function (parent, angle) {
     this.addNode(newVirus);
 };
 
-GameServer.prototype.loadConfig = function () {
+GameServer.prototype.loadConfig = function() {
     var fileNameConfig = this.srcFiles + '/gameserver.ini';
     var ini = require(this.srcFiles + '/modules/ini.js');
     try {
@@ -1156,7 +1156,7 @@ GameServer.prototype.loadConfig = function () {
     Logger.setFileVerbosity(this.config.logFileVerbosity);
 };
 
-GameServer.prototype.loadBadWords = function () {
+GameServer.prototype.loadBadWords = function() {
     var fileNameBadWords = this.srcFiles + '/badwords.txt';
     try {
         if (!fs.existsSync(fileNameBadWords)) {
@@ -1164,8 +1164,8 @@ GameServer.prototype.loadBadWords = function () {
         } else {
             var words = fs.readFileSync(fileNameBadWords, 'utf-8');
             words = words.split(/[\r\n]+/);
-            words = words.map(function (arg) { return arg.trim().toLowerCase(); });
-            words = words.filter(function (arg) { return !!arg; });
+            words = words.map(function(arg) { return arg.trim().toLowerCase(); });
+            words = words.filter(function(arg) { return !!arg; });
             this.badWords = words;
             Logger.info(this.badWords.length + " bad words loaded");
         }
@@ -1175,7 +1175,7 @@ GameServer.prototype.loadBadWords = function () {
     }
 };
 
-GameServer.prototype.loadUserList = function () {
+GameServer.prototype.loadUserList = function() {
     var UserRoleEnum = require(this.srcFiles + '/enum/UserRoleEnum');
     var fileNameUsers = this.srcFiles + '/enum/userRoles.json';
     try {
@@ -1221,12 +1221,12 @@ GameServer.prototype.loadUserList = function () {
     }
 };
 
-GameServer.prototype.loadIpBanList = function () {
+GameServer.prototype.loadIpBanList = function() {
     var fileNameIpBan = this.srcFiles + '/ipbanlist.txt';
     try {
         if (fs.existsSync(fileNameIpBan)) {
             // Load and input the contents of the ipbanlist file
-            this.ipBanList = fs.readFileSync(fileNameIpBan, "utf8").split(/[\r\n]+/).filter(function (x) {
+            this.ipBanList = fs.readFileSync(fileNameIpBan, "utf8").split(/[\r\n]+/).filter(function(x) {
                 return x != ''; // filter empty lines
             });
             Logger.info(this.ipBanList.length + " IP ban records loaded.");
@@ -1240,30 +1240,30 @@ GameServer.prototype.loadIpBanList = function () {
 };
 
 
-GameServer.prototype.startStatsServer = function (port) {
+GameServer.prototype.startStatsServer = function(port) {
     // Create stats
     this.stats = "Test";
     this.getStats();
     
     // Show stats
-    this.httpServer = http.createServer(function (req, res) {
+    this.httpServer = http.createServer(function(req, res) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.writeHead(200);
         res.end(this.stats);
     }.bind(this));
-    this.httpServer.on('error', function (err) {
+    this.httpServer.on('error', function(err) {
         Logger.error("Stats Server: " + err.message);
     });
     
     var getStatsBind = this.getStats.bind(this);
-    this.httpServer.listen(port, function () {
+    this.httpServer.listen(port, function() {
         // Stats server
         Logger.info("Started stats server on port " + port);
         setInterval(getStatsBind, this.config.serverStatsUpdate * 1000);
     }.bind(this));
 };
 
-GameServer.prototype.getStats = function () {
+GameServer.prototype.getStats = function() {
     // Get server statistics
     var totalPlayers = 0;
     var alivePlayers = 0;
@@ -1297,7 +1297,7 @@ GameServer.prototype.getStats = function () {
 
 // Pings the server tracker, should be called every 30 seconds
 // To list us on the server tracker located at http://ogar.mivabe.nl/master
-GameServer.prototype.pingServerTracker = function () {
+GameServer.prototype.pingServerTracker = function() {
     // Get server statistics
     var os = require('os');
     var totalPlayers = 0;
@@ -1319,6 +1319,7 @@ GameServer.prototype.pingServerTracker = function () {
                 spectatePlayers++;
         }
     }
+
     // ogar-tracker.tk
     var obj = {
         port: this.config.serverPort,               // [mandatory] web socket port which listens for game client connections
@@ -1333,7 +1334,7 @@ GameServer.prototype.pingServerTracker = function () {
         uptime: process.uptime() >> 0,              // [mandatory] server uptime [seconds]
         w: this.border.width >> 0,                  // [mandatory] map border width [integer]
         h: this.border.height >> 0,                 // [mandatory] map border height [integer]
-        version: 'MultiOgar ' + this.version,       // [optional]  server version
+        version: 'MultiOgar-Edited ' + this.version,       // [optional]  server version
         stpavg: this.updateTimeAvg >> 0,            // [optional]  average server loop time
         chat: this.config.serverChat ? 1 : 0,       // [optional]  0 - chat disabled, 1 - chat enabled
         os: os.platform()                           // [optional]  operating system
@@ -1352,11 +1353,11 @@ GameServer.prototype.pingServerTracker = function () {
                '&spectators=' + spectatePlayers +
                '&max_players=' + this.config.serverMaxConnections +
                '&sport=' + this.config.serverPort +
-               '&gamemode=[*] ' + this.gameMode.name +  // we add [*] to indicate that this is multi-server
-               '&agario=true' +                         // protocol version
-               '&name=Unnamed Server' +                 // we cannot use it, because other value will be used as dns name
-               '&opp=' + os.platform() + ' ' + os.arch() + // "win32 x64"
-               '&uptime=' + process.uptime() +          // Number of seconds server has been running
+               '&gamemode=[**] ' + this.gameMode.name +             // we add [**] to indicate that this is MultiOgar-Edited server
+               '&agario=true' +                                     // protocol version
+               '&name=Unnamed Server' +                             // we cannot use it, because other value will be used as dns name
+               '&opp=' + os.platform() + ' ' + os.arch() +          // "win32 x64"
+               '&uptime=' + process.uptime() +                      // Number of seconds server has been running
                '&version=MultiOgar ' + this.version +
                '&start_time=' + this.startTime;
     trackerRequest({
@@ -1376,7 +1377,7 @@ GameServer.prototype.pingServerTracker = function () {
 };
 
 // Custom prototype function
-WebSocket.prototype.sendPacket = function (packet) {
+WebSocket.prototype.sendPacket = function(packet) {
     if (packet == null) return;
     if (this.readyState == WebSocket.OPEN) {
         if (this._socket.writable != null && !this._socket.writable) {
@@ -1397,18 +1398,18 @@ function trackerRequest(options, type, body) {
     options.headers['user-agent'] = 'MultiOgar' + this.version;
     options.headers['content-type'] = type;
     options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
-    var req = http.request(options, function (res) {
+    var req = http.request(options, function(res) {
         if (res.statusCode != 200) {
             Logger.writeError("[Tracker][" + options.host + "]: statusCode = " + res.statusCode);
             return;
         }
         res.setEncoding('utf8');
     });
-    req.on('error', function (err) {
+    req.on('error', function(err) {
         Logger.writeError("[Tracker][" + options.host + "]: " + err);
     });
     req.shouldKeepAlive = false;
-    req.on('close', function () {
+    req.on('close', function() {
         req.destroy();
     });
     req.write(body);
