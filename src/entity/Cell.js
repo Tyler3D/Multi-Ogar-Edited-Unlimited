@@ -91,27 +91,6 @@ Cell.prototype.setBoost = function (distance, angle) {
     }
 };
 
-Cell.prototype.move = function (border) {
-    if (this.isMoving && this.boostDistance <= 0) {
-        this.boostDistance = 0;
-        this.isMoving = false;
-        return;
-    }
-    // add speed and set direction
-    var speed = Math.sqrt(this.boostDistance * this.boostDistance / 100);
-    this.boostDistance -= speed;
-    this.position.x += this.boostDirection.x * speed;
-    this.position.y += this.boostDirection.y * speed;
-    
-    // reflect off border
-    var r = this._size / 2;
-    if (this.position.x < border.minx + r || this.position.x > border.maxx - r) 
-        this.boostDirection.x =- this.boostDirection.x;
-	if (this.position.y < border.miny + r || this.position.y > border.maxy - r) 
-	    this.boostDirection.y =- this.boostDirection.y;
-	this.checkBorder(border);
-};
-
 Cell.prototype.checkBorder = function (border) {
     this.position.x = Math.max(this.position.x, border.minx + this._size / 2);
     this.position.y = Math.max(this.position.y, border.miny + this._size / 2);
