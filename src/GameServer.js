@@ -548,9 +548,9 @@ GameServer.prototype.mainLoop = function() {
                 var cell1 = client.cells[j];
                 if (cell1.isRemoved)
                     continue;
-                cell1.moveUser(this.border);
-                cell1.move(this.border);
-                this.autoSplit(client, cell1);
+                this.movePlayer(cell1, client);
+                this.moveCell(cell1);
+                this.autoSplit(cell1, client);
                 this.updateNodeQuad(cell1);
             }
         }
@@ -559,7 +559,7 @@ GameServer.prototype.mainLoop = function() {
             cell1 = this.movingNodes[i];
             if (cell1.isRemoved)
                 continue;
-            cell1.move(this.border);
+            this.moveCell(cell1);
             this.updateNodeQuad(cell1);
             if (!cell1.isMoving)
                 this.movingNodes.splice(i, 1);
@@ -643,15 +643,6 @@ GameServer.prototype.mainLoop = function() {
             if (manifold == null) continue;
             this.resolveCollision(manifold);
         }
-        // check remerge
-        for (var i in this.clients) {
-            client = this.clients[i].playerTracker;
-            for (var j = 0; j < client.cells.length; j++) {
-                cell1 = client.cells[j];
-                if (cell1 === null || cell1.isRemoved) continue;
-                cell1.updateRemerge(this);
-            }
-        }
         if ((this.tickCounter & this.config.spawnInterval - 1) == 0) {
             this.spawnCells();
         }
@@ -702,7 +693,7 @@ GameServer.prototype.updateMassDecay = function() {
     }
 };
 
-GameServer.prototype.autoSplit = function(client, cell1) {
+GameServer.prototype.autoSplit = function(cell1, client) {
     if (cell1._size < this.config.playerMaxSize) return;
     
     // check size limit
@@ -726,6 +717,70 @@ GameServer.prototype.autoSplit = function(client, cell1) {
             }
         }
     }
+};
+
+GameServer.prototype.movePlayer = function(cell1, client) {
+    if (client.socket.isConnected === false || 
+        client == null || client.frozen) {
+        return;
+    }
+    var x = client.mouse.x;
+    var y = client.mouse.y;
+    if (isNaN(x) || isNaN(y)) {
+        return;
+    }
+    var dx = ~~(x - cell1.position.x);
+    var dy = ~~(y - cell1.position.y);
+    var squared = dx * dx + dy * dy;
+    if (squared < 2) return;
+    
+    // distance, normal
+    var d = Math.sqrt(squared);
+    var nx = dx / d;
+    var ny = dy / d;
+    
+    // normalized distance (0..1)
+    var speed = Math.min(d, cell1.getSpeed());
+    if (speed <= 0) return;
+    
+    cell1.position.x += nx * speed;
+    cell1.position.y += ny * speed;
+    
+    // update remerge
+    var age = cell1.getAge(this.tickCounter);
+    var r = this.config.playerRecombineTime;
+    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
+    if (age < 15) cell1._canRemerge = false;
+    if (r == 0 || client.rec) {
+        // instant merge
+        cell1._canRemerge = cell1.boostDistance < 100;
+        return;
+    }
+    // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
+    ttr *= 25;
+    cell1._canRemerge = age >= ttr;
+    cell1.checkBorder(this.border);
+};
+
+GameServer.prototype.moveCell = function(cell1) {
+    if (cell1.isMoving && cell1.boostDistance <= 0) {
+        cell1.boostDistance = 0;
+        cell1.isMoving = false;
+        return;
+    }
+    // add speed and set direction
+    var speed = ~~Math.sqrt(cell1.boostDistance * cell1.boostDistance / 100);
+    cell1.boostDistance -= speed;
+    cell1.position.x += cell1.boostDirection.x * speed;
+    cell1.position.y += cell1.boostDirection.y * speed;
+    
+    // reflect off border
+    var r = cell1._size / 2;
+    if (cell1.position.x < this.border.minx + r || cell1.position.x > this.border.maxx - r) 
+        cell1.boostDirection.x =- cell1.boostDirection.x;
+	if (cell1.position.y < this.border.miny + r || cell1.position.y > this.border.maxy - r) 
+	    cell1.boostDirection.y =- cell1.boostDirection.y;
+	cell1.checkBorder(this.border);
 };
 
 GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, maxCells) {
@@ -831,8 +886,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
     var d = Math.sqrt(c.squared);
     if (d <= 0) return;
     // body impulse
-    var m1 = ~~c.cell1._mass * (1 / c.m);
-    var m2 = ~~c.cell2._mass * (1 / c.m);
+    var m1 = ~~c.cell1._mass * (1 / c.m) - 0.01;
+    var m2 = ~~c.cell2._mass * (1 / c.m) - 0.01;
     // apply extrusion force
     var force = Math.min((c.r - d) / d, c.r - d);
     c.cell1.position.x -= ~~((force * ~~c.dx) * m2);
@@ -871,7 +926,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
                 cell.owner.mergeOverride = false;
             }
         } else {
-            if (check._size < cell._size * 1.15) return; // size check
+            if (check._size <= cell._size * 1.15) return; // size check
             if (!check.canEat(cell)) return; // cell refuses to be eaten
         }
     }
