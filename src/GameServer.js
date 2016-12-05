@@ -643,23 +643,23 @@ GameServer.prototype.mainLoop = function() {
             if (manifold == null) continue;
             this.resolveCollision(manifold);
         }
-        if ((this.tickCounter & this.config.spawnInterval - 1) == 0) {
+        if ((this.tickCounter % this.config.spawnInterval) == 0) {
             this.spawnCells();
         }
         this.gameMode.onTick(this);
-        if (((this.tickCounter + 3) & (25)) == 0) {
+        if (((this.tickCounter + 3) % 25) == 0) {
             // once per second
             this.updateMassDecay();
         }
     }
     this.updateClients();
-    if (((this.tickCounter + 7) & (25 - 1)) == 0) {
+    if (((this.tickCounter + 7) % 25) == 0) {
         // once per second
         this.updateLeaderboard();
     }
     
     // ping server tracker
-    if (this.config.serverTracker && (this.tickCounter & (250 - 1)) == 0) {
+    if (this.config.serverTracker && (this.tickCounter % 250) == 0) {
         // once per 30 seconds
         this.pingServerTracker();
     }
