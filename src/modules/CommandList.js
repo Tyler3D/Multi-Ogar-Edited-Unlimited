@@ -515,7 +515,7 @@ Commands.list = {
             return;
         }
         
-        var amount = Math.max(parseInt(split[2]), 9);
+        var amount = parseInt(split[2]);
         if (isNaN(amount)) {
             Logger.warn("Please specify a valid number");
             return;
