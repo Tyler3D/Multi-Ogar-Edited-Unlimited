@@ -262,7 +262,6 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     ws.packetHandler = new PacketHandler(this, ws);
     ws.playerCommand = new PlayerCommand(this, ws.playerTracker);
     
-    var self = this;
     var onMessage = function(message) {
         if (message.length == 0) {
             return;
@@ -276,11 +275,12 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     var onError = function(error) {
         ws.sendPacket = function(data) { };
     };
+    var self = this;
     var onClose = function(reason) {
         if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
             ws._socket.destroy();
         }
-        this.socketCount--;
+        self.socketCount--;
         ws.isConnected = false;
         ws.sendPacket = function(data) { };
         ws.closeReason = { reason: ws._closeCode, message: ws._closeMessage };
@@ -977,6 +977,7 @@ GameServer.prototype.spawnCells = function() {
 };
 
 GameServer.prototype.spawnPlayer = function(player) {
+    if (player.disableSpawn) return;
     var pos = this.getRandomPosition(),
     size = this.config.playerStartSize,
     index = (this.nodesEjected.length - 1) * Math.random() >> 0,
