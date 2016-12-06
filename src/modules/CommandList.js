@@ -55,6 +55,7 @@ Commands.list = {
         console.log("| tp [X] [Y]                   | Teleports player(s) to XY coordinates     |");
         console.log("| replace [PlayerID] [entity]  | Replaces a player with an entity          |");
         console.log("| pop [PlayerID]               | Pops a player with a virus                |");
+        console.log("| play [PlayerID]              | Disable/enables a player from spawning    |");
         console.log("|                                                                          |");
         console.log("|                          ----Server Commands----                         |");
         console.log("|                                                                          |");
@@ -993,6 +994,25 @@ Commands.list = {
             }
         }
     },
+    play: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                client.disableSpawn = !client.disableSpawn;
+                if (client.disableSpawn) {
+                    Commands.list.kill(gameServer, split);
+                    console.log("Disabled spawning for " + client.getFriendlyName());
+                } else {
+                    console.log("Enabled spawning for " + client.getFriendlyName());
+                }
+            }
+        }
+    },
     
     // Aliases for commands
     
@@ -1095,7 +1115,7 @@ function ban (gameServer, split, ip) {
         }, gameServer);
     
         // disconnect
-        socket.close(1000, "Banned from server");
+        socket.close(null, "Banned from server");
         var name = socket.playerTracker.getFriendlyName();
         Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
         gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
