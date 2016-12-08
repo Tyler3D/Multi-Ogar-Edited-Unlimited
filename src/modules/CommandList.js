@@ -121,24 +121,20 @@ Commands.list = {
     },
     reset: function (gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
-        for (var i = 0; i < gameServer.nodes.length; i++) {
-            gameServer.removeNode(gameServer.nodes[i]);
+        while (gameServer.nodes.length > 0) {
+            gameServer.removeNode(gameServer.nodes[0]);
         }
         // just to make sure the jobs done
-        for (var i = 0; i < gameServer.nodesEjected.length; i++) {
-            gameServer.removeNode(gameServer.nodesEjected[i]);
+        while (gameServer.nodesEjected.length > 0) {
+            gameServer.removeNode(gameServer.nodesEjected[0]);
         }
-        for (var i = 0; i < gameServer.nodesFood.length; i++) {
-            gameServer.removeNode(gameServer.nodesFood[i]);
+        while (gameServer.nodesFood.length > 0) {
+            gameServer.removeNode(gameServer.nodesFood[0]);
         }
-        for (var i = 0; i < gameServer.nodesVirus.length; i++) {
-            gameServer.removeNode(gameServer.nodesVirus[i]);
+        while (gameServer.nodesVirus.length > 0) {
+            gameServer.removeNode(gameServer.nodesVirus[0]);
         }
-        for (var i in gameServer.clients) {
-            for (var i = 0; i < gameServer.clients[i].playerTracker.cells.length; i++) {
-                gameServer.removeNode(gameServer.clients.playerTracker.cells[0]);
-            }
-        }
+        Commands.list.killall(gameServer, split);
     },
     minion: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -295,8 +291,10 @@ Commands.list = {
             gameServer.leaderboard = newLB;
             gameServer.leaderboardType = 48;
         };
-        console.log("Successfully changed leaderboard values");
-        console.log('Do "board reset" to reset leaderboard');
+        if (reset != "reset") {
+            console.log("Successfully changed leaderboard values");
+            console.log('Do "board reset" to reset leaderboard');
+        }
         if (reset == "reset") {
             // Gets the current gamemode
             var gm = GameMode.get(gameServer.gameMode.ID);
@@ -389,9 +387,7 @@ Commands.list = {
             if (id != 0 && socket.playerTracker.pID != id)
                 return;
             // remove player cells
-            socket.playerTracker.cells.forEach(function (cell) {
-                gameServer.removeNode(cell);
-            }, gameServer);
+            Commands.list.kill(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
             var name = socket.playerTracker.getFriendlyName();
@@ -450,18 +446,16 @@ Commands.list = {
         player.isMuted = false;
     },
     kickall: function (gameServer, split) {
-        var id = 0; //kick ALL players
+        this.id = 0; //kick ALL players
         // kick player
         var count = 0;
         gameServer.clients.forEach(function (socket) {
             if (socket.isConnected == false)
                return;
-            if (id != 0 && socket.playerTracker.pID != id)
+            if (this.id != 0 && socket.playerTracker.pID != this.id)
                 return;
             // remove player cells
-            socket.playerTracker.cells.forEach(function (cell) {
-                gameServer.removeNode(cell);
-            }, gameServer);
+            Commands.list.killall(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
             var name = socket.playerTracker.getFriendlyName();
@@ -470,10 +464,10 @@ Commands.list = {
             count++;
         }, this);
         if (count > 0) return;
-        if (id == 0)
+        if (this.id == 0)
             Logger.warn("No players to kick!");
         else
-            Logger.warn("Player with ID " + id + " not found!");
+            Logger.warn("Player with ID " + this.id + " not found!");
     },
     kill: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -506,7 +500,7 @@ Commands.list = {
                 count++;
             }
         }
-        console.log("Removed " + count + " cells");
+        if (this.id) console.log("Removed " + count + " cells");
     },
     mass: function (gameServer, split) {
         // Validation checks
@@ -515,7 +509,6 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        
         var amount = parseInt(split[2]);
         if (isNaN(amount)) {
             Logger.warn("Please specify a valid number");
@@ -530,7 +523,6 @@ Commands.list = {
                 for (var j in client.cells) {
                     client.cells[j].setSize(size);
                 }
-                
                 console.log("Set mass of " + client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
                 break;
             }
@@ -628,8 +620,6 @@ Commands.list = {
             }
             state = client.mergeOverride;
         }
-        
-        // Log
         if (state) console.log(client.getFriendlyName() + " is now force merging");
         else console.log(client.getFriendlyName() + " isn't force merging anymore");
     },
@@ -1108,12 +1098,8 @@ function ban (gameServer, split, ip) {
         // If already disconnected or the ip does not match
         if (socket == null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
             return;
-    
         // remove player cells
-        socket.playerTracker.cells.forEach(function (cell) {
-            gameServer.removeNode(cell);
-        }, gameServer);
-    
+        Commands.list.kill(gameServer, split);
         // disconnect
         socket.close(null, "Banned from server");
         var name = socket.playerTracker.getFriendlyName();
