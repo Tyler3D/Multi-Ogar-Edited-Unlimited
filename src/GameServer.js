@@ -766,6 +766,7 @@ GameServer.prototype.moveCell = function(cell1) {
         cell1.boostDirection.x =- cell1.boostDirection.x;
 	if (cell1.position.y < this.border.miny + r || cell1.position.y > this.border.maxy - r) 
 	    cell1.boostDirection.y =- cell1.boostDirection.y;
+    cell1.checkBorder(this.border);
 };
 
 GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, maxCells) {
