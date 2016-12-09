@@ -568,6 +568,15 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.customspeed = speed;
+                // override getSpeed function from PlayerCell
+                Entity.PlayerCell.prototype.getSpeed = function () {
+                    var speed = 2.1106 / Math.pow(this._size, 0.449);
+                    // tickStep = 40ms
+                    this._speed = (this.owner.customspeed > 0) ? 
+                    speed * 40 * this.owner.customspeed : // Set by command
+                    speed * 40 * this.gameServer.config.playerSpeed;
+                    return this._speed;
+                };
             }
         }
         console.log("Set base speed of "+ client.getFriendlyName() + " to " + speed);
