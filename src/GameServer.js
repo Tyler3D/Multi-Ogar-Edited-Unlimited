@@ -963,26 +963,23 @@ GameServer.prototype.spawnCells = function() {
 GameServer.prototype.spawnPlayer = function(player) {
     if (player.disableSpawn) return;
     var pos = this.getRandomPosition(),
-    size = this.config.playerStartSize,
     index = (this.nodesEjected.length - 1) * Math.random() >> 0,
     eject = this.nodesEjected[index],
     
     // Check for special start size(s)
-    start = this.config.minionStartSize,
-    max = this.config.minionMaxStartSize;
+    size = this.config.playerStartSize;
     if (player.spawnmass > 0 && !player.isMi) {
         size = player.spawnmass;
     } else if (player.isMi) {
-        if (max > start) {
-            size = ((Math.random() * (max - start)) + start) >> 0;
-        } else {
-            size = this.config.minionStartSize;
+        size = this.config.minionStartSize;
+        if (this.config.minionMaxStartSize > size) {
+            size = Math.random() * (this.config.minionMaxStartSize - size) + size;
         }
     }
     
     // Check if can spawn from ejected mass
-    if (Math.random() <= this.config.ejectSpawnPercent && this.nodesEjected.length > 0
-        && !eject.isRemoved && !eject.boostDistance == 0) {
+    if (Math.random() <= this.config.ejectSpawnPercent
+        && this.nodesEjected.length > 0 && !eject.isRemoved) {
         // Spawn as same color
         player.setColor(eject.color);
         // Spawn from ejected mass
@@ -991,10 +988,10 @@ GameServer.prototype.spawnPlayer = function(player) {
             x: eject.position.x,
             y: eject.position.y
         };
-        if (!size) size = Math.max(eject._size, this.config.playerStartSize);
+        if (!size) size = Math.max(eject._size, size);
     }
     // 10 attempts to find safe position
-    for (var i = 0; i < 10 && this.willCollide(pos, this.config.playerMinSize); i++) {
+    for (var i = 0; i < 10 && this.willCollide(pos, size); i++) {
         pos = this.getRandomPosition();
     }
     // Spawn player and add to world
