@@ -1,4 +1,16 @@
 # Changelog
+#### 1.4.4:
+* Removed verification for most player commands;
+* Created the file that you are reading right now;
+* Improved installation guide, cleaned up and renamed some files. Thanks to @MastaCoder;
+* Greatly improved performance;
+* Improved splitting and virus-explosion physics;
+* Added two new commands: pop and play;
+* Smartened bots, cleaned code;
+* Reduced Mothercell spawn amount by 10, thanks to @Fantasy-Agario;
+* Fixed some bugs
+
+--------------
 #### 1.4.2: 
 * Added "replace" command;
 * Add srcFiles variable, thanks to @MastaCoder;
