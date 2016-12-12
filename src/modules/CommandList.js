@@ -62,7 +62,7 @@ Commands.list = {
         console.log("│ pause                        │ Pause game, freeze all nodes              │");
         console.log("│ board [string] [string] ...  │ Set scoreboard text                       │");
         console.log("│ change [setting] [value]     │ Change specified settings                 │");
-        console.log("│ reload                       │ Reload config file                        │");
+        console.log("│ reload                       │ Reload config file and banlist            │");
         console.log("│ ban [PlayerID | IP]          │ Bans a player(s) IP                       │");
         console.log("│ unban [IP]                   │ Unbans an IP                              │");
         console.log("│ banlist                      │ Get list of banned IPs.                   │");
@@ -113,7 +113,7 @@ Commands.list = {
         console.log("Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true));
         console.log("- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells));
         console.log("- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true));
-        console.log("- Foods:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
+        console.log("- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
         console.log("- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount);
         console.log("Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true));
         console.log("Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true));
