@@ -106,6 +106,7 @@ function GameServer() {
         
         playerMinSize: 32,          // Minimym size of the player cell (mass = 32*32/100 = 10.24)
         playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
+        playerMaxScore: 0,          // Maximum score a player can achieve before being killed automatically. (0 to disable)
         playerMinSplitSize: 60,     // Minimum player cell size allowed to split (mass = 60*60/100 = 36) 
         playerStartSize: 64,        // Start size of the player cell (mass = 64*64/100 = 41)
         playerMaxCells: 16,         // Max cells the player is allowed to have
