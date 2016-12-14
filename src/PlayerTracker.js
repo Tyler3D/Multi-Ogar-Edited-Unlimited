@@ -186,12 +186,6 @@ PlayerTracker.prototype.updateMass = function () {
         this._score = 0;
     } else {
         this._score = totalScore;
-        var maxScore = this.gameServer.config.playerMaxScore;
-        if (maxScore > 0 && this._score > maxScore * 100) {
-            while (this.cells.length > 0) {
-                this.gameServer.removeNode(this.cells[0]);
-            }
-        }
         this._scale = Math.pow(Math.min(64 / totalSize, 1), 0.4);
     }
     this.isMassChanged = false;
