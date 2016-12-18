@@ -694,6 +694,20 @@ GameServer.prototype.movePlayer = function(cell1, client) {
         client == null || client.frozen) {
         return;
     }
+    // update remerge first
+    var age = cell1.getAge(this.tickCounter);
+    var r = this.config.playerRecombineTime;
+    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
+    if (age < 15) cell1._canRemerge = false;
+    if (r == 0 || client.rec) {
+        // instant merge
+        cell1._canRemerge = cell1.boostDistance < 100;
+        return;
+    }
+    // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
+    ttr *= 25;
+    cell1._canRemerge = age >= ttr;
+    // get distance
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
     var squared = dx * dx + dy * dy;
@@ -707,19 +721,6 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     // move player cells
     cell1.position.x += dx / d * speed;
     cell1.position.y += dy / d * speed;
-    // update remerge
-    var age = cell1.getAge(this.tickCounter);
-    var r = this.config.playerRecombineTime;
-    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
-    if (age < 15) cell1._canRemerge = false;
-    if (r == 0 || client.rec) {
-        // instant merge
-        cell1._canRemerge = cell1.boostDistance < 100;
-        return;
-    }
-    // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
-    ttr *= 25;
-    cell1._canRemerge = age >= ttr;
     cell1.checkBorder(this.border);
 };
 
