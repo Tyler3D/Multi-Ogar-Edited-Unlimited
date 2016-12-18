@@ -25,82 +25,82 @@ var fillChar = function (data, char, fieldLength, rTL) {
 // Commands
 Commands.list = {
     help: function (gameServer, split) {
-        console.log("                       ╭────────────────────────────╮                       ");
-        console.log("                       │ LIST OF AVAILABLE COMMANDS │                       ");
-        console.log("╭──────────────────────┴────────────────────────────┴──────────────────────╮");
-        console.log("|                         ----Players and AI----                           |");
-        console.log("|                                                                          |");
-        console.log("│ playerlist                   │ Get list of players, bots, ID's, etc      │");
-        console.log("│ minion [PlayerID] [#] [name] │ Adds suicide minions to the server        │");
-        console.log("│ addbot [number]              │ Adds bots to the server                   │");
-        console.log("│ kickbot [number]             │ Kick a number of bots                     │");
-        console.log("│ kick [PlayerID]              │ Kick player or bot by client ID           │");
-        console.log("│ kickall                      │ Kick all players and bots                 │");
-        console.log("│ kill [PlayerID]              │ Kill cell(s) by client ID                 │");
-        console.log("│ killall                      │ Kill everyone                             │");
-        console.log("|                                                                          |");
-        console.log("|                          ----Player Commands----                         |");
-        console.log("|                                                                          |");
-        console.log("| spawn [entity] [pos] [mass]  | Spawns an entity                          |");
-        console.log("│ mass [PlayerID] [mass]       │ Set cell(s) mass by client ID             │");
-        console.log("│ merge [PlayerID]             │ Merge all client's cells                  │");
-        console.log("│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │");
-        console.log("│ freeze [PlayerID]            │ Freezes a player                          │");
-        console.log("│ speed [PlayerID]             │ Sets a players base speed                 │");
-        console.log("│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │");
-        console.log("│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │");
-        console.log("| skin [PlayerID] [string]     | Change cell(s) skin by client ID          |");
-        console.log("│ rec [PlayerID]               │ Gives a player instant-recombine          │");
-        console.log("| split [PlayerID] [Amount]    | Forces a player to split                  |");
-        console.log("| tp [X] [Y]                   | Teleports player(s) to XY coordinates     |");
-        console.log("| replace [PlayerID] [entity]  | Replaces a player with an entity          |");
-        console.log("| pop [PlayerID]               | Pops a player with a virus                |");
-        console.log("| play [PlayerID]              | Disable/enables a player from spawning    |");
-        console.log("|                                                                          |");
-        console.log("|                          ----Server Commands----                         |");
-        console.log("|                                                                          |");
-        console.log("│ pause                        │ Pause game, freeze all nodes              │");
-        console.log("│ board [string] [string] ...  │ Set scoreboard text                       │");
-        console.log("│ change [setting] [value]     │ Change specified settings                 │");
-        console.log("│ reload                       │ Reload config file and banlist            │");
-        console.log("│ ban [PlayerID | IP]          │ Bans a player(s) IP                       │");
-        console.log("│ unban [IP]                   │ Unbans an IP                              │");
-        console.log("│ banlist                      │ Get list of banned IPs.                   │");
-        console.log("│ mute [PlayerID]              │ Mute player from chat                     │");
-        console.log("│ unmute [PlayerID]            │ Unmute player from chat                   │");
-        console.log("|                                                                          |");
-        console.log("|                          ----Miscellaneous----                           |");
-        console.log("|                                                                          |");
-        console.log("│ clear                        │ Clear console output                      │");
-        console.log("| reset                        | Removes all nodes                         |");
-        console.log("│ status                       │ Get server status                         │");
-        console.log("| debug                        | Get/check node lengths                    |");
-        console.log("│ exit                         │ Stop the server                           │");
-        console.log("|                                                                          |");
-        console.log("├──────────────────────────────────────────────────────────────────────────┤");
-        console.log('│         Psst! Do "shortcuts" for a list of command shortcuts!            |');
-        console.log("╰──────────────────────────────────────────────────────────────────────────╯");
+        console.log("                       ┌────────────────────────────┐                       \n"+
+                    "                       │ LIST OF AVAILABLE COMMANDS │                       \n"+
+                    "┌──────────────────────┴────────────────────────────┴──────────────────────┐\n"+
+                    "│                         ----Players and AI----                           │\n"+
+                    "│                                                                          │\n"+
+                    "│ playerlist                   │ Get list of players, bots, ID's, etc      │\n"+
+                    "│ minion [PlayerID] [#] [name] │ Adds suicide minions to the server        │\n"+
+                    "│ addbot [number]              │ Adds bots to the server                   │\n"+
+                    "│ kickbot [number]             │ Kick a number of bots                     │\n"+
+                    "│ kick [PlayerID]              │ Kick player or bot by client ID           │\n"+
+                    "│ kickall                      │ Kick all players and bots                 │\n"+
+                    "│ kill [PlayerID]              │ Kill cell(s) by client ID                 │\n"+
+                    "│ killall                      │ Kill everyone                             │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Player Commands----                         │\n"+
+                    "│                                                                          │\n"+
+                    "│ spawn [entity] [pos] [mass]  │ Spawns an entity                          │\n"+
+                    "│ mass [PlayerID] [mass]       │ Set cell(s) mass by client ID             │\n"+
+                    "│ merge [PlayerID]             │ Merge all client's cells                  │\n"+
+                    "│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │\n"+
+                    "│ freeze [PlayerID]            │ Freezes a player                          │\n"+
+                    "│ speed [PlayerID]             │ Sets a players base speed                 │\n"+
+                    "│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │\n"+
+                    "│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │\n"+
+                    "│ skin [PlayerID] [string]     │ Change cell(s) skin by client ID          │\n"+
+                    "│ rec [PlayerID]               │ Gives a player instant-recombine          │\n"+
+                    "│ split [PlayerID] [Amount]    │ Forces a player to split                  │\n"+
+                    "│ tp [X] [Y]                   │ Teleports player(s) to XY coordinates     │\n"+
+                    "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
+                    "│ pop [PlayerID]               │ Pops a player with a virus                │\n"+
+                    "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Server Commands----                         │\n"+
+                    "│                                                                          │\n"+
+                    "│ pause                        │ Pause game, freeze all nodes              │\n"+
+                    "│ board [string] [string] ...  │ Set scoreboard text                       │\n"+
+                    "│ change [setting] [value]     │ Change specified settings                 │\n"+
+                    "│ reload                       │ Reload config file and banlist            │\n"+
+                    "│ ban [PlayerID │ IP]          │ Bans a player(s) IP                       │\n"+
+                    "│ unban [IP]                   │ Unbans an IP                              │\n"+
+                    "│ banlist                      │ Get list of banned IPs.                   │\n"+
+                    "│ mute [PlayerID]              │ Mute player from chat                     │\n"+
+                    "│ unmute [PlayerID]            │ Unmute player from chat                   │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Miscellaneous----                           │\n"+
+                    "│                                                                          │\n"+
+                    "│ clear                        │ Clear console output                      │\n"+
+                    "│ reset                        │ Removes all nodes                         │\n"+
+                    "│ status                       │ Get server status                         │\n"+
+                    "│ debug                        │ Get/check node lengths                    │\n"+
+                    "│ exit                         │ Stop the server                           │\n"+
+                    "│                                                                          │\n"+
+                    "├──────────────────────────────────────────────────────────────────────────┤\n"+
+                    '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n'+
+                    "└──────────────────────────────────────────────────────────────────────────┘");
     },
     shortcuts: function (gameServer, split) {
-        console.log("                       ╭────────────────────────────╮                       ");
-        console.log("                       │ LIST OF COMMAND SHORTCUTS  │                       ");
-        console.log("╭──────────────────────┴──────┬─────────────────────┴──────────────────────╮");
-        console.log("│ st                          │ Alias for status                           │");
-        console.log("│ pl                          │ Alias for playerlist                       │");
-        console.log("│ m                           │ Alias for mass                             │");
-        console.log("│ sm                          │ Alias for spawnmass                        │");
-        console.log("│ ka                          │ Alias for killall                          │");
-        console.log("│ k                           │ Alias for kill                             │");
-        console.log("│ mg                          │ Alias for merge                            │");
-        console.log("│ s                           │ Alias for speed                            │");
-        console.log("| mn                          | Alias for minion                           |");
-        console.log("| f                           | Alias for freeze                           |");
-        console.log("| ab                          | Alias for addbot                           |");
-        console.log("| kb                          | Alias for kickbot                          |");
-        console.log("| c                           | Alias for change                           |");
-        console.log("| n                           | Alias for name                             |");
-        console.log("| rep                         | Alias for replace                          |");
-        console.log("╰─────────────────────────────┴────────────────────────────────────────────╯");
+        console.log("                       ┌────────────────────────────┐                       \n"+
+                    "                       │ LIST OF COMMAND SHORTCUTS  │                       \n"+
+                    "┌──────────────────────┴──────┬─────────────────────┴──────────────────────┐\n"+
+                    "│ st                          │ Alias for status                           │\n"+
+                    "│ pl                          │ Alias for playerlist                       │\n"+
+                    "│ m                           │ Alias for mass                             │\n"+
+                    "│ sm                          │ Alias for spawnmass                        │\n"+
+                    "│ ka                          │ Alias for killall                          │\n"+
+                    "│ k                           │ Alias for kill                             │\n"+
+                    "│ mg                          │ Alias for merge                            │\n"+
+                    "│ s                           │ Alias for speed                            │\n"+
+                    "│ mn                          │ Alias for minion                           │\n"+
+                    "│ f                           │ Alias for freeze                           │\n"+
+                    "│ ab                          │ Alias for addbot                           │\n"+
+                    "│ kb                          │ Alias for kickbot                          │\n"+
+                    "│ c                           │ Alias for change                           │\n"+
+                    "│ n                           │ Alias for name                             │\n"+
+                    "│ rep                         │ Alias for replace                          │\n"+
+                    "└─────────────────────────────┴────────────────────────────────────────────┘");
     },
     debug: function (gameServer, split) {
         // Count client cells
@@ -109,15 +109,15 @@ Commands.list = {
             clientCells += gameServer.clients[i].playerTracker.cells.length;
         }
         // Output node information
-        console.log("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots");
-        console.log("Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true));
-        console.log("- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells));
-        console.log("- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true));
-        console.log("- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
-        console.log("- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount);
-        console.log("Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true));
-        console.log("Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true));
-        console.log("Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
+        console.log("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots"+"\n"+
+                    "Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true)+"\n"+
+                    "- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells)+"\n"+
+                    "- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true)+"\n"+
+                    "- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount+"\n"+
+                    "- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount+"\n"+
+                    "Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true)+"\n"+
+                    "Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true)+"\n"+
+                    "Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
     },
     reset: function (gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
