@@ -553,8 +553,8 @@ GameServer.prototype.mainLoop = function() {
                 if (cell1.isRemoved || cell1 == null)
                     continue;
                 // move player cells
-                this.movePlayer(cell1, client);
                 this.moveCell(cell1);
+                this.movePlayer(cell1, client);
                 this.autoSplit(cell1, client);
                 this.updateNodeQuad(cell1);
                 
@@ -694,19 +694,6 @@ GameServer.prototype.movePlayer = function(cell1, client) {
         client == null || client.frozen) {
         return;
     }
-    // update remerge first
-    var age = cell1.getAge(this.tickCounter);
-    var r = this.config.playerRecombineTime;
-    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
-    if (age < 15) cell1._canRemerge = false;
-    if (r == 0 || client.rec) {
-        // instant merge
-        cell1._canRemerge = cell1.boostDistance < 100;
-        return;
-    }
-    // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
-    ttr *= 25;
-    cell1._canRemerge = age >= ttr;
     // get distance
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
@@ -721,6 +708,19 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     // move player cells
     cell1.position.x += dx / d * speed;
     cell1.position.y += dy / d * speed;
+    // update remerge
+    var age = cell1.getAge(this.tickCounter);
+    var r = this.config.playerRecombineTime;
+    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
+    if (age < 15) cell1._canRemerge = false;
+    if (r == 0 || client.rec) {
+        // instant merge
+        cell1._canRemerge = cell1.boostDistance < 100;
+        return;
+    }
+    // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
+    ttr *= 25;
+    cell1._canRemerge = age >= ttr;
     cell1.checkBorder(this.border);
 };
 
@@ -810,7 +810,7 @@ GameServer.prototype.checkRigidCollision = function(c) {
     // The same owner
     if (c.cell1.owner.mergeOverride)
         return false;
-    if (c.cell1.getAge(this.tickCounter) < 14 || c.cell2.getAge(this.tickCounter) < 14) {
+    if (c.cell1.getAge(this.tickCounter) < 13 || c.cell2.getAge(this.tickCounter) < 13) {
         // just splited => ignore
         return false;
     }
@@ -874,7 +874,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
     }
     // collision owned => ignore, resolve, or remerge
     if (cell.owner && cell.owner == check.owner) {
-        if (cell.getAge(this.tickCounter) < 14 || check.getAge(this.tickCounter) < 14) {
+        if (cell.getAge(this.tickCounter) < 13 || check.getAge(this.tickCounter) < 13) {
             return; // just splited => ignore
         }
         // Disable mergeOverride on the last merging cell
