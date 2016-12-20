@@ -574,13 +574,14 @@ GameServer.prototype.mainLoop = function() {
         // Move moving cells
         for (var i = 0; i < this.movingNodes.length;) {
             cell1 = this.movingNodes[i];
-            if (cell1.isRemoved)
-                continue;
-            this.moveCell(cell1);
-            this.updateNodeQuad(cell1);
-            if (!cell1.isMoving)
-                this.movingNodes.splice(i, 1);
-            else i++;
+            if (!cell1) continue;
+            if (!cell1.isRemoved) {
+                this.moveCell(cell1);
+                this.updateNodeQuad(cell1);
+                if (!cell1.isMoving)
+                    this.movingNodes.splice(i, 1);
+            }
+            i++;
         }
         // Scan for ejected cell collisions (scan for ejected or virus only)
         for (var i = 0; i < this.movingNodes.length; i++) {
@@ -703,7 +704,8 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     }
     // normalized distance (0..1)
     var d = Math.sqrt(squared);
-    var speed = Math.min(d, cell1.getSpeed());
+    var nd = Math.min(d, 64) / 32;
+    var speed = cell1.getSpeed() / 2 * nd;
     if (speed <= 0) return;
     // move player cells
     cell1.position.x += dx / d * speed;
@@ -843,8 +845,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
     var d = Math.sqrt(c.squared);
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
-    var m1 = ~~c.cell1._mass / m - 0.01;
-    var m2 = ~~c.cell2._mass / m - 0.01;
+    var m1 = ~~c.cell1._mass / m - 0.02;
+    var m2 = ~~c.cell2._mass / m - 0.02;
     // apply extrusion force
     if (d < c.r && c.r > 0) {
         var force = Math.min((c.r - d) / d, c.r - d);
