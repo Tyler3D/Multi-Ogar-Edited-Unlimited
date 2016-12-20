@@ -1,4 +1,14 @@
 # Changelog
+#### 1.4.5:
+* Added playerDecayCap config
+* Fixed some bugs
+* Refactored collision + move engine
+* Fixed cell jittering
+* Cleaned CommandList, thanks to @Gimmo
+* Improved splitting and virus explosion physics
+* Improved performance
+
+--------------
 #### 1.4.4:
 * Removed verification for most player commands;
 * Created the file that you are reading right now;
