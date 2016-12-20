@@ -557,7 +557,6 @@ GameServer.prototype.mainLoop = function() {
                 this.movePlayer(cell1, client);
                 this.autoSplit(cell1, client);
                 this.updateNodeQuad(cell1);
-                
                 // Scan for player cells collisions
                 this.quadTree.find(cell1.quadItem.bound, function (item) {
                     if (item.cell == cell1) return;
@@ -571,31 +570,23 @@ GameServer.prototype.mainLoop = function() {
                 });
             }
         }
-        // Move moving cells
-        for (var i = 0; i < this.movingNodes.length;) {
-            cell1 = this.movingNodes[i];
-            if (!cell1) continue;
-            if (!cell1.isRemoved) {
-                this.moveCell(cell1);
-                this.updateNodeQuad(cell1);
-                if (!cell1.isMoving)
-                    this.movingNodes.splice(i, 1);
-            }
-            i++;
-        }
-        // Scan for ejected cell collisions (scan for ejected or virus only)
+        // Move moving nodes
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
-            if (cell1.isRemoved) continue;
+            if (!cell1 || cell1.isRemoved) continue;
+            this.moveCell(cell1);
+            this.updateNodeQuad(cell1);
+            if (!cell1.isMoving)
+                this.movingNodes.splice(i, 1);
+            // scan and check for ejected mass / virus collisions
             this.quadTree.find(cell1.quadItem.bound, function(item) {
-                var cell2 = item.cell;
-                if (cell2 == cell1) return;
-                var manifold = self.checkCellCollision(cell1, cell2);
+                if (item.cell == cell1) return;
+                var manifold = self.checkCellCollision(cell1, item.cell);
                 if (manifold == null) return;
-                if (cell1.cellType == 3 && cell2.cellType == 3)
-                    rigidCollisions.push({cell1: cell1, cell2: cell2});
+                if (cell1.cellType == 3 && item.cell.cellType == 3)
+                    rigidCollisions.push({cell1: cell1, cell2: item.cell});
                 else
-                    eatCollisions.push({cell1: cell1, cell2: cell2});
+                    eatCollisions.push({cell1: cell1, cell2: item.cell});
             });
         }
         // resolve rigid body collisions
@@ -696,8 +687,8 @@ GameServer.prototype.movePlayer = function(cell1, client) {
         return;
     }
     // get distance
-    var dx = ~~(client.mouse.x - cell1.position.x);
-    var dy = ~~(client.mouse.y - cell1.position.y);
+    var dx = client.mouse.x - cell1.position.x;
+    var dy = client.mouse.y - cell1.position.y;
     var squared = dx * dx + dy * dy;
     if (squared < 1 || isNaN(dx) || isNaN(dy)) {
         return;
@@ -732,7 +723,7 @@ GameServer.prototype.moveCell = function(cell1) {
         return;
     }
     // add speed and set direction
-    var speed = ~~Math.sqrt(cell1.boostDistance * cell1.boostDistance / 100);
+    var speed = Math.sqrt(cell1.boostDistance * cell1.boostDistance / 100);
     var decay = Math.min(cell1.boostDistance -= speed, speed);
     cell1.position.x += cell1.boostDirection.x * decay;
     cell1.position.y += cell1.boostDirection.y * decay;
@@ -821,7 +812,7 @@ GameServer.prototype.checkRigidCollision = function(c) {
 
 // Checks cells for collision
 GameServer.prototype.checkCellCollision = function(cell, check) {
-    var r = ~~(cell._size + check._size);
+    var r = cell._size + check._size;
     var dx = ~~(check.position.x - cell.position.x);
     var dy = ~~(check.position.y - cell.position.y);
     var squared = dx * dx + dy * dy; // squared distance from cell to check
