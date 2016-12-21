@@ -695,8 +695,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     }
     // normalized distance (0..1)
     var d = Math.sqrt(squared);
-    var nd = Math.min(d, 64) / 32;
-    var speed = cell1.getSpeed() / 2 * nd;
+    var speed = cell1.getSpeed();
     if (speed <= 0) return;
     // move player cells
     cell1.position.x += dx / d * speed;
@@ -836,8 +835,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
     var d = Math.sqrt(c.squared);
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
-    var m1 = ~~c.cell1._mass / m - 0.02;
-    var m2 = ~~c.cell2._mass / m - 0.02;
+    var m1 = ~~c.cell1._mass / m;
+    var m2 = ~~c.cell2._mass / m;
     // apply extrusion force
     if (d < c.r && c.r > 0) {
         var force = Math.min((c.r - d) / d, c.r - d);
