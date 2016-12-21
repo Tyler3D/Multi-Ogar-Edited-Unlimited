@@ -900,6 +900,7 @@ Commands.list = {
         var ent = split[1];
         if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
             Logger.warn("Please specify either virus, food, or mothercell");
+            return;
         }
     
         var pos = {
@@ -952,6 +953,7 @@ Commands.list = {
         var ent = split[2];
         if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
             Logger.warn("Please specify either virus, food, or mothercell");
+            return;
         }
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
