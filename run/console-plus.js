@@ -143,7 +143,7 @@
 //============== interseption ===============
 
   var child = require('child_process');
-  var MO = child.spawn('node',['index.js']);
+  var MO = child.spawn('node',['../src/index.js']);
 
   process.stdin.pipe(MO.stdin); // loopback IN
 
