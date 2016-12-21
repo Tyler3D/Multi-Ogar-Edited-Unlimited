@@ -1,204 +1,210 @@
-  "use strict";
-  // auth
-    /**
-    * RegExp for basic auth credentials
-    *
-    * credentials = auth-scheme 1*SP token68
-    * auth-scheme = "Basic" ; case insensitive
-    * token68     = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
-    * @private
-    */
+"use strict";
 
-    var CREDENTIALS_REGEXP = /^ *(?:[Bb][Aa][Ss][Ii][Cc]) +([A-Za-z0-9._~+/-]+=*) *$/
+//-------------------- auth -----------------
+  /**
+  * RegExp for basic auth credentials
+  *
+  * credentials = auth-scheme 1*SP token68
+  * auth-scheme = "Basic" ; case insensitive
+  * token68     = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
+  * @private
+  */
 
-    /**
-     * RegExp for basic auth user/pass
-     *
-     * user-pass   = userid ":" password
-     * userid      = *<TEXT excluding ":">
-     * password    = *TEXT
-     * @private
-     */
+  var CREDENTIALS_REGEXP = /^ *(?:[Bb][Aa][Ss][Ii][Cc]) +([A-Za-z0-9._~+/-]+=*) *$/;
 
-    var USER_PASS_REGEXP = /^([^:]*):(.*)$/
+  /**
+   * RegExp for basic auth user/pass
+   *
+   * user-pass   = userid ":" password
+   * userid      = *<TEXT excluding ":">
+   * password    = *TEXT
+   * @private
+   */
 
-    /**
-     * Parse the Authorization header field of a request.
-     *
-     * @param {object} req
-     * @return {object} with .name and .pass
-     * @public
-     */
+  var USER_PASS_REGEXP = /^([^:]*):(.*)$/;
 
-    function auth (req) {
-      if (!req) {
-        throw new TypeError('argument req is required')
-      }
+  /**
+   * Parse the Authorization header field of a request.
+   *
+   * @param {object} req
+   * @return {object} with .name and .pass
+   * @public
+   */
 
-      if (typeof req !== 'object') {
-        throw new TypeError('argument req is required to be an object')
-      }
-
-      // get header
-      var header = getAuthorization(req.req || req)
-
-      // parse header
-      return parse(header)
+  function auth (req) {
+    if (!req) {
+      throw new TypeError('argument req is required');
     }
 
-    /**
-     * Decode base64 string.
-     * @private
-     */
-
-    function decodeBase64 (str) {
-      return new Buffer(str, 'base64').toString()
+    if (typeof req !== 'object') {
+      throw new TypeError('argument req is required to be an object');
     }
 
-    /**
-     * Get the Authorization header from request object.
-     * @private
-     */
+    // get header
+    var header = getAuthorization(req.req || req);
 
-    function getAuthorization (req) {
-      if (!req.headers || typeof req.headers !== 'object') {
-        throw new TypeError('argument req is required to have headers property')
-      }
+    // parse header
+    return parse(header);
+  }
 
-      return req.headers.authorization
+  /**
+   * Decode base64 string.
+   * @private
+   */
+
+  function decodeBase64 (str) {
+    return new Buffer(str, 'base64').toString();
+  }
+
+  /**
+   * Get the Authorization header from request object.
+   * @private
+   */
+
+  function getAuthorization (req) {
+    if (!req.headers || typeof req.headers !== 'object') {
+      throw new TypeError('argument req is required to have headers property');
     }
 
-    /**
-     * Parse basic auth to object.
-     *
-     * @param {string} string
-     * @return {object}
-     * @public
-     */
+    return req.headers.authorization;
+  }
 
-    function parse (string) {
-      if (typeof string !== 'string') {
-        return undefined
-      }
+  /**
+   * Parse basic auth to object.
+   *
+   * @param {string} string
+   * @return {object}
+   * @public
+   */
 
-      // parse header
-      var match = CREDENTIALS_REGEXP.exec(string)
-
-      if (!match) {
-        return undefined
-      }
-
-      // decode user pass
-      var userPass = USER_PASS_REGEXP.exec(decodeBase64(match[1]))
-
-      if (!userPass) {
-        return undefined
-      }
-
-      // return credentials object
-      return new Credentials(userPass[1], userPass[2])
+  function parse (string) {
+    if (typeof string !== 'string') {
+      return undefined;
     }
 
-    /**
-     * Object to represent user credentials.
-     * @private
-     */
+    // parse header
+    var match = CREDENTIALS_REGEXP.exec(string);
 
-    function Credentials (name, pass) {
-      this.name = name
-      this.pass = pass
+    if (!match) {
+      return undefined;
     }
-  //******************** server ***************
+
+    // decode user pass
+    var userPass = USER_PASS_REGEXP.exec(decodeBase64(match[1]));
+
+    if (!userPass) {
+      return undefined;
+    }
+
+    // return credentials object
+    return new Credentials(userPass[1], userPass[2]);
+  }
+
+  /**
+   * Object to represent user credentials.
+   * @private
+   */
+
+  function Credentials (name, pass) {
+    this.name = name;
+    this.pass = pass;
+  }
+
+//******************** server ***************
+  
   var http = require('http');
   var fs = require('fs');
   var consoleServer = http.createServer(function (request, response) {
-    //  console.log('request starting...');  
-    var credentials = auth(request);
-    if (!credentials || credentials.name !== 'admin' || credentials.pass !== 'pass') {
-            response.statusCode = 401;
-            response.setHeader('WWW-Authenticate', 'Basic realm="example"');
-            response.end('Access denied');
-    } else {
-
-      fs.readFile('./console-plus.html', function(error, content) {
-        if (error) {
-          response.writeHead(500);
-          response.end();
-        }
-        else {
-          response.writeHead(200, { 'Content-Type': 'text/html' });
-          response.end(content, 'utf-8');
-        }
-      }); 
-     } 
+      //  console.log('request starting...');  
+      var credentials = auth(request);
+      if (!credentials || credentials.name !== 'admin' || credentials.pass !== 'pass') 
+      {
+              response.statusCode = 401;
+              response.setHeader('WWW-Authenticate', 'Basic realm="example"');
+              response.end('Access denied');
+      } else 
+      {
+        fs.readFile('./console-plus.html', function(error, content) {
+          if (error) {
+            response.writeHead(500);
+            response.end();
+          }
+          else {
+            response.writeHead(200, { 'Content-Type': 'text/html' });
+            response.end(content, 'utf-8');
+          }
+        }); 
+      } 
 
   }).listen(1234, function() {
-      console.log((new Date()) + ' consoleServer is listening on port 1234');
-      });
+        console.log((new Date()) + ' consoleServer is listening on port 1234');  
+     });
 
-  //============== interseption =============================
+//============== interseption ===============
 
   var child = require('child_process');
   var MO = child.spawn('node',['index.js']);
 
-  // process.stdin.pipe(MO.stdin);
+  process.stdin.pipe(MO.stdin); // loopback IN
 
   MO.stdin.on("end", function() {
       process.exit(0);
   });
 
   MO.stdout.on('data', function (data) { // send data to remote console
-       console.log((data+"").trim());
+       console.log((data+"").trim()); // loopback OUT
        for (var i in clients) {
           if (clients.hasOwnProperty(i)) {     
-              clients[i].sendUTF((data+"").trim());
+              clients[i].send((data+"").trim());
           }
        }
   });
 
   MO.stderr.on('data', function (data) {
-       console.log('stderr: ' + data);
+       console.log('stderr: ' + data); // should be directed to logger 
   });
 
-  //================= sockets ========================
+//+++++++++++++++++ sockets +++++++++++++++++
 
   var count = 0;
   var clients = {};
 
+  var wsOptions = {
+        server: consoleServer, 
+        perMessageDeflate: false,
+        maxPayload: 4096,
+        protocolVersion: 8,
+        origin:'http://192.168.56.101:1234'
+    };
 
-  var WebSocketServer = require('websocket').server;
-  var wsServer = new WebSocketServer({
-    httpServer: consoleServer
+  var WebSocketServer = require('ws').Server;
+  var wsServer = new WebSocketServer(wsOptions);
+
+  wsServer.on('connection', function(ws) {
+
+      // Code here to run on connection
+      
+      // Specific id for this client & increment count
+      var id = count++; // = ws.clients.length
+
+      // Store the connection method so we can loop through & contact all clients
+      clients[id] = ws;
+      
+      console.log((new Date()) +" "+ ws.upgradeReq.headers.host+ ' Connection [' + id + '] accepted '+ws._socket.remoteAddress);
+
+      // Create event listener
+      ws.on('message', function(message) {
+          // get line from remote
+          MO.stdin.write(message.replace("<br>","")+"\n"); 
+          for (var i in clients) { 
+            if (clients.hasOwnProperty(i)) {   
+              clients[i].send((message+"").trim());
+            }  
+          }
+      });
+
+      ws.on('close', function(reasonCode, description) {
+        delete clients[id];
+        console.log((new Date()) + ' Peer ['+id+'] ' + ws.upgradeReq.headers.host + ' disconnected.');
+      });
   });
-
-  wsServer.on('request', function(r) {
-
-    // Code here to run on connection
-    var connection = r.accept('echo-protocol', r.origin);
-
-    // Specific id for this client & increment count
-    var id = count++;
-
-    // Store the connection method so we can loop through & contact all clients
-    clients[id] = connection;
-    
-    console.log((new Date()) + ' Connection accepted [' + id + ']');
-
-    // Create event listener
-    connection.on('message', function(message) {
-
-        var msgString = message.utf8Data;
-        console.log("get message >\""+msgString+"\"");
-        MO.stdin.write(msgString.replace("<br>","")+"\n"); // get line from remote
-        for (var i in clients) { 
-          if (clients.hasOwnProperty(i)) {   
-            clients[i].sendUTF((msgString+"").trim());
-          }  
-        }
-    });
-
-    connection.on('close', function(reasonCode, description) {
-      delete clients[id];
-      console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    });
-});
