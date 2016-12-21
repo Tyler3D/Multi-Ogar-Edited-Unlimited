@@ -21,7 +21,7 @@ PlayerCell.prototype.getSpeed = function () {
     var speed = 2.1106 / Math.pow(this._size, 0.449);
     // tickStep = 40ms
     this._speed = speed * 40 * this.gameServer.config.playerSpeed;
-    return this._speed;
+    return this._speed * 32 / 32;
 };
 
 PlayerCell.prototype.onAdd = function (gameServer) {
