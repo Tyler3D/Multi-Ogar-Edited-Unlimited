@@ -75,6 +75,7 @@ function GameServer() {
         serverName: 'MultiOgar-Edited #1', // Server name
         serverWelcome1: 'Welcome to MultiOgar-Edited!',      // First server welcome message
         serverWelcome2: '',         // Second server welcome message (for info, etc)
+        clientBind: '',             // Only allow connections to server from specified client (example: http://agar.io)
         
         serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
         serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
@@ -103,6 +104,7 @@ function GameServer() {
         ejectSizeLoss: 43,          // Eject size which will be substracted from player cell (vanilla 43?)
         ejectCooldown: 3,           // min ticks between ejects
         ejectSpawnPercent: 0.5,     // Chance for a player to spawn from ejected mass. 0.5 = 50% (set to 0 to disable)
+        ejectVirus: 0,              // Whether or not players can eject viruses instead of mass
         
         playerMinSize: 32,          // Minimym size of the player cell (mass = 32*32/100 = 10.24)
         playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
@@ -231,7 +233,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     ws.on('error', function(err) {
         Logger.writeError("[" + logip + "] " + err.stack);
     });
-    if (this.config.serverMaxConnections > 0 && this.socketCount >= this.config.serverMaxConnections) {
+    if (this.config.serverMaxConnections && this.socketCount >= this.config.serverMaxConnections) {
         ws.close(1000, "No slots");
         return;
     }
@@ -239,7 +241,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
         ws.close(1000, "IP banned");
         return;
     }
-    if (this.config.serverIpLimit > 0) {
+    if (this.config.serverIpLimit) {
         var ipConnections = 0;
         for (var i = 0; i < this.clients.length; i++) {
             var socket = this.clients[i];
@@ -251,6 +253,10 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
             ws.close(1000, "IP limit reached");
             return;
         }
+    }
+    if (this.config.clientBind.length && ws.upgradeReq.headers.origin != this.config.clientBind) {
+        ws.close(1000, "Client not allowed");
+        return;
     }
     ws.isConnected = true;
     ws.remoteAddress = ws._socket.remoteAddress;
@@ -704,7 +710,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     var age = cell1.getAge(this.tickCounter);
     var r = this.config.playerRecombineTime;
     var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
-    if (age < 15) cell1._canRemerge = false;
+    if (age < 13) cell1._canRemerge = false;
     if (r == 0 || client.rec) {
         // instant merge
         cell1._canRemerge = cell1.boostDistance < 100;
@@ -1045,10 +1051,6 @@ GameServer.prototype.ejectMass = function(client) {
         if (cell._size < this.config.playerMinSplitSize) {
             continue;
         }
-        var size2 = this.config.ejectSize;
-        var sizeLoss = this.config.ejectSizeLoss;
-        var sizeSquared = cell._sizeSquared - sizeLoss * sizeLoss;
-        var size1 = Math.sqrt(sizeSquared);
         
         var dx = client.mouse.x - cell.position.x;
         var dy = client.mouse.y - cell.position.y;
@@ -1063,14 +1065,15 @@ GameServer.prototype.ejectMass = function(client) {
         }
         
         // Remove mass from parent cell first
-        cell.setSize(size1);
+        var sizeLoss = this.config.ejectSizeLoss;
+        var sizeSquared = cell._sizeSquared - sizeLoss * sizeLoss;
+        cell.setSize(Math.sqrt(sizeSquared));
         
         // Get starting position
         var pos = {
             x: cell.position.x + dx * cell._size,
             y: cell.position.y + dy * cell._size
         };
-        
         var angle = Math.atan2(dx, dy);
         if (isNaN(angle)) angle = Math.PI / 2;
         
@@ -1078,7 +1081,11 @@ GameServer.prototype.ejectMass = function(client) {
         angle += (Math.random() * 0.6) - 0.3;
         
         // Create cell
-        var ejected = new Entity.EjectedMass(this, null, pos, size2);
+        if (!this.config.ejectVirus) {
+            var ejected = new Entity.EjectedMass(this, null, pos, this.config.ejectSize);
+        } else {
+            ejected = new Entity.Virus(this, null, pos, this.config.ejectSize);
+        }
         ejected.ejector = cell;
         ejected.setColor(cell.color);
         ejected.setBoost(780, angle);
@@ -1348,7 +1355,7 @@ GameServer.prototype.pingServerTracker = function() {
                '&name=Unnamed Server' +                             // we cannot use it, because other value will be used as dns name
                '&opp=' + os.platform() + ' ' + os.arch() +          // "win32 x64"
                '&uptime=' + process.uptime() +                      // Number of seconds server has been running
-               '&version=MultiOgar ' + this.version +
+               '&version=MultiOgar-Edited ' + this.version +
                '&start_time=' + this.startTime;
     trackerRequest({
         host: 'ogar.mivabe.nl',
@@ -1368,7 +1375,7 @@ GameServer.prototype.pingServerTracker = function() {
 
 function trackerRequest(options, type, body) {
     if (options.headers == null) options.headers = {};
-    options.headers['user-agent'] = 'MultiOgar' + this.version;
+    options.headers['user-agent'] = 'MultiOgar-Edited' + this.version;
     options.headers['content-type'] = type;
     options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
     var req = http.request(options, function(res) {
