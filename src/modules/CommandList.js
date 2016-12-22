@@ -1100,7 +1100,7 @@ Commands.list = {
     },
     rep: function (gameServer, split) {
         Commands.list.replace(gameServer, split);
-    }
+    },
     e: function (gameServer, split) {
         Commands.list.explode(gameServer, split);
     }
