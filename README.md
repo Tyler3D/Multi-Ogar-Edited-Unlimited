@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.4.2**
+Current version: **1.4.7**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)

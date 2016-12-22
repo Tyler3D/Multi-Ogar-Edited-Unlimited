@@ -314,11 +314,10 @@ PlayerTracker.prototype.updateTick = function () {
 };
 
 PlayerTracker.prototype.sendUpdate = function () {
-    if (this.isRemoved || 
-        !this.socket.packetHandler.protocol ||
-        !this.socket.isConnected || 
+    if (this.isRemoved || !this.socket.packetHandler.protocol ||
+        !this.socket.isConnected || this.isMi ||
         (this.socket._socket.writable != null && !this.socket._socket.writable) || 
-        this.socket.readyState != this.socket.OPEN || this.isMi) {
+        this.socket.readyState != this.socket.OPEN) {
         // do not send update for disconnected clients
         // also do not send if initialization is not complete yet
         return;

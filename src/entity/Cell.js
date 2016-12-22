@@ -16,17 +16,13 @@ function Cell(gameServer, owner, position, size) {
     
     this.boostDistance = 0;
     this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
-    this.boostMaxSpeed = 78;// boost speed limit, sqrt(780*780/100)
     this.ejector = null;
     
-    if (this.gameServer != null) {
+    if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
         this.nodeId = this.getNextNodeId();
-        if (size != null) this.setSize(size);
-        if (position != null) {
-            this.position.x = position.x;
-            this.position.y = position.y;
-        }
+        if (size) this.setSize(size);
+        if (position) this.position = position;
     }
 }
 

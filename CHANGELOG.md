@@ -1,4 +1,37 @@
 # Changelog
+#### 1.4.7: 
+* Added web console! All thanks to @Gimmo :)
+* Cleaned more of CommandList, also thanks to @Gimmo;
+* Fixed teleport command, thanks to @Agarian;
+* Improved splitting physics;
+* Moved changelog and license back to their original places;
+* Added guide for web terminal;
+* Added explode command;
+* Added two new configs: clientBind and ejectVirus
+
+-------------
+#### 1.4.5:
+* Added playerDecayCap config;
+* Fixed some bugs;
+* Refactored collision + move engine;
+* Fixed cell jittering;
+* Cleaned CommandList, thanks to @Gimmo;
+* Improved splitting and virus explosion physics;
+* Improved performance
+
+--------------
+#### 1.4.4:
+* Removed verification for most player commands;
+* Created the file that you are reading right now;
+* Improved installation guide, cleaned up and renamed some files. Thanks to @MastaCoder;
+* Greatly improved performance;
+* Improved splitting and virus-explosion physics;
+* Added two new commands: pop and play;
+* Smartened bots, cleaned code;
+* Reduced Mothercell spawn amount by 10, thanks to @Fantasy-Agario;
+* Fixed some bugs
+
+--------------
 #### 1.4.2: 
 * Added "replace" command;
 * Add srcFiles variable, thanks to @MastaCoder;

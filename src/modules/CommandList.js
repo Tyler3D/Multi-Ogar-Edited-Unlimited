@@ -25,82 +25,84 @@ var fillChar = function (data, char, fieldLength, rTL) {
 // Commands
 Commands.list = {
     help: function (gameServer, split) {
-        console.log("                       ╭────────────────────────────╮                       ");
-        console.log("                       │ LIST OF AVAILABLE COMMANDS │                       ");
-        console.log("╭──────────────────────┴────────────────────────────┴──────────────────────╮");
-        console.log("|                         ----Players and AI----                           |");
-        console.log("|                                                                          |");
-        console.log("│ playerlist                   │ Get list of players, bots, ID's, etc      │");
-        console.log("│ minion [PlayerID] [#] [name] │ Adds suicide minions to the server        │");
-        console.log("│ addbot [number]              │ Adds bots to the server                   │");
-        console.log("│ kickbot [number]             │ Kick a number of bots                     │");
-        console.log("│ kick [PlayerID]              │ Kick player or bot by client ID           │");
-        console.log("│ kickall                      │ Kick all players and bots                 │");
-        console.log("│ kill [PlayerID]              │ Kill cell(s) by client ID                 │");
-        console.log("│ killall                      │ Kill everyone                             │");
-        console.log("|                                                                          |");
-        console.log("|                          ----Player Commands----                         |");
-        console.log("|                                                                          |");
-        console.log("| spawn [entity] [pos] [mass]  | Spawns an entity                          |");
-        console.log("│ mass [PlayerID] [mass]       │ Set cell(s) mass by client ID             │");
-        console.log("│ merge [PlayerID]             │ Merge all client's cells                  │");
-        console.log("│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │");
-        console.log("│ freeze [PlayerID]            │ Freezes a player                          │");
-        console.log("│ speed [PlayerID]             │ Sets a players base speed                 │");
-        console.log("│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │");
-        console.log("│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │");
-        console.log("| skin [PlayerID] [string]     | Change cell(s) skin by client ID          |");
-        console.log("│ rec [PlayerID]               │ Gives a player instant-recombine          │");
-        console.log("| split [PlayerID] [Amount]    | Forces a player to split                  |");
-        console.log("| tp [X] [Y]                   | Teleports player(s) to XY coordinates     |");
-        console.log("| replace [PlayerID] [entity]  | Replaces a player with an entity          |");
-        console.log("| pop [PlayerID]               | Pops a player with a virus                |");
-        console.log("| play [PlayerID]              | Disable/enables a player from spawning    |");
-        console.log("|                                                                          |");
-        console.log("|                          ----Server Commands----                         |");
-        console.log("|                                                                          |");
-        console.log("│ pause                        │ Pause game, freeze all nodes              │");
-        console.log("│ board [string] [string] ...  │ Set scoreboard text                       │");
-        console.log("│ change [setting] [value]     │ Change specified settings                 │");
-        console.log("│ reload                       │ Reload config file and banlist            │");
-        console.log("│ ban [PlayerID | IP]          │ Bans a player(s) IP                       │");
-        console.log("│ unban [IP]                   │ Unbans an IP                              │");
-        console.log("│ banlist                      │ Get list of banned IPs.                   │");
-        console.log("│ mute [PlayerID]              │ Mute player from chat                     │");
-        console.log("│ unmute [PlayerID]            │ Unmute player from chat                   │");
-        console.log("|                                                                          |");
-        console.log("|                          ----Miscellaneous----                           |");
-        console.log("|                                                                          |");
-        console.log("│ clear                        │ Clear console output                      │");
-        console.log("| reset                        | Removes all nodes                         |");
-        console.log("│ status                       │ Get server status                         │");
-        console.log("| debug                        | Get/check node lengths                    |");
-        console.log("│ exit                         │ Stop the server                           │");
-        console.log("|                                                                          |");
-        console.log("├──────────────────────────────────────────────────────────────────────────┤");
-        console.log('│         Psst! Do "shortcuts" for a list of command shortcuts!            |');
-        console.log("╰──────────────────────────────────────────────────────────────────────────╯");
+       Logger.print("                       ┌────────────────────────────┐                       \n"+
+                    "                       │ LIST OF AVAILABLE COMMANDS │                       \n"+
+                    "┌──────────────────────┴────────────────────────────┴──────────────────────┐\n"+
+                    "│                         ----Players and AI----                           │\n"+
+                    "│                                                                          │\n"+
+                    "│ playerlist                   │ Get list of players, bots, ID's, etc      │\n"+
+                    "│ minion [PlayerID] [#] [name] │ Adds suicide minions to the server        │\n"+
+                    "│ addbot [number]              │ Adds bots to the server                   │\n"+
+                    "│ kickbot [number]             │ Kick a number of bots                     │\n"+
+                    "│ kick [PlayerID]              │ Kick player or bot by client ID           │\n"+
+                    "│ kickall                      │ Kick all players and bots                 │\n"+
+                    "│ kill [PlayerID]              │ Kill cell(s) by client ID                 │\n"+
+                    "│ killall                      │ Kill everyone                             │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Player Commands----                         │\n"+
+                    "│                                                                          │\n"+
+                    "│ spawn [entity] [pos] [mass]  │ Spawns an entity                          │\n"+
+                    "│ mass [PlayerID] [mass]       │ Set cell(s) mass by client ID             │\n"+
+                    "│ merge [PlayerID]             │ Merge all client's cells                  │\n"+
+                    "│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │\n"+
+                    "│ freeze [PlayerID]            │ Freezes a player                          │\n"+
+                    "│ speed [PlayerID]             │ Sets a players base speed                 │\n"+
+                    "│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │\n"+
+                    "│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │\n"+
+                    "│ skin [PlayerID] [string]     │ Change cell(s) skin by client ID          │\n"+
+                    "│ rec [PlayerID]               │ Gives a player instant-recombine          │\n"+
+                    "│ split [PlayerID] [Amount]    │ Forces a player to split                  │\n"+
+                    "│ tp [X] [Y]                   │ Teleports player(s) to XY coordinates     │\n"+
+                    "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
+                    "│ pop [PlayerID]               │ Pops a player with a virus                │\n"+
+                    "| explode [PlayerID]           | Explodes a player into ejected mass       |\n"+
+                    "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Server Commands----                         │\n"+
+                    "│                                                                          │\n"+
+                    "│ pause                        │ Pause game, freeze all nodes              │\n"+
+                    "│ board [string] [string] ...  │ Set scoreboard text                       │\n"+
+                    "│ change [setting] [value]     │ Change specified settings                 │\n"+
+                    "│ reload                       │ Reload config file and banlist            │\n"+
+                    "│ ban [PlayerID │ IP]          │ Bans a player(s) IP                       │\n"+
+                    "│ unban [IP]                   │ Unbans an IP                              │\n"+
+                    "│ banlist                      │ Get list of banned IPs.                   │\n"+
+                    "│ mute [PlayerID]              │ Mute player from chat                     │\n"+
+                    "│ unmute [PlayerID]            │ Unmute player from chat                   │\n"+
+                    "│                                                                          │\n"+
+                    "│                          ----Miscellaneous----                           │\n"+
+                    "│                                                                          │\n"+
+                    "│ clear                        │ Clear console output                      │\n"+
+                    "│ reset                        │ Removes all nodes                         │\n"+
+                    "│ status                       │ Get server status                         │\n"+
+                    "│ debug                        │ Get/check node lengths                    │\n"+
+                    "│ exit                         │ Stop the server                           │\n"+
+                    "│                                                                          │\n"+
+                    "├──────────────────────────────────────────────────────────────────────────┤\n"+
+                    '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n'+
+                    "└──────────────────────────────────────────────────────────────────────────┘");
     },
     shortcuts: function (gameServer, split) {
-        console.log("                       ╭────────────────────────────╮                       ");
-        console.log("                       │ LIST OF COMMAND SHORTCUTS  │                       ");
-        console.log("╭──────────────────────┴──────┬─────────────────────┴──────────────────────╮");
-        console.log("│ st                          │ Alias for status                           │");
-        console.log("│ pl                          │ Alias for playerlist                       │");
-        console.log("│ m                           │ Alias for mass                             │");
-        console.log("│ sm                          │ Alias for spawnmass                        │");
-        console.log("│ ka                          │ Alias for killall                          │");
-        console.log("│ k                           │ Alias for kill                             │");
-        console.log("│ mg                          │ Alias for merge                            │");
-        console.log("│ s                           │ Alias for speed                            │");
-        console.log("| mn                          | Alias for minion                           |");
-        console.log("| f                           | Alias for freeze                           |");
-        console.log("| ab                          | Alias for addbot                           |");
-        console.log("| kb                          | Alias for kickbot                          |");
-        console.log("| c                           | Alias for change                           |");
-        console.log("| n                           | Alias for name                             |");
-        console.log("| rep                         | Alias for replace                          |");
-        console.log("╰─────────────────────────────┴────────────────────────────────────────────╯");
+       Logger.print("                       ┌────────────────────────────┐                       \n"+
+                    "                       │ LIST OF COMMAND SHORTCUTS  │                       \n"+
+                    "┌──────────────────────┴──────┬─────────────────────┴──────────────────────┐\n"+
+                    "│ st                          │ Alias for status                           │\n"+
+                    "│ pl                          │ Alias for playerlist                       │\n"+
+                    "│ m                           │ Alias for mass                             │\n"+
+                    "│ sm                          │ Alias for spawnmass                        │\n"+
+                    "│ ka                          │ Alias for killall                          │\n"+
+                    "│ k                           │ Alias for kill                             │\n"+
+                    "│ mg                          │ Alias for merge                            │\n"+
+                    "│ s                           │ Alias for speed                            │\n"+
+                    "│ mn                          │ Alias for minion                           │\n"+
+                    "│ f                           │ Alias for freeze                           │\n"+
+                    "│ ab                          │ Alias for addbot                           │\n"+
+                    "│ kb                          │ Alias for kickbot                          │\n"+
+                    "│ c                           │ Alias for change                           │\n"+
+                    "│ n                           │ Alias for name                             │\n"+
+                    "│ rep                         │ Alias for replace                          │\n"+
+                    "| e                           | Alias for explode                          |\n"+
+                    "└─────────────────────────────┴────────────────────────────────────────────┘");
     },
     debug: function (gameServer, split) {
         // Count client cells
@@ -109,15 +111,15 @@ Commands.list = {
             clientCells += gameServer.clients[i].playerTracker.cells.length;
         }
         // Output node information
-        console.log("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots");
-        console.log("Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true));
-        console.log("- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells));
-        console.log("- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true));
-        console.log("- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount);
-        console.log("- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount);
-        console.log("Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true));
-        console.log("Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true));
-        console.log("Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
+       Logger.print("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots"+"\n"+
+                    "Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true)+"\n"+
+                    "- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells)+"\n"+
+                    "- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true)+"\n"+
+                    "- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount+"\n"+
+                    "- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount+"\n"+
+                    "Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true)+"\n"+
+                    "Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true)+"\n"+
+                    "Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
     },
     reset: function (gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
@@ -156,7 +158,7 @@ Commands.list = {
                 if (client.minionControl == true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    console.log("Succesfully removed minions for " + client.getFriendlyName());
+                    Logger.print("Succesfully removed minions for " + client.getFriendlyName());
                 // Add minions
                 } else {
                     client.minionControl = true;
@@ -165,7 +167,7 @@ Commands.list = {
                     for (var i = 0; i < add; i++) {
                         gameServer.bots.addMinion(client, name);
                     }
-                    console.log("Added " + add + " minions for " + client.getFriendlyName());
+                    Logger.print("Added " + add + " minions for " + client.getFriendlyName());
                 }
                 break;
             }
@@ -180,7 +182,7 @@ Commands.list = {
         for (var i = 0; i < add; i++) {
             gameServer.bots.addBot();
         }
-        console.log("Added " + add + " player bots");
+        Logger.print("Added " + add + " player bots");
     },
     ban: function (gameServer, split) {
         // Error message
@@ -242,7 +244,8 @@ Commands.list = {
     banlist: function (gameServer, split) {
         Logger.print("Showing " + gameServer.ipBanList.length + " banned IPs: ");
         Logger.print(" IP              | IP ");
-        Logger.print("-----------------------------------");
+        Logger.print("───────────────────────────────────");
+                      
         for (var i = 0; i < gameServer.ipBanList.length; i += 2) {
             Logger.print(" " + fillChar(gameServer.ipBanList[i], " ", 15) + " | " 
                     + (gameServer.ipBanList.length === i + 1 ? "" : gameServer.ipBanList[i + 1])
@@ -292,8 +295,8 @@ Commands.list = {
             gameServer.leaderboardType = 48;
         };
         if (reset != "reset") {
-            console.log("Successfully changed leaderboard values");
-            console.log('Do "board reset" to reset leaderboard');
+            Logger.print("Successfully changed leaderboard values");
+            Logger.print('Do "board reset" to reset leaderboard');
         }
         if (reset == "reset") {
             // Gets the current gamemode
@@ -302,7 +305,7 @@ Commands.list = {
             // Replace functions
             gameServer.gameMode.packetLB = gm.packetLB;
             gameServer.gameMode.updateLB = gm.updateLB;
-            console.log("Successfully reset leaderboard");
+            Logger.print("Successfully reset leaderboard");
         }
     },
     change: function (gameServer, split) {
@@ -486,7 +489,7 @@ Commands.list = {
                     count++;
                 }
                 
-                console.log("Killed " + client.getFriendlyName() + " and removed " + count + " cells");
+                Logger.print("Killed " + client.getFriendlyName() + " and removed " + count + " cells");
                 break;
             }
         }
@@ -500,7 +503,7 @@ Commands.list = {
                 count++;
             }
         }
-        if (this.id) console.log("Removed " + count + " cells");
+        if (this.id) Logger.print("Removed " + count + " cells");
     },
     mass: function (gameServer, split) {
         // Validation checks
@@ -523,7 +526,7 @@ Commands.list = {
                 for (var j in client.cells) {
                     client.cells[j].setSize(size);
                 }
-                console.log("Set mass of " + client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set mass of " + client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
                 break;
             }
         }
@@ -547,7 +550,7 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.spawnmass = size;
-                console.log("Set spawnmass of "+ client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set spawnmass of "+ client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
             }
         }
     },   
@@ -555,12 +558,12 @@ Commands.list = {
         var id = parseInt(split[1]);
         var speed = parseInt(split[2]);
         if (isNaN(id)) {
-            console.log("Please specify a valid player ID!");
+            Logger.print("Please specify a valid player ID!");
             return;
         }
         
         if (isNaN(speed)) {
-            console.log("Please specify a valid speed!");
+            Logger.print("Please specify a valid speed!");
             return;
         }
 
@@ -579,7 +582,7 @@ Commands.list = {
                 };
             }
         }
-        console.log("Set base speed of "+ client.getFriendlyName() + " to " + speed);
+        Logger.print("Set base speed of "+ client.getFriendlyName() + " to " + speed);
     },
     merge: function (gameServer, split) {
         // Validation checks
@@ -629,8 +632,8 @@ Commands.list = {
             }
             state = client.mergeOverride;
         }
-        if (state) console.log(client.getFriendlyName() + " is now force merging");
-        else console.log(client.getFriendlyName() + " isn't force merging anymore");
+        if (state) Logger.print(client.getFriendlyName() + " is now force merging");
+        else Logger.print(client.getFriendlyName() + " isn't force merging anymore");
     },
     rec: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -644,8 +647,8 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.rec = !client.rec;
-                if (client.rec) console.log(client.getFriendlyName() + " is now in rec mode!");
-                else console.log(client.getFriendlyName() + " is no longer in rec mode");
+                if (client.rec) Logger.print(client.getFriendlyName() + " is now in rec mode!");
+                else Logger.print(client.getFriendlyName() + " is no longer in rec mode");
             }
         }
     },
@@ -657,11 +660,11 @@ Commands.list = {
             return;
         }
         if (isNaN(count)) {
-            console.log("Split player 4 times");
+            Logger.print("Split player 4 times");
             count = 4;
         }
         if (count > gameServer.config.playerMaxCells) {
-            console.log("Split player to playerMaxCells");
+            Logger.print("Split player to playerMaxCells");
             count = gameServer.config.playerMaxCells;
         }
         for (var i in gameServer.clients) {
@@ -670,7 +673,7 @@ Commands.list = {
                 for (var i = 0; i < count; i++) {
                     gameServer.splitCells(client);
                 }
-                console.log("Forced " + client.getFriendlyName() + " to split " + count + " times");
+                Logger.print("Forced " + client.getFriendlyName() + " to split " + count + " times");
                 break;
             }
         }
@@ -694,7 +697,7 @@ Commands.list = {
             var client = gameServer.clients[i].playerTracker;
             
             if (client.pID == id) {
-                console.log("Changing " + client.getFriendlyName() + " to " + name);
+                Logger.print("Changing " + client.getFriendlyName() + " to " + name);
                 client.setName(name);
                 return;
             }
@@ -744,10 +747,10 @@ Commands.list = {
         Logger.print("Unbanned IP: " + ip);
     },
     playerlist: function (gameServer, split) {
-        Logger.print("Current players: " + gameServer.clients.length);
-        Logger.print('Do "playerlist m" or "pl m" to list minions');
-        Logger.print(" ID     | IP              | P | " + fillChar('NICK', ' ', gameServer.config.playerMaxNickLength) + " | CELLS | SCORE  | POSITION    "); // Fill space
-        Logger.print(fillChar('', '-', ' ID     | IP              |   |  | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength));
+        Logger.print("\nCurrent players: " + gameServer.clients.length);
+        Logger.print('Do "playerlist m" or "pl m" to list minions\n');
+        Logger.print(" ID     | IP              | P | CELLS | SCORE  |   POSITION   | " + fillChar('NICK', ' ', gameServer.config.playerMaxNickLength) + " "); // Fill space
+        Logger.print(fillChar('', '─', ' ID     | IP              | CELLS | SCORE  |   POSITION   |   |  '.length + gameServer.config.playerMaxNickLength));
         var sockets = gameServer.clients.slice(0);
         sockets.sort(function (a, b) { return a.playerTracker.pID - b.playerTracker.pID; });
         for (var i = 0; i < sockets.length; i++) {
@@ -807,7 +810,7 @@ Commands.list = {
                 cells = fillChar(client.cells.length, ' ', 5, true);
                 score = fillChar((client.getScore() / 100) >> 0, ' ', 6, true);
                 position = fillChar(client.centerPos.x >> 0, ' ', 5, true) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, true);
-                Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + nick + " | " + cells + " | " + score + " | " + position);
+                Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
             } else {
                 // No cells = dead player or in-menu
                 data = fillChar('DEAD OR NOT PLAYING', '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
@@ -818,12 +821,12 @@ Commands.list = {
     pause: function (gameServer, split) {
         gameServer.run = !gameServer.run; // Switches the pause state
         var s = gameServer.run ? "Unpaused" : "Paused";
-        console.log(s + " the game.");
+        Logger.print(s + " the game.");
     },
     freeze: function (gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
-            console.log("Please specify a valid player ID!");
+            Logger.print("Please specify a valid player ID!");
             return;
         }
 
@@ -832,9 +835,9 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 client.frozen = !client.frozen;
                 if (client.frozen) {
-                    console.log("Froze " + client.getFriendlyName());
+                    Logger.print("Froze " + client.getFriendlyName());
                 } else {
-                    console.log("Unfroze " + client.getFriendlyName());
+                    Logger.print("Unfroze " + client.getFriendlyName());
                 }
                 break;
             }
@@ -843,7 +846,7 @@ Commands.list = {
     reload: function (gameServer, split) {
         gameServer.loadConfig();
         gameServer.loadIpBanList();
-        console.log("Reloaded the config file succesully");
+        Logger.print("Reloaded the config file succesully");
     },
     status: function (gameServer, split) {
         var ini = require('./ini.js');
@@ -858,12 +861,12 @@ Commands.list = {
             }
         }
         
-        console.log("Connected players: " + gameServer.clients.length + "/" + gameServer.config.serverMaxConnections);
-        console.log("Players: " + humans + " - Bots: " + bots);
-        console.log("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
-        console.log("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
-        console.log("Current game mode: " + gameServer.gameMode.name);
-        console.log("Current update time: " + gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(gameServer.updateTimeAvg) + ")");
+        Logger.print("Connected players: " + gameServer.clients.length + "/" + gameServer.config.serverMaxConnections);
+        Logger.print("Players: " + humans + " - Bots: " + bots);
+        Logger.print("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
+        Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
+        Logger.print("Current game mode: " + gameServer.gameMode.name);
+        Logger.print("Current update time: " + gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(gameServer.updateTimeAvg) + ")");
     },
     tp: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -887,11 +890,12 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 for (var j in client.cells) {
-                    client.cells[j].setPosition(pos);
+                    client.cells[j].position.x = pos.x;
+                    client.cells[j].position.y = pos.y;
                     gameServer.updateNodeQuad(client.cells[j]);
                 }
                 
-                console.log("Teleported " + client.getFriendlyName() + " to (" + pos.x + " , " + pos.y + ")");
+                Logger.print("Teleported " + client.getFriendlyName() + " to (" + pos.x + " , " + pos.y + ")");
                 break;
             }
         }
@@ -900,6 +904,7 @@ Commands.list = {
         var ent = split[1];
         if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
             Logger.warn("Please specify either virus, food, or mothercell");
+            return;
         }
     
         var pos = {
@@ -931,16 +936,16 @@ Commands.list = {
         if (ent == "virus") {
             var virus = new Entity.Virus(gameServer, null, pos, size);
             gameServer.addNode(virus);
-            console.log("Spawned 1 virus at (" + pos.x + " , " + pos.y + ")");
+            Logger.print("Spawned 1 virus at (" + pos.x + " , " + pos.y + ")");
         } else if (ent == "food") {
             var food = new Entity.Food(gameServer, null, pos, size);
             food.setColor(gameServer.getRandomColor());
             gameServer.addNode(food);
-            console.log("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
+            Logger.print("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
         } else if (ent == "mothercell") {
             var mother = new Entity.MotherCell(gameServer, null, pos, size);
             gameServer.addNode(mother);
-            console.log("Spawned 1 mothercell at (" + pos.x + " , " + pos.y + ")");
+            Logger.print("Spawned 1 mothercell at (" + pos.x + " , " + pos.y + ")");
         }
     },
     replace: function (gameServer, split) {
@@ -952,6 +957,7 @@ Commands.list = {
         var ent = split[2];
         if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
             Logger.warn("Please specify either virus, food, or mothercell");
+            return;
         }
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
@@ -963,16 +969,16 @@ Commands.list = {
                     if (ent == "virus") {
                         var virus = new Entity.Virus(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(virus);
-                        console.log("Replaced " + client.getFriendlyName() + " with a virus");
+                        Logger.print("Replaced " + client.getFriendlyName() + " with a virus");
                     } else if (ent == "food") {
                         var food = new Entity.Food(gameServer, null, cell.position, cell._size);
                         food.setColor(gameServer.getRandomColor());
                         gameServer.addNode(food);
-                        console.log("Replaced " + client.getFriendlyName() + " with a food cell");
+                        Logger.print("Replaced " + client.getFriendlyName() + " with a food cell");
                     } else if (ent == "mothercell") {
                         var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(mother);
-                        console.log("Replaced " + client.getFriendlyName() + " with a mothercell");
+                        Logger.print("Replaced " + client.getFriendlyName() + " with a mothercell");
                     }
                 }
             }
@@ -989,7 +995,42 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 var virus = new Entity.Virus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(virus);
-                console.log("Popped " + client.getFriendlyName());
+                Logger.print("Popped " + client.getFriendlyName());
+            }
+        }
+    },
+    explode: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                for (var i = 0; i < client.cells.length; i++) {
+                    var cell = client.cells[i];
+                    while (cell._size > gameServer.config.playerMinSize) {
+                        // remove mass from parent cell
+                        var loss = gameServer.config.ejectSizeLoss;
+                        var sq = cell._sizeSquared - loss * loss;
+                        cell.setSize(Math.sqrt(sq));
+                        // explode the cell
+                        var dx = client.mouse.x - cell.position.x;
+                        var dy = client.mouse.y - cell.position.y;
+                        dx /= Math.sqrt(dx * dx + dy * dy);
+                        dy /= Math.sqrt(dx * dx + dy * dy);
+                        var pos = {
+                            x: cell.position.x + dx * cell._size,
+                            y: cell.position.y + dy * cell._size
+                        };
+                        var ejected = new Entity.EjectedMass(gameServer, null, pos, gameServer.config.ejectSize);
+                        ejected.setColor(cell.color);
+                        ejected.setBoost(780 * Math.random(), 6.28 * Math.random());
+                        gameServer.addNode(ejected);
+                    }
+                    cell.setSize(gameServer.config.playerMinSize);
+                }
             }
         }
     },
@@ -1005,9 +1046,9 @@ Commands.list = {
                 client.disableSpawn = !client.disableSpawn;
                 if (client.disableSpawn) {
                     Commands.list.kill(gameServer, split);
-                    console.log("Disabled spawning for " + client.getFriendlyName());
+                    Logger.print("Disabled spawning for " + client.getFriendlyName());
                 } else {
-                    console.log("Enabled spawning for " + client.getFriendlyName());
+                    Logger.print("Enabled spawning for " + client.getFriendlyName());
                 }
             }
         }
@@ -1059,6 +1100,9 @@ Commands.list = {
     },
     rep: function (gameServer, split) {
         Commands.list.replace(gameServer, split);
+    },
+    e: function (gameServer, split) {
+        Commands.list.explode(gameServer, split);
     }
 };
 
