@@ -52,7 +52,7 @@ Virus.prototype.onEaten = function (c) {
             var exp = (Math.random() * (4 - 3.33)) + 3.33;
             while (threshold / exp > 24) {
                 threshold /= exp;
-                exp = (Math.random() * (3 - 2)) + 2;
+                exp = 2;
                 big.push(threshold >> 0);
             }
         }
