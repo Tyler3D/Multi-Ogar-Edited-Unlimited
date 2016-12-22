@@ -1,11 +1,22 @@
 # Changelog
+#### 1.4.7: 
+* Added web console! All thanks to @Gimmo :)
+* Cleaned more of CommandList, also thanks to @Gimmo;
+* Fixed teleport command, thanks to @Agarian;
+* Improved splitting physics;
+* Moved changelog and license back to their original places;
+* Added guide for web terminal;
+* Added explode command;
+* Added two new configs: clientBind and ejectVirus
+
+-------------
 #### 1.4.5:
-* Added playerDecayCap config
-* Fixed some bugs
-* Refactored collision + move engine
-* Fixed cell jittering
-* Cleaned CommandList, thanks to @Gimmo
-* Improved splitting and virus explosion physics
+* Added playerDecayCap config;
+* Fixed some bugs;
+* Refactored collision + move engine;
+* Fixed cell jittering;
+* Cleaned CommandList, thanks to @Gimmo;
+* Improved splitting and virus explosion physics;
 * Improved performance
 
 --------------
