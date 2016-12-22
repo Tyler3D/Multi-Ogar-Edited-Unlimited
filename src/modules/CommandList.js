@@ -55,6 +55,7 @@ Commands.list = {
                     "│ tp [X] [Y]                   │ Teleports player(s) to XY coordinates     │\n"+
                     "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
                     "│ pop [PlayerID]               │ Pops a player with a virus                │\n"+
+                    "| explode [PlayerID]           | Explodes a player into ejected mass       |\n"+
                     "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
                     "│                                                                          │\n"+
                     "│                          ----Server Commands----                         │\n"+
@@ -100,6 +101,7 @@ Commands.list = {
                     "│ c                           │ Alias for change                           │\n"+
                     "│ n                           │ Alias for name                             │\n"+
                     "│ rep                         │ Alias for replace                          │\n"+
+                    "| e                           | Alias for explode                          |\n"+
                     "└─────────────────────────────┴────────────────────────────────────────────┘");
     },
     debug: function (gameServer, split) {
@@ -997,6 +999,41 @@ Commands.list = {
             }
         }
     },
+    explode: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        for (var i in gameServer.clients) {
+            if (gameServer.clients[i].playerTracker.pID == id) {
+                var client = gameServer.clients[i].playerTracker;
+                for (var i = 0; i < client.cells.length; i++) {
+                    var cell = client.cells[i];
+                    while (cell._size > gameServer.config.playerMinSize) {
+                        // remove mass from parent cell
+                        var loss = gameServer.config.ejectSizeLoss;
+                        var sq = cell._sizeSquared - loss * loss;
+                        cell.setSize(Math.sqrt(sq));
+                        // explode the cell
+                        var dx = client.mouse.x - cell.position.x;
+                        var dy = client.mouse.y - cell.position.y;
+                        dx /= Math.sqrt(dx * dx + dy * dy);
+                        dy /= Math.sqrt(dx * dx + dy * dy);
+                        var pos = {
+                            x: cell.position.x + dx * cell._size,
+                            y: cell.position.y + dy * cell._size
+                        };
+                        var ejected = new Entity.EjectedMass(gameServer, null, pos, gameServer.config.ejectSize);
+                        ejected.setColor(cell.color);
+                        ejected.setBoost(780 * Math.random(), 6.28 * Math.random());
+                        gameServer.addNode(ejected);
+                    }
+                    cell.setSize(gameServer.config.playerMinSize);
+                }
+            }
+        }
+    },
     play: function (gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
@@ -1063,6 +1100,9 @@ Commands.list = {
     },
     rep: function (gameServer, split) {
         Commands.list.replace(gameServer, split);
+    }
+    e: function (gameServer, split) {
+        Commands.list.explode(gameServer, split);
     }
 };
 
