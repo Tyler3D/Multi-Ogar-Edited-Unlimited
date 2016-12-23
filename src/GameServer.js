@@ -135,6 +135,9 @@ function GameServer() {
     this.minionTest = [];
     this.userList = [];
     this.badWords = [];
+
+    // Client Binding
+    this.clientBind = [];
     
     // Parse config
     this.loadConfig();
@@ -157,6 +160,7 @@ GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
+    this.clientBind = this.config.clientBind.split(' - ');
     
     // Start the server
     this.httpServer = http.createServer();
@@ -254,7 +258,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
             return;
         }
     }
-    if (this.config.clientBind.length && ws.upgradeReq.headers.origin != this.config.clientBind) {
+    if (this.config.clientBind.length && this.clientBind.indexOf(ws.upgradeReq.headers.origin) < 0) {
         ws.close(1000, "Client not allowed");
         return;
     }
