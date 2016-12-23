@@ -278,30 +278,31 @@ PacketHandler.prototype.getRandomSkin = function () {
 };
 
 PacketHandler.prototype.setNickname = function (text) {
-    var name = "";
-    var skin = null;
+    var name = "",
+        skin = null;
     if (text != null && text.length > 0) {
-        var skinName = null;
-        var userName = text;
-        var n = -1;
+        var skinName = null,
+            userName = text,
+            n = -1;
         if (text[0] == '<' && (n = text.indexOf('>', 1)) >= 1) {
             var inner = text.slice(1, n);
-            if (n > 1) {
+            if (n > 1)
                 skinName = (inner == "r") ? "%" + this.getRandomSkin() : "%" + inner;
-            } else {
+            else
                 skinName = "";
-            }
             userName = text.slice(n + 1);
         }
         skin = skinName;
         name = userName;
     }
-    if (name.length > this.gameServer.config.playerMaxNickLength) {
+    
+    if (name.length > this.gameServer.config.playerMaxNickLength)
         name = name.substring(0, this.gameServer.config.playerMaxNickLength);
-    }
+    
     if (this.gameServer.checkBadWord(name)) {
         skin = null;
         name = "Hi there!";
     }
+    
     this.socket.playerTracker.joinGame(name, skin);
 };
