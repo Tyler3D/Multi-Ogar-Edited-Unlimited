@@ -667,31 +667,16 @@ GameServer.prototype.updateMassDecay = function() {
 };
 
 GameServer.prototype.autoSplit = function(cell1, client) {
-    if (cell1._size < this.config.playerMaxSize) return;
-    
     // check size limit
-    var checkSize = !client.mergeOverride || client.cells.length == 1;
-    if (checkSize && cell1._size > this.config.playerMaxSize && cell1.getAge(this.tickCounter) >= 15) {
-        if (client.cells.length >= this.config.playerMaxCells) {
+    if (!client.mergeOverride && cell1._size > this.config.playerMaxSize) {
+        if (client.cells.length >= this.config.playerMaxCells || this.config.mobilePhysics) {
             // cannot split => just limit
             cell1.setSize(this.config.playerMaxSize);
+            if (this.config.mobilePhysics) return;
         } else {
             // split
-            var maxSplit = this.config.playerMaxCells - client.cells.length,
-            count = (cell1._sizeSquared / (this.config.playerMaxSize * this.config.playerMaxSize)) >> 0,
-            count1 = Math.min(count, maxSplit),
-            splitSize = cell1._size / Math.sqrt(count1 + 1),
-            splitMass = splitSize * splitSize / 100,
-            angle = Math.random() * 2 * Math.PI,
-            step = 2 * Math.PI / count1;
-            if (!this.config.mobilePhysics) {
-                for (var k = 0; k < count1; k++) {
-                    this.splitPlayerCell(client, cell1, angle, splitMass);
-                    angle += step;
-                }
-            } else {
-                cell1.setSize(this.config.playerMaxSize);
-            }
+            var angle = Math.random() * 2 * Math.PI;
+            this.splitPlayerCell(client, cell1, angle, cell1._mass / 2);
         }
     }
 };
