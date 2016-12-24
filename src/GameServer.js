@@ -75,7 +75,7 @@ function GameServer() {
         serverName: 'MultiOgar-Edited #1', // Server name
         serverWelcome1: 'Welcome to MultiOgar-Edited!',      // First server welcome message
         serverWelcome2: '',         // Second server welcome message (for info, etc)
-        clientBind: '',             // Only allow connections to server from specified client (example: http://agar.io)
+        clientBind: '',             // Only allow connections to the server from specified client (eg: http://agar.io - http://mywebsite.com - http://more.com) [Use ' - ' to seperate different websites]
         
         serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
         serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
@@ -136,9 +136,6 @@ function GameServer() {
     this.userList = [];
     this.badWords = [];
 
-    // Client Binding
-    this.clientBind = [];
-    
     // Parse config
     this.loadConfig();
     this.loadIpBanList();
@@ -160,6 +157,10 @@ GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
+    
+    // Client Binding
+    var bind =  this.config.clientBind + "";
+    this.clientBind = bind.split(' - ');
     
     // Start the server
     this.httpServer = http.createServer();
@@ -257,7 +258,6 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
             return;
         }
     }
-    this.clientBind = this.config.clientBind.split(' - ');
     if (this.config.clientBind.length && this.clientBind.indexOf(ws.upgradeReq.headers.origin) < 0) {
         ws.close(1000, "Client not allowed");
         return;
@@ -870,9 +870,8 @@ GameServer.prototype.resolveCollision = function(manifold) {
         return;
     // check distance
     var eatDistance = check._size - cell._size / 3;
-    if (manifold.squared >= eatDistance * eatDistance) {
-        // too far => can't eat
-        return;
+    if (manifold.squared >= eatDistance * eatDistance) {// too far => can't eat
+        return; // too far => can't eat
     }
     // collision owned => ignore, resolve, or remerge
     if (cell.owner && cell.owner == check.owner) {
@@ -1093,7 +1092,6 @@ GameServer.prototype.ejectMass = function(client) {
         ejected.ejector = cell;
         ejected.setColor(cell.color);
         ejected.setBoost(780, angle);
-        
         this.addNode(ejected);
     }
 };
