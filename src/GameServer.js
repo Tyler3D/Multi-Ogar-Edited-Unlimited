@@ -870,7 +870,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
         return;
     // check distance
     var eatDistance = check._size - cell._size / 3;
-    if (manifold.squared >= eatDistance * eatDistance) {// too far => can't eat
+    if (manifold.squared >= eatDistance * eatDistance) {
         return; // too far => can't eat
     }
     // collision owned => ignore, resolve, or remerge
