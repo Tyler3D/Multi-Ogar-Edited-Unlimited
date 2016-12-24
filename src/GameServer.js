@@ -68,6 +68,7 @@ function GameServer() {
         serverSpectatorScale: 0.4,  // Scale (field of view) used for free roam spectators (low value leads to lags, vanilla=0.4, old vanilla=0.25)
         serverStatsPort: 88,        // Port for stats server. Having a negative number will disable the stats server.
         serverStatsUpdate: 60,      // Update interval of server stats in seconds
+        mobilePhysics: 0,           // Whether or not the server uses mobile agar.io physics
         
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
         serverChat: 1,              // Set to 1 to allow chat; 0 to disable chat.
@@ -593,7 +594,7 @@ GameServer.prototype.mainLoop = function() {
                 if (item.cell == cell1) return;
                 var manifold = self.checkCellCollision(cell1, item.cell);
                 if (manifold == null) return;
-                if (cell1.cellType == 3 && item.cell.cellType == 3)
+                if (cell1.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
                     rigidCollisions.push({cell1: cell1, cell2: item.cell});
                 else
                     eatCollisions.push({cell1: cell1, cell2: item.cell});
@@ -683,9 +684,13 @@ GameServer.prototype.autoSplit = function(cell1, client) {
             splitMass = splitSize * splitSize / 100,
             angle = Math.random() * 2 * Math.PI,
             step = 2 * Math.PI / count1;
-            for (var k = 0; k < count1; k++) {
-                this.splitPlayerCell(client, cell1, angle, splitMass);
-                angle += step;
+            if (!this.config.mobilePhysics) {
+                for (var k = 0; k < count1; k++) {
+                    this.splitPlayerCell(client, cell1, angle, splitMass);
+                    angle += step;
+                }
+            } else {
+                cell1.setSize(this.config.playerMaxSize);
             }
         }
     }
@@ -766,9 +771,10 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, max
     parent.setSize(size1);
     
     // make a small shift to the cell position to prevent extrusion in wrong direction
+    var s = (this.config.mobilePhysics) ? size1 : 40;
     var pos = {
-        x: parent.position.x + 40 * Math.sin(angle),
-        y: parent.position.y + 40 * Math.cos(angle)
+        x: parent.position.x + s * Math.sin(angle),
+        y: parent.position.y + s * Math.cos(angle)
     };
     
     // Create cell
@@ -812,7 +818,8 @@ GameServer.prototype.checkRigidCollision = function(c) {
     // The same owner
     if (c.cell1.owner.mergeOverride)
         return false;
-    if (c.cell1.getAge(this.tickCounter) < 13 || c.cell2.getAge(this.tickCounter) < 13) {
+    var r = (this.config.mobilePhysics) ? 1 : 13;
+    if (c.cell1.getAge(this.tickCounter) < r || c.cell2.getAge(this.tickCounter) < r) {
         // just splited => ignore
         return false;
     }
@@ -869,7 +876,8 @@ GameServer.prototype.resolveCollision = function(manifold) {
     if (cell.isRemoved || check.isRemoved)
         return;
     // check distance
-    var eatDistance = check._size - cell._size / 3;
+    var div = (this.config.mobilePhysics) ? 10 : 3
+    var eatDistance = check._size - cell._size / div;
     if (manifold.squared >= eatDistance * eatDistance) {
         return; // too far => can't eat
     }
