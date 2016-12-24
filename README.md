@@ -135,6 +135,7 @@ http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style.
 
 
 ## What's new:
+* Added mobile physics
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
 * Added ejectSizeLoss
