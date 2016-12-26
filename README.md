@@ -131,7 +131,6 @@ http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
 http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
 http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
 http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
-http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
 
 ## What's new:
