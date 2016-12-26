@@ -717,7 +717,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
 };
 
 GameServer.prototype.moveCell = function(cell1) {
-    if (cell1.isMoving && cell1.boostDistance <= 0) {
+    if (cell1.isMoving && cell1.boostDistance <= 1) {
         cell1.isMoving = false;
         return;
     }
@@ -861,7 +861,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
     if (cell.isRemoved || check.isRemoved)
         return;
     // check distance
-    var div = (this.config.mobilePhysics) ? 10 : 3
+    var div = (this.config.mobilePhysics) ? 20 : 3;
     var eatDistance = check._size - cell._size / div;
     if (manifold.squared >= eatDistance * eatDistance) {
         return; // too far => can't eat
