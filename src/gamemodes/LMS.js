@@ -81,7 +81,7 @@ LMS.prototype.onPlayerSpawn = function (gameServer, player) {
     if (!this.lmsStart) {
         // Random color upon spawning
         player.setColor(gameServer.getRandomColor()); 
-        gameServer.spawnPlayer(player);
+        gameServer.spawnPlayer(player, gameServer.randomPos());
     }
 };
 	
