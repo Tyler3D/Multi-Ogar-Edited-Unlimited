@@ -615,7 +615,7 @@ GameServer.prototype.mainLoop = function() {
             this.resolveCollision(c);
         }
         if ((this.tickCounter % this.config.spawnInterval) == 0) {
-            this.spawnCells(this.randomPos);
+            this.spawnCells(this.randomPos());
         }
         this.gameMode.onTick(this);
         if (((this.tickCounter + 3) % 25) == 0) {
@@ -792,7 +792,8 @@ GameServer.prototype.updateNodeQuad = function(node) {
 
 // Checks if collision is rigid body collision
 GameServer.prototype.checkRigidCollision = function(c) {
-    if (c.cell1.owner != c.cell2.owner) {
+    if (c.cell1.owner && c.cell2.owner && 
+        c.cell1.owner != c.cell2.owner) {
         // Different owners
         return this.gameMode.haveTeams && 
             c.cell1.owner.team == c.cell2.owner.team;
