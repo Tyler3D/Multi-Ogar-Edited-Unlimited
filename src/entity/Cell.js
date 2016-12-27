@@ -13,10 +13,8 @@ function Cell(gameServer, owner, position, size) {
     this.isAgitated = false;// If true, then this cell has waves on it's outline
     this.killedBy = null;   // Cell that ate this cell
     this.isMoving = false;  // Indicate that cell is in boosted mode
-    
     this.boostDistance = 0;
     this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
-    this.ejector = null;
     
     if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
@@ -64,10 +62,9 @@ Cell.prototype.canEat = function (cell) {
 
 // Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
-    // Cant grow from cells under 17 mass (vanilla)
-    if (this.gameServer.config.playerBotGrow == 0) {
+    if (!this.gameServer.config.playerBotGrow) {
         if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3)
-            prey._sizeSquared = 0;
+            prey._sizeSquared = 0; // Can't grow from cells under 17 mass
     }
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };
