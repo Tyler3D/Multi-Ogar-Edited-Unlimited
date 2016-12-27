@@ -465,7 +465,12 @@ PlayerTracker.prototype.pressSpace = function () {
         if (this.freeRoam || this.gameServer.largestClient == null)
             return;
     } else if (this.gameServer.run) {
-        if (this.mergeOverride) return;
+        // Disable mergeOverride on the last merging cell
+        if (this.cells.length <= 2) {
+            this.mergeOverride = false;
+        }
+        if (this.mergeOverride || this.frozen) 
+            return;
         this.gameServer.splitCells(this);
     }
 };
