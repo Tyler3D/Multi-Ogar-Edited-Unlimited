@@ -684,7 +684,7 @@ GameServer.prototype.autoSplit = function(cell1, client) {
 GameServer.prototype.movePlayer = function(cell1, client) {
     if (client.socket.isConnected == false || client.frozen)
         return;
-
+        
     // get distance
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
@@ -720,9 +720,9 @@ GameServer.prototype.moveCell = function(cell1) {
         cell1.isMoving = false;
         return;
     }
-    // add speed and set direction
-    var speed = Math.sqrt(cell1.boostDistance * cell1.boostDistance / 100);
-    cell1.boostDistance -= speed; // decays from 78
+    // add speed and set position
+    var speed = cell1.boostDistance / 10; // val: 78
+    cell1.boostDistance -= speed; // decays from speed
     cell1.position.x += cell1.boostDirection.x * speed;
     cell1.position.y += cell1.boostDirection.y * speed;
     
@@ -735,12 +735,12 @@ GameServer.prototype.moveCell = function(cell1) {
     cell1.checkBorder(this.border);
 };
 
-GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, maxCells) {
+GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) {
     // Player cell limit
-    if (client.cells.length >= maxCells) return;
+    if (client.cells.length >= m) return;
     
     if (mass == null) {
-        var size1 = parent._size * 1 / Math.sqrt(2);
+        var size1 = parent._size / Math.sqrt(2);
         var size2 = size1;
     } else {
         size2 = Math.sqrt(mass * 100);
@@ -933,8 +933,8 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     // Check if can spawn from ejected mass
     var index = (this.nodesEjected.length - 1) * ~~Math.random();
     var eject = this.nodesEjected[index];
-    if (Math.random() <= this.config.ejectSpawnPercent
-        && this.nodesEjected.length && !eject.isRemoved) {
+    if (Math.random() <= this.config.ejectSpawnPercent && this.nodesEjected.length 
+        && !eject.isRemoved && !eject.isMoving) {
         // Spawn as same color
         player.setColor(eject.color);
         // Spawn from ejected mass
@@ -943,7 +943,7 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
             x: eject.position.x,
             y: eject.position.y
         };
-        if (!size) size = Math.max(eject._size, size);
+        size = Math.max(eject._size, size);
     }
     // 10 attempts to find safe position
     for (var i = 0; i < 10 && this.willCollide(pos, size); i++) {
@@ -976,38 +976,34 @@ GameServer.prototype.willCollide = function(pos, size) {
 };
 
 GameServer.prototype.splitCells = function(client) {
-    var cellToSplit = [];
+    var cellToSplit = []; // Split cell order decided by cell age
     for (var i = 0; i < client.cells.length; i++) {
-        var cell = client.cells[i];
-        if (cell._size < this.config.playerMinSplitSize) {
+        if (client.cells[i]._size < this.config.playerMinSplitSize) {
             continue;
         }
-        cellToSplit.push(cell);
+        cellToSplit.push(client.cells[i]);
         // rec mode
-        if (!client.rec) var maxCells = this.config.playerMaxCells;
-        else maxCells = this.config.playerMaxCells * this.config.playerMaxCells;
-            
-        if (cellToSplit.length + client.cells.length >= maxCells)
+        if (!client.rec) var m = this.config.playerMaxCells;
+        else m = this.config.playerMaxCells * this.config.playerMaxCells;
+        // cannot split
+        if (cellToSplit.length + client.cells.length >= m)
             break;
     }
-    var splitCells = 0; // How many cells have been split
     for (var i = 0; i < cellToSplit.length; i++) {
-        cell = cellToSplit[i];
-        var dx = ~~(client.mouse.x - cell.position.x);
-        var dy = ~~(client.mouse.y - cell.position.y);
-        if (dx * dx + dy * dy < 1) {
-            dx = 1, dy = 0;
+        var cell = cellToSplit[i];
+        var x = ~~(client.mouse.x - cell.position.x);
+        var y = ~~(client.mouse.y - cell.position.y);
+        if (x * x + y * y < 1) {
+            x = 1, y = 0;
         }
-        var angle = Math.atan2(dx, dy);
+        var angle = Math.atan2(x, y);
         if (isNaN(angle)) angle = Math.PI / 2;
-        if (this.splitPlayerCell(client, cell, angle, null, maxCells)) {
-            splitCells++;
-        }
+        this.splitPlayerCell(client, cell, angle, null, m);
     }
 };
 
 GameServer.prototype.canEjectMass = function(client) {
-    if (client.lastEject == null || !client.frozen) {
+    if (client.lastEject == null) {
         // first eject
         client.lastEject = this.tickCounter;
         return true;
@@ -1035,13 +1031,12 @@ GameServer.prototype.ejectMass = function(client) {
         var dx = client.mouse.x - cell.position.x;
         var dy = client.mouse.y - cell.position.y;
         var dl = dx * dx + dy * dy;
-        if (dl < 1) {
+        if (dl > 1) {
+            dx /= Math.sqrt(dl);
+            dy /= Math.sqrt(dl);
+        } else {
             dx = 1;
             dy = 0;
-        } else {
-            dl = Math.sqrt(dl);
-            dx /= dl;
-            dy /= dl;
         }
         
         // Remove mass from parent cell first
@@ -1066,7 +1061,6 @@ GameServer.prototype.ejectMass = function(client) {
         } else {
             ejected = new Entity.Virus(this, null, pos, this.config.ejectSize);
         }
-        ejected.ejector = cell;
         ejected.setColor(cell.color);
         ejected.setBoost(780, angle);
         this.addNode(ejected);
