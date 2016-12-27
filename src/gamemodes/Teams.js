@@ -53,7 +53,7 @@ Teams.prototype.onPlayerSpawn = function (gameServer, player) {
     // Random color based on team
     player.setColor(this.getTeamColor(player.team));
     // Spawn player
-    gameServer.spawnPlayer(player);
+    gameServer.spawnPlayer(player, gameServer.randomPos());
 };
 
 Teams.prototype.onServerInit = function (gameServer) {
