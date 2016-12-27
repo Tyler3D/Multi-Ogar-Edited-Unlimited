@@ -36,7 +36,7 @@ FFA.prototype.leaderboardAddSort = function (player, leaderboard) {
 FFA.prototype.onPlayerSpawn = function (gameServer, player) {
     player.setColor(player.isMinion ? { r: 240, g: 240, b: 255 } : gameServer.getRandomColor());
     // Spawn player
-    gameServer.spawnPlayer(player);
+    gameServer.spawnPlayer(player, gameServer.randomPos());
 };
 
 FFA.prototype.updateLB = function (gameServer) {
@@ -72,4 +72,4 @@ FFA.prototype.updateLB = function (gameServer) {
     }
     
     this.rankOne = lb[0];
-}
+};
