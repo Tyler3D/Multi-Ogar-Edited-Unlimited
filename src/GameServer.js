@@ -722,9 +722,9 @@ GameServer.prototype.moveCell = function(cell1) {
     }
     // add speed and set direction
     var speed = Math.sqrt(cell1.boostDistance * cell1.boostDistance / 100);
-    var decay = Math.min(cell1.boostDistance -= speed, speed);
-    cell1.position.x += cell1.boostDirection.x * decay;
-    cell1.position.y += cell1.boostDirection.y * decay;
+    cell1.boostDistance -= speed; // decays from 78
+    cell1.position.x += cell1.boostDirection.x * speed;
+    cell1.position.y += cell1.boostDirection.y * speed;
     
     // reflect off border
     var r = cell1._size / 2;
@@ -792,8 +792,9 @@ GameServer.prototype.updateNodeQuad = function(node) {
 
 // Checks if collision is rigid body collision
 GameServer.prototype.checkRigidCollision = function(c) {
-    if (c.cell1.owner && c.cell2.owner && 
-        c.cell1.owner != c.cell2.owner) {
+    if (!c.cell1.owner || !c.cell2.owner)
+        return false;
+    if (c.cell1.owner != c.cell2.owner) {
         // Different owners
         return this.gameMode.haveTeams && 
             c.cell1.owner.team == c.cell2.owner.team;
