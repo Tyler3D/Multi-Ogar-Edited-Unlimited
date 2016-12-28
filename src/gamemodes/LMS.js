@@ -6,7 +6,7 @@ var Entity = require('../entity');
 
 function LMS () {
     FFA.apply(this, Array.prototype.slice.call(arguments));
-    this.ID = 21;
+    this.ID = 4;
     this.name = "LMS";
     this.specByLeaderboard = true;
     
