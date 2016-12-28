@@ -49,15 +49,15 @@ Cell.prototype.setSize = function (size) {
         this.owner.isMassChanged = true;
 };
 
-// Returns cell age in ticks for specified game tick
-Cell.prototype.getAge = function (tick) {
-    if (this.tickOfBirth == null) return 0;
-    return Math.max(0, tick - this.tickOfBirth);
-};
-
 // by default cell cannot eat anyone
 Cell.prototype.canEat = function (cell) {
     return false;
+};
+
+// Returns cell age in ticks for specified game tick
+Cell.prototype.getAge = function () {
+    if (this.tickOfBirth == null) return 0; // age cant be less than 0
+    return Math.max(0, this.gameServer.tickCounter - this.tickOfBirth);
 };
 
 // Called to eat prey cell
