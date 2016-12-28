@@ -564,6 +564,7 @@ GameServer.prototype.mainLoop = function() {
                 if (cell1.isRemoved || cell1 == null)
                     continue;
                 // move player cells
+                this.updateRemerge(cell1, client);
                 this.moveCell(cell1);
                 this.movePlayer(cell1, client);
                 this.autoSplit(cell1, client);
@@ -684,7 +685,7 @@ GameServer.prototype.autoSplit = function(cell1, client) {
 GameServer.prototype.movePlayer = function(cell1, client) {
     if (client.socket.isConnected == false || client.frozen)
         return;
-        
+    // TODO: use vector for distance(s)
     // get distance
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
@@ -692,27 +693,27 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     if (squared < 1 || isNaN(dx) || isNaN(dy)) {
         return;
     }
-    // normalized distance (0..1)
+    // get movement speed
     var d = Math.sqrt(squared);
     var speed = cell1.getSpeed();
     if (speed <= 0) return;
     // move player cells
     cell1.position.x += dx / d * speed;
     cell1.position.y += dy / d * speed;
+    cell1.checkBorder(this.border);
+};
+
+GameServer.prototype.updateRemerge = function(cell1, client) {
     // update remerge
-    var age = cell1.getAge(this.tickCounter);
-    var r = this.config.playerRecombineTime;
-    var ttr = Math.max(r, (cell1._size * 0.2) >> 0); // seconds
-    if (age < 13) cell1._canRemerge = false;
-    if (r == 0 || client.rec) {
-        // instant merge
+    var ttr = Math.max(this.config.playerRecombineTime, cell1._size * 0.2);
+    if (cell1.getAge() < 13) cell1._canRemerge = false;
+    if (!this.config.playerRecombineTime || client.rec) {
         cell1._canRemerge = cell1.boostDistance < 100;
-        return;
+        return; // instant merge
     }
     // seconds to ticks (tickStep = 0.040 sec => 1 / 0.040 = 25)
-    ttr *= 25;
-    cell1._canRemerge = age >= ttr;
-    cell1.checkBorder(this.border);
+    ttr *= 25; // in seconds
+    cell1._canRemerge = cell1.getAge() >= ttr;
 };
 
 GameServer.prototype.moveCell = function(cell1) {
@@ -803,7 +804,7 @@ GameServer.prototype.checkRigidCollision = function(c) {
     if (c.cell1.owner.mergeOverride)
         return false;
     var r = (this.config.mobilePhysics) ? 1 : 13;
-    if (c.cell1.getAge(this.tickCounter) < r || c.cell2.getAge(this.tickCounter) < r) {
+    if (c.cell1.getAge() < r || c.cell2.getAge() < r) {
         // just splited => ignore
         return false;
     }
@@ -867,7 +868,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
     }
     // collision owned => ignore, resolve, or remerge
     if (cell.owner && cell.owner == check.owner) {
-        if (cell.getAge(this.tickCounter) < 13 || check.getAge(this.tickCounter) < 13) {
+        if (cell.getAge() < 13 || check.getAge() < 13) {
             return; // just splited => ignore
         }
     } else {
