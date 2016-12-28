@@ -4,7 +4,7 @@ var Food = require('../entity/Food');
 function Rainbow() {
     FFA.apply(this, Array.prototype.slice.call(arguments));
     
-    this.ID = 20;
+    this.ID = 3;
     this.name = "Rainbow FFA";
     this.specByLeaderboard = true;
     
