@@ -18,7 +18,7 @@ function Cell(gameServer, owner, position, size) {
     
     if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
-        this.nodeId = this.getNextNodeId();
+        this.nodeId = this.gameServer.lastNodeId++ >> 0;
         if (size) this.setSize(size);
         if (position) this.position = position;
     }
@@ -27,13 +27,6 @@ function Cell(gameServer, owner, position, size) {
 module.exports = Cell;
 
 // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
-
-Cell.prototype.getNextNodeId = function () {
-    if (this.gameServer.lastNodeId > 2147483647) {
-        this.gameServer.lastNodeId = 1;
-    }
-    return this.gameServer.lastNodeId++ >> 0;
-};
 
 Cell.prototype.setColor = function (color) {
     this.color.r = color.r;
@@ -63,8 +56,8 @@ Cell.prototype.getAge = function () {
 // Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
     if (!this.gameServer.config.playerBotGrow) {
-        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3)
-            prey._sizeSquared = 0; // Can't grow from cells under 17 mass
+        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType == 0)
+            prey._sizeSquared = 0; // Can't grow from players under 17 mass
     }
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };
