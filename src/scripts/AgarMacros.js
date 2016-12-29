@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         13 macro's for Agar.io :)
+// @name         15 macro's for Agar.io :)
 // @version      0.3
-// @description  11 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
+// @description  15 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
 // @author       Megabyte918
 // @match        http://agar.io/*
 // @match        http://old.ogarul.io/*
