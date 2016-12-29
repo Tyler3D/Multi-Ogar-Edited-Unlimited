@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         11 macro's for Agar.io :)
+// @name         15 macro's for Agar.io :)
 // @version      0.3
-// @description  11 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
+// @description  15 macro's for feeding, linesplits, tricksplits, etc. And enables show mass and skip stats by default :)
 // @author       Megabyte918
 // @match        http://agar.io/*
 // @match        http://old.ogarul.io/*
@@ -19,6 +19,8 @@ i.innerHTML += "<center>Press <b>D</b> or <b>2</b> to split 2x</center>";
 i.innerHTML += "<center>Press <b>S</b> or <b>1</b> to split 1x</center>";
 i.innerHTML += "<center>Press <b>H</b> for horizontal linesplit position</center>";
 i.innerHTML += "<center>Press <b>V</b> for vertical linesplit position</center>";
+i.innerHTML += "<center>Press <b>g</b> and <b>j</b> to move left and right during a horizontal linesplit</center>";
+i.innerHTML += "<center>Press <b>y</b> and <b>n</b> to move up and down during a vertical linesplit</center>";
 
 //Auto-enable show mass/skip stats
 //IMPORTANT: You must uncheck showmass/skip stats first then recheck them for it to auto save every time
@@ -89,6 +91,26 @@ function keydown(event) {
         case 86: //Vertical linesplit (v)
             X = window.innerWidth / 2;
             Y = window.innerHeight / 2.006;
+            $("canvas").trigger($.Event("mousemove", {clientX: X, clientY: Y}));
+            break;
+        case 71: //Move left Horizontal (g)
+            X = window.innerWidth / 2.4;
+            Y = window.innerHeight / 2;
+            $("canvas").trigger($.Event("mousemove", {clientX: X, clientY: Y}));
+            break;
+        case 74: //Move right Horizontal (j)
+            X = window.innerWidth / 1.6;
+            Y = window.innerHeight / 2;
+            $("canvas").trigger($.Event("mousemove", {clientX: X, clientY: Y}));
+            break;
+        case 80: // Move up Veritcal (y)
+            X = window.innerWidth / 2;
+            Y = window.innerHeight / 2.4;
+            $("canvas").trigger($.Event("mousemove", {clientX: X, clientY: Y}));
+            break;
+        case 78: // Move down Veritcal (n)
+            X = window.innerWidth / 2;
+            Y = window.innerHeight / 1.6;
             $("canvas").trigger($.Event("mousemove", {clientX: X, clientY: Y}));
             break;
     }
