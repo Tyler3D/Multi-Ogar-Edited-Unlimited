@@ -8,34 +8,30 @@ function BotPlayer() {
 module.exports = BotPlayer;
 BotPlayer.prototype = new PlayerTracker();
 
-BotPlayer.prototype.getLowestCell = function () {
-    // Gets the cell with the lowest mass
-    if (this.cells.length <= 0) {
-        return null; // Error!
-    }
-    
+
+BotPlayer.prototype.largest = function (list) {
+    if (!list.length) return null; // Error!
+
     // Sort the cells by Array.sort() function to avoid errors
-    var sorted = this.cells.valueOf();
+    var sorted = list.valueOf();
     sorted.sort(function (a, b) {
         return b._size - a._size;
     });
-    
     return sorted[0];
 };
 
 BotPlayer.prototype.checkConnection = function () {
     if (this.socket.isCloseRequest) {
-        while (this.cells.length > 0) {
+        while (this.cells.length) {
             this.gameServer.removeNode(this.cells[0]);
         }
         this.isRemoved = true;
         return;
     }
-    
     // Respawn if bot is dead
-    if (this.cells.length <= 0) {
+    if (!this.cells.length) {
         this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
-        if (this.cells.length == 0) {
+        if (!this.cells.length) {
             // If the bot cannot spawn any cells, then disconnect it
             this.socket.close();
         }
@@ -43,19 +39,14 @@ BotPlayer.prototype.checkConnection = function () {
 };
 
 BotPlayer.prototype.sendUpdate = function () { // Overrides the update function from player tracker
-    if (this.splitCooldown > 0) this.splitCooldown--;
-    this.decide(this.getLowestCell()); // Action
+    if (this.splitCooldown) this.splitCooldown--;
+    this.decide(this.largest(this.cells)); // Action
 };
 
 // Custom
 BotPlayer.prototype.decide = function (cell) {
     if (!cell) return; // Cell was eaten, check in the next tick (I'm too lazy)
-    
-    // Splitting
-    var result = new Vector(0, 0);
-    var split = false,
-        splitTarget = null,
-        threats = [];
+    var result = new Vector(0, 0); // For splitting
     
     for (var i = 0; i < this.viewNodes.length; i++) {
         var check = this.viewNodes[i];
@@ -69,7 +60,7 @@ BotPlayer.prototype.decide = function (cell) {
                 // Same team cell
                 influence = 0;
             }
-            else if (cell._size > (check._size) * 1.15) {
+            else if (cell._size > check._size * 1.15) {
                 // Can eat it
                 influence = check._size * 2.5;
             }
@@ -83,14 +74,13 @@ BotPlayer.prototype.decide = function (cell) {
             // Food
             influence = 1;
         } else if (check.cellType == 2) {
-            // Virus
+            // Virus/Mothercell
             if (cell._size > check._size * 1.15) {
                 // Can eat it
                 if (this.cells.length == this.gameServer.config.playerMaxCells) {
                     // Won't explode
                     influence = check._size * 2.5;
-                }
-                else {
+                } else {
                     // Can explode
                     influence = -1;
                 }
@@ -114,10 +104,9 @@ BotPlayer.prototype.decide = function (cell) {
         
         // Figure out distance between cells
         var distance = displacement.length();
-        if (influence < 0) {
+        if (!influence) {
             // Get edge distance
             distance -= cell._size + check._size;
-            if (check.cellType == 0) threats.push(check);
         }
         
         // The farther they are the smaller influnce it is
@@ -128,10 +117,17 @@ BotPlayer.prototype.decide = function (cell) {
         var force = displacement.normalize().scale(influence);
         
         // Splitting conditions
-        if (check.cellType == 0 && cell._size > (check._size) * 1.15 &&
-            (!split) && this.splitCooldown == 0 && this.cells.length < 8) {
-            splitTarget = check;
-            split = true;
+        if (check.cellType == 0 && cell._size > check._size * 1.15
+            && !this.splitCooldown && this.cells.length < 8 && 
+            820 - cell._size / 2 - check._size >= distance) {
+            // Splitkill the target
+            this.mouse = {
+                x: check.position.x,
+                y: check.position.y
+            };
+            this.splitCooldown = 15;
+            this.socket.packetHandler.pressSpace = true;
+            return;
         } else {
             // Add up forces on the entity
             result.add(force);
@@ -139,18 +135,7 @@ BotPlayer.prototype.decide = function (cell) {
     }
     // Normalize the resulting vector
     result.normalize();
-    
-    // Check for splitkilling and threats
-    if (split) {
-        // Splitkill the target
-        this.mouse = {
-            x: splitTarget.position.x,
-            y: splitTarget.position.y
-        };
-        this.splitCooldown = 15;
-        this.socket.packetHandler.pressSpace = true;
-        return;
-    }
+    // Set bot's mouse position
     this.mouse = {
         x: cell.position.x + result.x * 800,
         y: cell.position.y + result.y * 800
