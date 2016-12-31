@@ -583,6 +583,8 @@ GameServer.prototype.mainLoop = function() {
             }
         }
         // Move moving nodes
+        rigidCollisions = []; // reset array for ejected cells
+        eatCollisions = []; // reset array for anything else
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
             if (!cell1 || cell1.isRemoved) continue;
@@ -718,6 +720,7 @@ GameServer.prototype.updateRemerge = function(cell1, client) {
 
 GameServer.prototype.moveCell = function(cell1) {
     if (cell1.isMoving && cell1.boostDistance <= 1) {
+        cell1.boostDistance = 0;
         cell1.isMoving = false;
         return;
     }
@@ -729,7 +732,7 @@ GameServer.prototype.moveCell = function(cell1) {
     
     // reflect off border
     var r = cell1._size / 2;
-    if (cell1.position.x < this.border.minx + r || cell1.position.x > this.border.maxx - r) 
+    if (cell1.position.x < this.border.minx + r || cell1.position.x > this.border.maxx - r)
         cell1.boostDirection.x =- cell1.boostDirection.x;
 	if (cell1.position.y < this.border.miny + r || cell1.position.y > this.border.maxy - r) 
 	    cell1.boostDirection.y =- cell1.boostDirection.y;
@@ -868,9 +871,8 @@ GameServer.prototype.resolveCollision = function(manifold) {
     }
     // collision owned => ignore, resolve, or remerge
     if (cell.owner && cell.owner == check.owner) {
-        if (cell.getAge() < 13 || check.getAge() < 13) {
+        if (cell.getAge() < 13 || check.getAge() < 13)
             return; // just splited => ignore
-        }
     } else {
         if (check._size < cell._size * 1.15) return; // size check
         if (!check.canEat(cell)) return; // cell refuses to be eaten
@@ -1023,9 +1025,8 @@ GameServer.prototype.ejectMass = function(client) {
         return;
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
-        if (!cell) continue;
         
-        if (cell._size < this.config.playerMinSplitSize) {
+        if (!cell || cell._size < this.config.playerMinSplitSize) {
             continue;
         }
         
