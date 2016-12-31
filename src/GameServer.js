@@ -561,7 +561,7 @@ GameServer.prototype.mainLoop = function() {
             var client = this.clients[i].playerTracker;
             for (var j = 0; j < client.cells.length; j++) {
                 var cell1 = client.cells[j];
-                if (cell1.isRemoved || cell1 == null)
+                if (cell1.isRemoved || cell1 == null || client == null)
                     continue;
                 // move player cells
                 this.updateRemerge(cell1, client);
@@ -687,17 +687,19 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     if (client.socket.isConnected == false || client.frozen)
         return;
     // TODO: use vector for distance(s)
-    // get distance
+    // get squared mouse positions relative to cell
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
     var squared = dx * dx + dy * dy;
     if (squared < 1 || isNaN(dx) || isNaN(dy)) {
         return;
     }
-    // get movement speed
+    // get distances
     var d = Math.sqrt(squared);
-    var speed = cell1.getSpeed();
-    if (speed <= 0) return;
+    var nd = Math.min(d, 32) / 32;
+    // get movement speed
+    var speed = cell1.getSpeed() * nd;
+    if (speed <= 0) return; // avoid shaking
     // move player cells
     cell1.position.x += dx / d * speed;
     cell1.position.y += dy / d * speed;
