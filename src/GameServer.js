@@ -584,7 +584,6 @@ GameServer.prototype.mainLoop = function() {
         }
         // Move moving nodes
         rigidCollisions = []; // reset array for ejected cells
-        eatCollisions = []; // reset array for anything else
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
             if (!cell1 || cell1.isRemoved) continue;
