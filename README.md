@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.4.7**
+Current version: **1.4.8**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -131,10 +131,10 @@ http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
 http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
 http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
 http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
-http://ogar-remastered.esy.es/?ip=127.0.0.1:443 | ? | Smooth, old vanilla style. Created by @Fantasy-Agario
 
 
 ## What's new:
+* Added mobile physics
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
 * Added ejectSizeLoss

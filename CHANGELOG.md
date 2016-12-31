@@ -1,4 +1,20 @@
 # Changelog
+#### 1.4.8:
+* Added multiple client bindings, thanks to @MastaCoder;
+* Cleaned up setNickname function in PacketHandler, thanks to @MastaCoder;
+* Improved popsplit/virus explosion physics yet again;
+* Disabled html tags in names for console-plus, thanks to @Gimmo;
+* Added mobile agar.io physics with config;
+* Re-factored autosplits;
+* Fixed some bugs with gamemodes;
+* Simplified boosted mode calculations for cells;
+* Fixed ejected mass bugs;
+* Added newest agario skins to randomskins.txt;
+* Created new botnames based off of names in spectate on Agar.io party;
+* Added movement during linesplits, thanks to @Tyler3D;
+* Fixed small bug with botplayers
+
+-------------
 #### 1.4.7: 
 * Added web console! All thanks to @Gimmo :)
 * Cleaned more of CommandList, also thanks to @Gimmo;

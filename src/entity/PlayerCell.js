@@ -17,11 +17,12 @@ PlayerCell.prototype.canEat = function (cell) {
     return true; // player cell can eat anyone
 };
 
-PlayerCell.prototype.getSpeed = function () {
+PlayerCell.prototype.getSpeed = function (dist) {
     var speed = 2.1106 / Math.pow(this._size, 0.449);
+    var normalizedDist = Math.min(dist, 32) / 32;
     // tickStep = 40ms
     this._speed = speed * 40 * this.gameServer.config.playerSpeed;
-    return this._speed * 32 / 32;
+    return this._speed * normalizedDist;
 };
 
 PlayerCell.prototype.onAdd = function (gameServer) {

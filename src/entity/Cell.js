@@ -13,14 +13,12 @@ function Cell(gameServer, owner, position, size) {
     this.isAgitated = false;// If true, then this cell has waves on it's outline
     this.killedBy = null;   // Cell that ate this cell
     this.isMoving = false;  // Indicate that cell is in boosted mode
-    
     this.boostDistance = 0;
     this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
-    this.ejector = null;
     
     if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
-        this.nodeId = this.getNextNodeId();
+        this.nodeId = this.gameServer.lastNodeId++ >> 0;
         if (size) this.setSize(size);
         if (position) this.position = position;
     }
@@ -29,13 +27,6 @@ function Cell(gameServer, owner, position, size) {
 module.exports = Cell;
 
 // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
-
-Cell.prototype.getNextNodeId = function () {
-    if (this.gameServer.lastNodeId > 2147483647) {
-        this.gameServer.lastNodeId = 1;
-    }
-    return this.gameServer.lastNodeId++ >> 0;
-};
 
 Cell.prototype.setColor = function (color) {
     this.color.r = color.r;
@@ -51,23 +42,22 @@ Cell.prototype.setSize = function (size) {
         this.owner.isMassChanged = true;
 };
 
-// Returns cell age in ticks for specified game tick
-Cell.prototype.getAge = function (tick) {
-    if (this.tickOfBirth == null) return 0;
-    return Math.max(0, tick - this.tickOfBirth);
-};
-
 // by default cell cannot eat anyone
 Cell.prototype.canEat = function (cell) {
     return false;
 };
 
+// Returns cell age in ticks for specified game tick
+Cell.prototype.getAge = function () {
+    if (this.tickOfBirth == null) return 0; // age cant be less than 0
+    return Math.max(0, this.gameServer.tickCounter - this.tickOfBirth);
+};
+
 // Called to eat prey cell
 Cell.prototype.onEat = function (prey) {
-    // Cant grow from cells under 17 mass (vanilla)
-    if (this.gameServer.config.playerBotGrow == 0) {
-        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType != 3)
-            prey._sizeSquared = 0;
+    if (!this.gameServer.config.playerBotGrow) {
+        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType == 0)
+            prey._sizeSquared = 0; // Can't grow from players under 17 mass
     }
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
 };

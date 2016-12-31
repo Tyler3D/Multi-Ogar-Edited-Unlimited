@@ -31,7 +31,7 @@ Experimental.prototype.spawnMotherCell = function (gameServer) {
         return;
     }
     // Spawns a mother cell
-    var pos = gameServer.getRandomPosition();
+    var pos = gameServer.randomPos();
     if (gameServer.willCollide(pos, 149)) {
         // cannot find safe position => do not spawn
         return;

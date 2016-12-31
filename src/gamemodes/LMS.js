@@ -6,7 +6,7 @@ var Entity = require('../entity');
 
 function LMS () {
     FFA.apply(this, Array.prototype.slice.call(arguments));
-    this.ID = 21;
+    this.ID = 4;
     this.name = "LMS";
     this.specByLeaderboard = true;
     
@@ -35,7 +35,7 @@ LMS.prototype.spawnMotherCell = function (gameServer) {
         return;
     }
     // Spawns a mother cell
-    var pos = gameServer.getRandomPosition();
+    var pos = gameServer.randomPos();
     if (gameServer.willCollide(pos, 149)) {
         // cannot find safe position => do not spawn
         return;
@@ -81,7 +81,7 @@ LMS.prototype.onPlayerSpawn = function (gameServer, player) {
     if (!this.lmsStart) {
         // Random color upon spawning
         player.setColor(gameServer.getRandomColor()); 
-        gameServer.spawnPlayer(player);
+        gameServer.spawnPlayer(player, gameServer.randomPos());
     }
 };
 	
