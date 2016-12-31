@@ -612,7 +612,7 @@ GameServer.prototype.mainLoop = function() {
         this.updateLeaderboard();
     }
     // ping server tracker
-    if (this.config.serverTracker && (this.tickCounter % 250) == 0) {
+    if (this.config.serverTracker && (this.tickCounter % 750) == 0) {
         // once per 30 seconds
         this.pingServerTracker();
     }
