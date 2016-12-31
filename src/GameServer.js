@@ -127,7 +127,7 @@ function GameServer() {
         defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
         
-	lastManStanding: 0, // If 0, no gamemode will enter a lastManStanding. Change to 1 if you want LastManStanding
+	lastManStanding: 0          // If 0, no gamemode will enter a lastManStanding. Change to 1 if you want LastManStanding
     };
     this.ipBanList = [];
     this.minionTest = [];
