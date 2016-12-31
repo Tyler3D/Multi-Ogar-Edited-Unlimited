@@ -555,8 +555,6 @@ GameServer.prototype.mainLoop = function() {
     // Loop main functions
     if (this.run) {
         // move cells and scan for collisions
-        var rigidCollisions = [];
-        var eatCollisions = [];
         for (var i in this.clients) {
             var client = this.clients[i].playerTracker;
             for (var j = 0; j < client.cells.length; j++) {
@@ -573,17 +571,14 @@ GameServer.prototype.mainLoop = function() {
                 this.quadTree.find(cell1.quadItem.bound, function (item) {
                     if (item.cell == cell1) return;
                     var m = self.checkCellCollision(cell1, item.cell);
-                    if (self.checkRigidCollision(m)) {
+                    if (self.checkRigidCollision(m))
                         self.resolveRigidCollision(m, self.border);
-                        rigidCollisions.push({cell1: cell1, cell2: item.cell});
-                    } else {
-                        eatCollisions.push({cell1: cell1, cell2: item.cell});
-                    }
+                    else
+                        self.resolveCollision(m);
                 });
             }
         }
         // Move moving nodes
-        rigidCollisions = []; // reset array for ejected cells
         for (var i = 0; i < this.movingNodes.length; i++) {
             cell1 = this.movingNodes[i];
             if (!cell1 || cell1.isRemoved) continue;
@@ -594,27 +589,12 @@ GameServer.prototype.mainLoop = function() {
             // scan and check for ejected mass / virus collisions
             this.quadTree.find(cell1.quadItem.bound, function(item) {
                 if (item.cell == cell1) return;
-                var manifold = self.checkCellCollision(cell1, item.cell);
-                if (manifold == null) return;
+                var m = self.checkCellCollision(cell1, item.cell);
                 if (cell1.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
-                    rigidCollisions.push({cell1: cell1, cell2: item.cell});
+                    self.resolveRigidCollision(m, self.border);
                 else
-                    eatCollisions.push({cell1: cell1, cell2: item.cell});
+                    self.resolveCollision(m);
             });
-        }
-        // resolve rigid body collisions
-        for (var k = 0; k < rigidCollisions.length; k++) {
-            var r = rigidCollisions[k];
-            var c = this.checkCellCollision(r.cell1, r.cell2);
-            if (c == null) continue;
-            this.resolveRigidCollision(c, this.border);
-        }
-        // resolve eat collisions
-        for (var k = 0; k < eatCollisions.length; k++) {
-            r = eatCollisions[k];
-            c = this.checkCellCollision(r.cell1, r.cell2);
-            if (c == null) continue;
-            this.resolveCollision(c);
         }
         if ((this.tickCounter % this.config.spawnInterval) == 0) {
             this.spawnCells(this.randomPos());
@@ -687,18 +667,16 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     if (client.socket.isConnected == false || client.frozen)
         return;
     // TODO: use vector for distance(s)
-    // get squared mouse positions relative to cell
+    // get distance
     var dx = ~~(client.mouse.x - cell1.position.x);
     var dy = ~~(client.mouse.y - cell1.position.y);
     var squared = dx * dx + dy * dy;
     if (squared < 1 || isNaN(dx) || isNaN(dy)) {
         return;
     }
-    // get distances
-    var d = Math.sqrt(squared);
-    var nd = Math.min(d, 32) / 32;
     // get movement speed
-    var speed = cell1.getSpeed() * nd;
+    var d = Math.sqrt(squared);
+    var speed = cell1.getSpeed(d);
     if (speed <= 0) return; // avoid shaking
     // move player cells
     cell1.position.x += dx / d * speed;
@@ -821,9 +799,8 @@ GameServer.prototype.checkCellCollision = function(cell, check) {
     var dx = ~~(check.position.x - cell.position.x);
     var dy = ~~(check.position.y - cell.position.y);
     var squared = dx * dx + dy * dy; // squared distance from cell to check
-    if (squared > Math.pow(r, 4)) {
-        return null; // no collision
-    }
+    if (squared > Math.pow(r, 4)) return; // no collision
+    
     // create collision manifold
     return {
         cell1: cell,
