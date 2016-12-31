@@ -1054,6 +1054,17 @@ Commands.list = {
             }
         }
     },
+    lms: function (gameServer, split) {
+        for (var i in gameServer.clients) {
+            client.disableSpawn = !client.disableSpawn;
+        }
+        if (client.disableSpawn) {
+            Logger.print("Last Man Standing has Started");
+        }
+        else {
+        Logger.print("Last Man Standing has Ended");
+        }
+    },
     
     // Aliases for commands
     
