@@ -4,7 +4,6 @@ module.exports = {
     Teams: require('./Teams'),
     Experimental: require('./Experimental'),
     Rainbow: require('./Rainbow'),
-    LMS: require('./LMS'),
 };
 
 var get = function (id) {
@@ -19,9 +18,6 @@ var get = function (id) {
         case 3: // Rainbow
             mode = new module.exports.Rainbow();
             break;
-        case 4: // Last Man Standing
-         	mode = new module.exports.LMS();
-         	break;
         default: // FFA is default
             mode = new module.exports.FFA();
             break;
