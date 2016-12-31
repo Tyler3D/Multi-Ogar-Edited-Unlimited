@@ -77,7 +77,6 @@ Commands.list = {
                     "│ status                       │ Get server status                         │\n"+
                     "│ debug                        │ Get/check node lengths                    │\n"+
                     "│ exit                         │ Stop the server                           │\n"+
-                    "│ lms                          | Either starts or stops Last Man Standing  │\n"+
                     "|                                                                          |\n"+
                     "├──────────────────────────────────────────────────────────────────────────┤\n"+
                     '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n'+
@@ -1052,17 +1051,6 @@ Commands.list = {
                     Logger.print("Enabled spawning for " + client.getFriendlyName());
                 }
             }
-        }
-    },
-    lms: function (gameServer, split) {
-        for (var i in gameServer.clients) {
-            client.disableSpawn = !client.disableSpawn;
-        }
-        if (client.disableSpawn) {
-            Logger.print("Last Man Standing has Started");
-        }
-        else {
-        Logger.print("Last Man Standing has Ended");
         }
     },
     
