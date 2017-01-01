@@ -657,7 +657,7 @@ GameServer.prototype.updateRemerge = function(cell1, client) {
 };
 
 GameServer.prototype.moveCell = function(cell1) {
-    if (cell1.isMoving && cell1.boostDistance <= 1) {
+    if (cell1.isMoving && !cell1.boostDistance) {
         cell1.boostDistance = 0;
         cell1.isMoving = false;
         return;
@@ -831,10 +831,9 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     if (client.cells.length >= m) return;
     
     if (mass == null) {
-        var size1 = parent._size / Math.sqrt(2);
-        var size2 = size1;
+        var size1 = parent._size / 1.41421356;
     } else {
-        size2 = Math.sqrt(mass * 100);
+        var size2 = Math.sqrt(mass * 100);
         size1 = Math.sqrt(parent._size * parent._size - size2 * size2);
     }
     
@@ -853,7 +852,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     };
     
     // Create cell
-    var newCell = new Entity.PlayerCell(this, client, pos, size2);
+    var newCell = new Entity.PlayerCell(this, client, pos, size2 || size1);
     newCell.setBoost(780, angle);
     
     // Add to node list
@@ -908,7 +907,7 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     var index = (this.nodesEjected.length - 1) * ~~Math.random();
     var eject = this.nodesEjected[index];
     if (Math.random() <= this.config.ejectSpawnPercent && this.nodesEjected.length 
-        && !eject.isRemoved && !eject.isMoving) {
+        && !eject.isRemoved && eject.boostDistance < 1) {
         // Spawn as same color
         player.setColor(eject.color);
         // Spawn from ejected mass
