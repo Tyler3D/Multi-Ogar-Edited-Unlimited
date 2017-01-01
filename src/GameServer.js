@@ -586,7 +586,7 @@ GameServer.prototype.mainLoop = function() {
                 if (item.cell == cell1) return;
                 var m = self.checkCellCollision(cell1, item.cell);
                 if (cell1.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
-                    self.resolveRigidCollision(m, self.border);
+                    self.resolveRigidCollisionE(m, self.border);
                 else
                     self.resolveCollision(m);
             });
@@ -739,6 +739,9 @@ GameServer.prototype.checkCellCollision = function(cell, check) {
     var dx = ~~(check.position.x - cell.position.x);
     var dy = ~~(check.position.y - cell.position.y);
     var squared = dx * dx + dy * dy;
+    var d = Math.sqrt(squared); // distance
+    var push = Math.min((r - d) / d, r - d);
+    
     // create collision manifold
     return {
         cell1: cell,
@@ -746,6 +749,8 @@ GameServer.prototype.checkCellCollision = function(cell, check) {
         r: r,               // radius sum
         dx: dx,             // delta x from cell1 to cell2
         dy: dy,             // delta y from cell1 to cell2
+        d: d,               // distance from cell1 to cell2
+        push: push,         // extrusion force from distance
         squared: squared    // squared distance from cell1 to cell2
     };
 };
@@ -772,20 +777,24 @@ GameServer.prototype.checkRigidCollision = function(c) {
 
 // Resolves rigid body collision
 GameServer.prototype.resolveRigidCollision = function(c) {
-    // distance from cell1 to cell2
-    var d = Math.sqrt(c.squared);
+    if (c.d > c.r) return;
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
     var m1 = ~~c.cell1._mass / m;
     var m2 = ~~c.cell2._mass / m;
     // apply extrusion force
-    if (d < c.r && c.r) {
-        var force = Math.min((c.r - d) / d, c.r - d);
-        c.cell1.position.x -= ~~(force * c.dx * m2);
-        c.cell1.position.y -= ~~(force * c.dy * m2);
-        c.cell2.position.x += ~~(force * c.dx * m1);
-        c.cell2.position.y += ~~(force * c.dy * m1);
-    }
+    c.cell1.position.x -= ~~(c.push * c.dx * m2);
+    c.cell1.position.y -= ~~(c.push * c.dy * m2);
+    c.cell2.position.x += ~~(c.push * c.dx * m1);
+    c.cell2.position.y += ~~(c.push * c.dy * m1);
+};
+
+// Resolves rigid body collision for ejected mass
+GameServer.prototype.resolveRigidCollisionE = function(c) {
+    if (c.d > c.r) return;
+    // push ejected cells apart
+    c.cell1.position.x -= c.push * c.dx * 0.5;
+    c.cell1.position.y -= c.push * c.dy * 0.5;
 };
 
 // Resolves non-rigid body collision
