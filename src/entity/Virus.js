@@ -38,7 +38,7 @@ Virus.prototype.onEaten = function (c) {
     
     // Diverse explosion(s)
     var big = [];
-    if (numSplits <= 0) return; // can't split anymore
+    if (!numSplits) return; // can't split anymore
     if (numSplits == 1) big = [c._mass/2];
     else if (numSplits == 2) big = [c._mass/4,c._mass/4];
     else if (numSplits == 3) big = [c._mass/4,c._mass/4,c._mass/7];
@@ -49,7 +49,7 @@ Virus.prototype.onEaten = function (c) {
         // Monotone explosion(s)
         if (threshold > 466) {
             // virus explosion multipliers
-            var exp = (Math.random() * (5 - 3.33)) + 3.33;
+            var exp = (Math.random() * (4.5 - 3.33)) + 3.33;
             while (threshold / exp > 24) {
                 threshold /= exp;
                 exp = 2;
@@ -59,9 +59,8 @@ Virus.prototype.onEaten = function (c) {
     }
     numSplits -= big.length;
     // big splits
-    var angle = 0;
     for (var k = 0; k < big.length; k++) {
-        angle = 2 * Math.PI * Math.random(); // random directions
+        var angle = 2 * Math.PI * Math.random(); // random directions
         this.gameServer.splitPlayerCell(c.owner, c, angle, big[k]);
     }
     // small splits
