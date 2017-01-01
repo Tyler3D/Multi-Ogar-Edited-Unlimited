@@ -69,6 +69,7 @@ Commands.list = {
                     "│ banlist                      │ Get list of banned IPs.                   │\n"+
                     "│ mute [PlayerID]              │ Mute player from chat                     │\n"+
                     "│ unmute [PlayerID]            │ Unmute player from chat                   │\n"+
+                    "| lms                          | Starts/ends last man standing             |\n"+
                     "│                                                                          │\n"+
                     "│                          ----Miscellaneous----                           │\n"+
                     "│                                                                          │\n"+
@@ -1052,6 +1053,17 @@ Commands.list = {
                 }
             }
         }
+    },
+    lms: function (gameServer, split) {
+        for (var i in gameServer.clients) {
+            var client = gameServer.clients[i].playerTracker;
+            var state = false;
+            state = !state;
+            if (state) client.disableSpawn = true;
+            else client.disableSpawn = false;
+        }
+        if (state) Logger.print("Started last man standing");
+        else Logger.print("Stopped last man standing");
     },
     
     // Aliases for commands
