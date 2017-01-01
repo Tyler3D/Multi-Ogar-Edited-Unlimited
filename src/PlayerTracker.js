@@ -428,10 +428,11 @@ PlayerTracker.prototype.updateCenterFreeRoam = function () {
     var squared = dx * dx + dy * dy;
     if (squared < 1) return; // stop threshold
     // distance
-    var nx = dx / Math.sqrt(squared);
-    var ny = dy / Math.sqrt(squared);
+    var d = Math.sqrt(squared);
+    var nx = dx / d;
+    var ny = dy / d;
     // speed of viewbox
-    var speed = Math.min(Math.sqrt(squared), 32);
+    var speed = Math.min(d, 32);
     if (!speed) return;
     
     var x = this.centerPos.x + nx * speed;
