@@ -26,6 +26,7 @@ Mode.prototype.onPlayerInit = function (player) {
 
 Mode.prototype.onPlayerSpawn = function (gameServer, player) {
     // Called when a player is spawned
+    if (player.disableSpawn) return; // spawn disabled
     player.setColor(gameServer.getRandomColor()); // Random color
     gameServer.spawnPlayer(player, gameServer.randomPos());
 };
