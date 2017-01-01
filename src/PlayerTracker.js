@@ -81,7 +81,7 @@ function PlayerTracker(gameServer, socket) {
         this.centerPos.x = gameServer.border.centerx;
         this.centerPos.y = gameServer.border.centery;
         // Player id
-        this.pID = this.getNewPlayerID();
+        this.pID = gameServer.lastPlayerId++ >> 0;
         // Gamemode function
         gameServer.gameMode.onPlayerInit(this);
         // Only scramble if enabled in config
@@ -94,13 +94,6 @@ function PlayerTracker(gameServer, socket) {
 module.exports = PlayerTracker;
 
 // Setters/Getters
-
-PlayerTracker.prototype.getNewPlayerID = function () {
-    if (this.gameServer.lastPlayerId > 2147483647) {
-        this.gameServer.lastPlayerId = 1;
-    }
-    return this.gameServer.lastPlayerId++ >> 0;
-};
 
 PlayerTracker.prototype.scramble = function () {
     if (!this.gameServer.config.serverScrambleLevel) {
@@ -123,32 +116,31 @@ PlayerTracker.prototype.scramble = function () {
 };
 
 PlayerTracker.prototype.getFriendlyName = function () {
-    var name = this._name;
-    if (!name) name = "";
-    name = name.trim();
-    if (name.length == 0)
-        name = "An unnamed cell";
-    return name;
+    if (!this._name) this._name = "";
+    this._name = this._name.trim();
+    if (!this._name.length) 
+        this._name = "An unnamed cell";
+    return this._name;
 };
 
 PlayerTracker.prototype.setName = function (name) {
     this._name = name;
-    if (!name || name.length < 1) {
+    if (!name || !name.length) {
         this._nameUnicode = null;
         this._nameUtf8 = null;
         return;
     }
-    var writer = new BinaryWriter()
+    var writer = new BinaryWriter();
     writer.writeStringZeroUnicode(name);
     this._nameUnicode = writer.toBuffer();
-    writer = new BinaryWriter()
+    writer = new BinaryWriter();
     writer.writeStringZeroUtf8(name);
     this._nameUtf8 = writer.toBuffer();
 };
 
 PlayerTracker.prototype.setSkin = function (skin) {
     this._skin = skin;
-    if (!skin || skin.length < 1) {
+    if (!skin || !skin.length) {
         this._skinUtf8 = null;
         return;
     }
@@ -181,7 +173,7 @@ PlayerTracker.prototype.updateMass = function () {
         totalSize += node._size;
         totalScore += node._sizeSquared;
     }
-    if (totalSize == 0) {
+    if (!totalSize) {
         //do not change scale for spectators or not in game players
         this._score = 0;
     } else {
@@ -192,7 +184,7 @@ PlayerTracker.prototype.updateMass = function () {
 };
 
 PlayerTracker.prototype.joinGame = function (name, skin) {
-    if (this.cells.length > 0) return;
+    if (this.cells.length) return;
     if (name == null) name = "";
     this.setName(name);
     if (skin != null)
@@ -234,7 +226,7 @@ PlayerTracker.prototype.checkConnection = function () {
     if (!this.socket.isConnected) {
         // wait for playerDisconnectTime
         var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1000;
-        if (this.cells.length == 0 || dt >= this.gameServer.config.playerDisconnectTime) {
+        if (!this.cells.length || dt >= this.gameServer.config.playerDisconnectTime) {
             // Remove all client cells
             var cells = this.cells;
             this.cells = [];
@@ -283,8 +275,7 @@ PlayerTracker.prototype.updateTick = function () {
     var scale = this.getScale();
     scale = Math.max(scale, this.gameServer.config.serverMinScale);
     this._scaleF += 0.1 * (scale - this._scaleF);
-    if (isNaN(this._scaleF))
-        this._scaleF = 1;
+    if (isNaN(this._scaleF)) this._scaleF = 1;
     var width = (this.gameServer.config.serverViewBaseX + 100) / this._scaleF;
     var height = (this.gameServer.config.serverViewBaseY + 100) / this._scaleF;
     var halfWidth = width / 2;
@@ -342,7 +333,7 @@ PlayerTracker.prototype.sendUpdate = function () {
     
     if (this.gameServer.config.serverScrambleLevel == 2) {
         // scramble (moving border)
-        if (this.borderCounter == 0) {
+        if (!this.borderCounter) {
             var b = this.gameServer.border, v = this.viewBox;
             var bound = {
                 minx: Math.max(b.minx, v.minx - v.halfWidth),
@@ -378,8 +369,8 @@ PlayerTracker.prototype.sendUpdate = function () {
             oldIndex++;
             continue;
         }
-        var node = this.viewNodes[newIndex];
-        // skip food & eject if no moving
+        node = this.viewNodes[newIndex];
+        // skip food & eject if not moving
         if (node.isMoving || (node.cellType != 1 && node.cellType != 3))
             updNodes.push(node);
         newIndex++;
@@ -390,7 +381,7 @@ PlayerTracker.prototype.sendUpdate = function () {
         newIndex++;
     }
     for (; oldIndex < this.clientNodes.length; ) {
-        var node = this.clientNodes[oldIndex];
+        node = this.clientNodes[oldIndex];
         if (node.isRemoved && node.killedBy != null && node.owner != node.killedBy.owner)
             eatNodes.push(node);
         else
@@ -416,18 +407,17 @@ PlayerTracker.prototype.sendUpdate = function () {
 };
 
 PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cells
-    var len = this.cells.length;
-    if (len <= 0) return;
+    if (!this.cells.length) return;
     var cx = 0;
     var cy = 0;
     var count = 0;
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < this.cells.length; i++) {
         var node = this.cells[i];
         cx += node.position.x;
         cy += node.position.y;
         count++;
     }
-    if (count == 0) return;
+    if (!count) return;
     this.centerPos.x = cx / count;
 	this.centerPos.y = cy / count;
 };
@@ -436,17 +426,13 @@ PlayerTracker.prototype.updateCenterFreeRoam = function () {
     var dx = this.mouse.x - this.centerPos.x;
     var dy = this.mouse.y - this.centerPos.y;
     var squared = dx * dx + dy * dy;
-    if (squared < 1) return;     // stop threshold
-    
+    if (squared < 1) return; // stop threshold
     // distance
-    var d = Math.sqrt(squared);
-    
-    var invd = 1 / d;
-    var nx = dx * invd;
-    var ny = dy * invd;
-    
-    var speed = Math.min(d, 32);
-    if (speed <= 0) return;
+    var nx = dx / Math.sqrt(squared);
+    var ny = dy / Math.sqrt(squared);
+    // speed of viewbox
+    var speed = Math.min(Math.sqrt(squared), 32);
+    if (!speed) return;
     
     var x = this.centerPos.x + nx * speed;
     var y = this.centerPos.y + ny * speed;
