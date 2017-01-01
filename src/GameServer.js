@@ -126,11 +126,6 @@ function GameServer() {
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
-        
-        lastManStandingShortest: 60, // Shortest amount of time possible before LMS happens in minutes
-        lastManStandingLongest: 120, // Longest amount of time possible before LMS happens in minutes
-        lastManStandingKickShortest: 30, //Shortest amount of minutes till kicking time
-        lastManStandingKickLongest: 60,  //Longest amount of minutes till kicking time 
     };
     this.ipBanList = [];
     this.minionTest = [];
