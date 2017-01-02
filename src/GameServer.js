@@ -665,7 +665,7 @@ GameServer.prototype.slitherEject = function (client) {
         }
         
         // Remove mass from parent cell first
-        var sizeLoss = 2
+        var sizeLoss = 5
         var sizeSquared = cell._sizeSquared - sizeLoss * sizeLoss;
         cell.setSize(Math.sqrt(sizeSquared));
         // Get starting position
@@ -680,11 +680,8 @@ GameServer.prototype.slitherEject = function (client) {
         angle += (Math.random() * 0.6) - 0.3;
         
         // Create cell
-        if (!this.config.ejectVirus) {
-            var ejected = new Entity.EjectedMass(this, null, pos, 2);
-        } else {
-            ejected = new Entity.Virus(this, null, pos, 2);
-        }
+        var massofw = (Math.random() (8 - 4)) + 4;
+            var ejected = new Entity.EjectedMass(this, null, pos, massofw);
         ejected.setColor(cell.color);
         ejected.setBoost(780, angle);
         this.addNode(ejected);
