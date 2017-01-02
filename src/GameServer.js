@@ -566,9 +566,9 @@ GameServer.prototype.mainLoop = function() {
                 this.quadTree.find(cell1.quadItem.bound, function (item) {
                     if (item.cell == cell1) return;
                     var m = self.checkCellCollision(cell1, item.cell);
-                    if (self.checkRigidCollision(m))
+                    if (self.checkRigidCollision(m) && m)
                         self.resolveRigidCollision(m, self.border);
-                    else
+                    else if (m)
                         self.resolveCollision(m);
                 });
             }
@@ -691,7 +691,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     // get movement speed
     var d = Math.sqrt(squared);
     var speed = cell1.getSpeed(d);
-    if (speed <= 0) return; // avoid shaking
+    if (!speed) return; // avoid shaking
     // move player cells
     cell1.position.x += dx / d * speed;
     cell1.position.y += dy / d * speed;
@@ -741,7 +741,6 @@ GameServer.prototype.checkCellCollision = function(cell, check) {
     var squared = dx * dx + dy * dy;
     var d = Math.sqrt(squared); // distance
     var push = Math.min((r - d) / d, r - d);
-    
     // create collision manifold
     return {
         cell1: cell,
