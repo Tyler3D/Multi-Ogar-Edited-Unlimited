@@ -680,11 +680,11 @@ GameServer.prototype.slitherEject = function (client) {
         angle += (Math.random() * 0.6) - 0.3;
         
         // Create cell
-        var massofw = (Math.random() (8 - 4)) + 4;
-            var ejected = new Entity.EjectedMass(this, null, pos, massofw);
-        ejected.setColor(cell.color);
-        ejected.setBoost(780, angle);
-        this.addNode(ejected);
+        var mass = (Math.random() * (8 - 4)) + 4;
+            var food = new Entity.Food(this, null, pos, mass);
+        food.setColor(cell.color);
+        food.setBoost(780, angle);
+        this.addNode(food);
     }
 };
 
