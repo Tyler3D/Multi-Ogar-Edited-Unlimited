@@ -663,7 +663,7 @@ GameServer.prototype.slitherEject = function (client) {
         }
         
         // Remove mass from parent cell first
-        var sizeLoss = 5
+        var sizeLoss = 10
         var sizeSquared = cell._sizeSquared - sizeLoss * sizeLoss;
         cell.setSize(Math.sqrt(sizeSquared));
         // Get starting position
