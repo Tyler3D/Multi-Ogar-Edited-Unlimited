@@ -437,8 +437,6 @@ GameServer.prototype.updateClients = function() {
     // update
     for (var i = 0; i < this.clients.length; i++) {
         this.clients[i].playerTracker.updateTick();
-    }
-    for (var i = 0; i < this.clients.length; i++) {
         this.clients[i].playerTracker.sendUpdate();
     }
 };
