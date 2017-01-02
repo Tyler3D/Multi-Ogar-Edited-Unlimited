@@ -733,6 +733,13 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     }
     // get movement speed
     var d = Math.sqrt(squared);
+    if (this.config.slithermode && client.slither) {
+    	var speed = cell1.getSpeed(d) * 2;
+        var self = this;
+        self.slitherEject(client);
+    }
+    else var speed = cell1.getSpeed(d);
+    if (!speed) return; // avoid shaking
 
     // move player cells
     cell1.position.x += dx / d * speed;
