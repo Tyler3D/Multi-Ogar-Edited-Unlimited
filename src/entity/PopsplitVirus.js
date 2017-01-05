@@ -1,6 +1,5 @@
 var Cell = require('./Cell');
 var Food = require('./Food');
-var Virus = require('./Virus');
 
 function PopsplitVirus() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
@@ -27,6 +26,7 @@ PopsplitVirus.prototype.onEat = function (prey) {
         this.gameServer.shootVirus(this, prey.boostDirection.angle);
     }
 };
+
 PopsplitVirus.prototype.onEaten = function (c) {
     if (c.owner == null) return;
 
