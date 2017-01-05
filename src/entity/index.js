@@ -5,5 +5,6 @@ module.exports = {
     Virus: require('./Virus'),
     MotherCell: require('./MotherCell'),
     PopsplitVirus: require('./PopsplitVirus'),
+    Lottery: require('./Lottery'),
     EjectedMass: require('./EjectedMass'),
 };
