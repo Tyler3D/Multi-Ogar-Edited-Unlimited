@@ -4,6 +4,7 @@ module.exports = {
     Teams: require('./Teams'),
     Experimental: require('./Experimental'),
     Rainbow: require('./Rainbow'),
+    Popsplit: require('./Popsplit'),
 };
 
 var get = function (id) {
@@ -18,6 +19,9 @@ var get = function (id) {
         case 3: // Rainbow
             mode = new module.exports.Rainbow();
             break;
+        case 4: // Popsplit
+        	mode = new module.exports.Popsplit();
+        	break;
         default: // FFA is default
             mode = new module.exports.FFA();
             break;
