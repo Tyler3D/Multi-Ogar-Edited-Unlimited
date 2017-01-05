@@ -12,7 +12,6 @@ module.exports = Virus;
 Virus.prototype = new Cell();
 
 // Main Functions
-this.popsplit = false;
 
 Virus.prototype.canEat = function (cell) {
     return cell.cellType == 3; // virus can eat ejected mass only
@@ -44,7 +43,6 @@ Virus.prototype.onEaten = function (c) {
     else if (numSplits == 2) big = [c._mass/4,c._mass/4];
     else if (numSplits == 3) big = [c._mass/4,c._mass/4,c._mass/7];
     else if (numSplits == 4) big = [c._mass/5,c._mass/7,c._mass/8,c._mass/10];
-    else if (this.popsplit && this.gameServer.config.perfectPopsplit) big = [c._mass/5,c._mass / 5,c._mass / 10,c._mass /10,c._mass / 10,c._mass / 10,c._mass/7,c._mass/8,c._mass/10];
     else {
         // ckeck size of exploding
         var threshold = c._mass - numSplits * splitMass; 
@@ -52,8 +50,7 @@ Virus.prototype.onEaten = function (c) {
         if (threshold > 466) {
             // virus explosion multipliers
             var v = c.isMoving ? 4 : 4.5;
-            if (c.isMoving) this.popsplit = true;
-            var exp = (Math.random() * (v - 3.33)) + 1.2;
+            var exp = (Math.random() * (v - 3.33)) + 3.33;
             while (threshold / exp > 24) {
                 threshold /= exp;
                 exp = 2;
@@ -63,35 +60,15 @@ Virus.prototype.onEaten = function (c) {
     }
     numSplits -= big.length;
     // big splits
-    if (this.popsplit && this.gameServer.config.perfectPopsplit) {
-        for (var k = 0; k < 16; k++) {
-        var angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(c.owner, c, angle, c._mass / 12);
-
-    }
-    	for (var k = 0; k < 64; k++) {
-        var angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(c.owner, c, angle, min);
-            
-        }
-        for (var k = 0; k < big.length; k++) {
-        var angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(c.owner, c, angle, big[k]);
-    }
-
-    }
-    else {
-    
-    	for (var k = 0; k < big.length; k++) {
+    for (var k = 0; k < big.length; k++) {
         var angle = 2 * Math.PI * Math.random(); // random directions
         this.gameServer.splitPlayerCell(c.owner, c, angle, big[k]);
     }
     // small splits
-    	for (var k = 0; k < numSplits; k++) {
+    for (var k = 0; k < numSplits; k++) {
         angle = 2 * Math.PI * Math.random(); // random directions
         this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
-}
 };
 
 Virus.prototype.onAdd = function (gameServer) {
