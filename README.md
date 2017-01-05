@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
-Current version: **1.4.8**
+Current version: **1.5.0**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
@@ -134,6 +134,7 @@ http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 
 
 ## What's new:
+* Popsplit Gamemode with Popsplit Viruses. Gamemode 4
 * Added mobile physics
 * Added support for secure websocket connections (TLS)
 * Fixed mass decay
