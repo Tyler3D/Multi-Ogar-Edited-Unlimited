@@ -47,14 +47,10 @@ Commands.list = {
                     "│ spawnmass [PlayerID] [mass]  │ Sets a players spawn mass                 │\n"+
                     "│ freeze [PlayerID]            │ Freezes a player                          │\n"+
                     "│ speed [PlayerID]             │ Sets a players base speed                 │\n"+
-                    "│ color [PlayerID] [R] [G] [B] │ Set cell(s) color by client ID            │\n"+
-                    "│ name [PlayerID] [name]       │ Change cell(s) name by client ID          │\n"+
-                    "│ skin [PlayerID] [string]     │ Change cell(s) skin by client ID          │\n"+
                     "│ rec [PlayerID]               │ Gives a player instant-recombine          │\n"+
                     "│ split [PlayerID] [Amount]    │ Forces a player to split                  │\n"+
-                    "│ tp [X] [Y]                   │ Teleports player(s) to XY coordinates     │\n"+
                     "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
-                    "│ pop [PlayerID]               │ Pops a player with a virus                │\n"+
+                    "│ pop [PlayerID]               │ Pops a player with any virus              │\n"+
                     "| explode [PlayerID]           | Explodes a player into ejected mass       |\n"+
                     "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
                     "│                                                                          │\n"+
@@ -342,35 +338,6 @@ Commands.list = {
     },
     clear: function () {
         process.stdout.write("\u001b[2J\u001b[0;0H");
-    },
-    color: function (gameServer, split) {
-        // Validation checks
-        var id = parseInt(split[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
-        
-        var color = {
-            r: 0,
-            g: 0,
-            b: 0
-        };
-        color.r = Math.max(Math.min(parseInt(split[2]), 255), 0);
-        color.g = Math.max(Math.min(parseInt(split[3]), 255), 0);
-        color.b = Math.max(Math.min(parseInt(split[4]), 255), 0);
-        
-        // Sets color to the specified amount
-        for (var i in gameServer.clients) {
-            if (gameServer.clients[i].playerTracker.pID == id) {
-                var client = gameServer.clients[i].playerTracker;
-                client.setColor(color); // Set color
-                for (var j in client.cells) {
-                    client.cells[j].setColor(color);
-                }
-                break;
-            }
-        }
     },
     exit: function (gameServer, split) {
         Logger.warn("Closing server...");
@@ -679,59 +646,7 @@ Commands.list = {
             }
         }
     },
-    name: function (gameServer, split) {
-        // Validation checks
-        var id = parseInt(split[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
-        
-        var name = split.slice(2, split.length).join(' ');
-        if (typeof name == 'undefined') {
-            Logger.warn("Please type a valid name");
-            return;
-        }
-        
-        // Change name
-        for (var i = 0; i < gameServer.clients.length; i++) {
-            var client = gameServer.clients[i].playerTracker;
-            
-            if (client.pID == id) {
-                Logger.print("Changing " + client.getFriendlyName() + " to " + name);
-                client.setName(name);
-                return;
-            }
-        }
-        
-        // Error
-        Logger.warn("Player " + id + " was not found");
-    },
-    skin: function (gameServer, args) {
-        if (!args || args.length < 3) {
-            Logger.warn("Please specify a valid player ID and skin name!");
-            return;
-        }
-        var id = parseInt(args[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
-        var skin = args[2].trim();
-        if (!skin) {
-            Logger.warn("Please specify skin name!");
-        }
-        var player = playerById(id, gameServer);
-        if (player == null) {
-            Logger.warn("Player with id=" + id + " not found!");
-            return;
-        }
-        if (player.cells.length > 0) {
-            Logger.warn("Player is alive, skin will not be applied to existing cells");
-        }
-        Logger.print("Player \"" + player.getFriendlyName() + "\"'s skin is changed to " + skin);
-        player.setSkin(skin);
-    },
+
     unban: function (gameServer, split) {
         if (split.length < 2 || split[1] == null || split[1].trim().length < 1) {
             Logger.warn("Please specify a valid IP!");
@@ -869,38 +784,6 @@ Commands.list = {
         Logger.print("Current game mode: " + gameServer.gameMode.name);
         Logger.print("Current update time: " + gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(gameServer.updateTimeAvg) + ")");
     },
-    tp: function (gameServer, split) {
-        var id = parseInt(split[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
-        
-        // Make sure the input values are numbers
-        var pos = {
-            x: parseInt(split[2]),
-            y: parseInt(split[3])
-        };
-        if (isNaN(pos.x) || isNaN(pos.y)) {
-            Logger.warn("Invalid coordinates");
-            return;
-        }
-        
-        // Spawn
-        for (var i in gameServer.clients) {
-            if (gameServer.clients[i].playerTracker.pID == id) {
-                var client = gameServer.clients[i].playerTracker;
-                for (var j in client.cells) {
-                    client.cells[j].position.x = pos.x;
-                    client.cells[j].position.y = pos.y;
-                    gameServer.updateNodeQuad(client.cells[j]);
-                }
-                
-                Logger.print("Teleported " + client.getFriendlyName() + " to (" + pos.x + " , " + pos.y + ")");
-                break;
-            }
-        }
-    },
     spawn: function (gameServer, split) {
         var ent = split[1];
         if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
@@ -987,15 +870,39 @@ Commands.list = {
     },
     pop: function (gameServer, split) {
         var id = parseInt(split[1]);
+        var type = parseInt(split[2]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        if (isNan(type)) {
+            Logger.warn("Please specify a valid virus ID!");
+            Logger.info("1 is for a normal virus.");
+            Logger.info("2 is for a Lottery virus.");
+            Logger.info("3 is for a Popsplit Virus.");
             return;
         }
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (type == 1) {
                 var virus = new Entity.Virus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(virus);
+                } else if (type == 2) {
+                var lottery = new Entity.Lottery(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
+                gameServer.addNode(lottery);
+                }
+                else if ( type == 3 {
+                var popsplitVirus = new Entity.PopsplitVirus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
+                gameServer.addNode(popsplitVirus);
+                }
+                else {
+                Logger.warn("Please specify a valid virus ID!");
+                Logger.info("1 is for a normal virus.");
+                Logger.info("2 is for a Lottery virus.");
+                Logger.info("3 is for a Popsplit Virus.");
+                return;
+                }
                 Logger.print("Popped " + client.getFriendlyName());
             }
         }
