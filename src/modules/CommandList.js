@@ -74,6 +74,7 @@ Commands.list = {
                     "│ status                       │ Get server status                         │\n"+
                     "│ debug                        │ Get/check node lengths                    │\n"+
                     "│ exit                         │ Stop the server                           │\n"+
+                    "| restart                      | Restarts the server                       |\n"+
                     "│                                                                          │\n"+
                     "├──────────────────────────────────────────────────────────────────────────┤\n"+
                     '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n'+
@@ -343,6 +344,11 @@ Commands.list = {
         Logger.warn("Closing server...");
         gameServer.wsServer.close();
         process.exit(1);
+    },
+    restart: function(gameServer) {
+        Logger.warn("Restarting server...");
+        gameServer.wsServer.close();
+        process.exit(3)
     },
     kick: function (gameServer, split) {
         var id = parseInt(split[1]);
