@@ -31,7 +31,8 @@ setTimeout(function() {
         e: false,
         r: false,
         t: false,
-        p: false
+        p: false,
+        s: false
     };
     window.addEventListener("load", function() {
         // код инжектинга
@@ -62,7 +63,11 @@ setTimeout(function() {
                         arguments[0] = new Int8Array(1);
                         arguments[0][0] = 25;
                     }
-                window.key.e = window.key.r = window.key.t = window.key.p = false;
+                    if (window.key.s) {
+                    	arguments[0] = new Int8Array(1);
+                    	arguments[0][0] = 26;
+                    }
+                window.key.e = window.key.r = window.key.t = window.key.p = window.key.s = false;
                 }
             return ws.send.apply(ws, arguments);
             };
@@ -94,6 +99,9 @@ setTimeout(function() {
             case 80:
                 window.key.p = true;
                 break;
+            case 83:
+            	window.key.s = true;
+            	break;
         }
     });
 }, 200);
