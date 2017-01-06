@@ -892,7 +892,7 @@ Commands.list = {
                 var lottery = new Entity.Lottery(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(lottery);
                 }
-                else if ( type == 3 {
+                else if ( type == 3) {
                 var popsplitVirus = new Entity.PopsplitVirus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(popsplitVirus);
                 }
