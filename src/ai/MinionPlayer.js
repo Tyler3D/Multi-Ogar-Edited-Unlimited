@@ -27,13 +27,13 @@ MinionPlayer.prototype.checkConnection = function () {
     if (this.owner.minionFrozen) this.frozen = true;
     else this.frozen = false;
     // split cells
-    if (this.owner.minionSplit) 
+    if (this.owner.minionSplit)
         this.socket.packetHandler.pressSpace = true;
     // eject mass
     if (this.owner.minionEject)
         this.socket.packetHandler.pressW = true;
     if (this.owner.minionSlither)
-        this.socket.packetHandler.slither = true;
+        this.socket.PlayerTracker.slither = !this.socket.PlayerTracker.slither;
     // follow owners mouse by default
     this.mouse = this.owner.mouse;
     // pellet-collecting mode
