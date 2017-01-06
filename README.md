@@ -1,7 +1,7 @@
-# MultiOgar - Edited
+# MultiOgar - Unlimited
 Ogar game server with fast and smooth vanilla physics and multi-protocol support.
 
-Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
+This is my Mess around Fork of Mult-Ogar-Edited. It's purpose is to have OgarUL like feature implemented into Multi-Ogar- Edited
 
 Current version: **1.5.0**
 
