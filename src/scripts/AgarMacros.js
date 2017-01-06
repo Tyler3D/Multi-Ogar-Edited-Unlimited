@@ -13,10 +13,10 @@ document.getElementById("nick").maxLength = "100";
 //List instructions
 var i = document.getElementById("instructions");
 i.innerHTML += "<center>Press & hold <b>W</b> for macro feed</center>";
-i.innerHTML += "<center>Press <b>Shift</b> to split 4x</center>";
+i.innerHTML += "<center>Press <b>Shift</b> or <b>4</b> to split 4x</center>";
 i.innerHTML += "<center>Press <b>A</b> or <b>3</b> to split 3x</center>";
 i.innerHTML += "<center>Press <b>D</b> or <b>2</b> to split 2x</center>";
-i.innerHTML += "<center>Press <b>S</b> or <b>1</b> to split 1x</center>";
+i.innerHTML += "<center>Press <b>1</b> to split 1x</center>";
 i.innerHTML += "<center>Press <b>H</b> for horizontal linesplit position</center>";
 i.innerHTML += "<center>Press <b>V</b> for vertical linesplit position</center>";
 i.innerHTML += "<center>Press <b>g</b> and <b>j</b> to move left and right during a horizontal linesplit</center>";
@@ -76,9 +76,6 @@ function keydown(event) {
         case 50: //Doublesplit Macro (2)
             split();
             setTimeout(split, 50);
-            break;
-        case 83: //Space Macro (s)
-            split();
             break;
         case 49: //Space Macro (1)
             split();
