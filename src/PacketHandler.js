@@ -178,8 +178,8 @@ PacketHandler.prototype.message_onKeyP = function (message) {
     }
 };
 PacketHandler.prototype.message_onKeyS = function (message) {
-    if (this.gameServer.config.disableERTP || this.gameServer.config.slithermode) return;
-    this.socket.playerTracker.minionSlither = true;
+    if (this.gameServer.config.disableERTP && this.gameServer.config.slithermode) return;
+    this.socket.playerTracker.minionSlither = !this.socket.playerTracker.minionSlither;
 };
 
 
