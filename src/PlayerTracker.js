@@ -75,6 +75,7 @@ function PlayerTracker(gameServer, socket) {
     this.minionFrozen = false;
     this.minionControl = false;
     this.collectPellets = false;
+    this.minionSlither = false;
     
     // Gamemode function
     if (gameServer) {
