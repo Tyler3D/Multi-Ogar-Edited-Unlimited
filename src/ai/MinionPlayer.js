@@ -32,8 +32,9 @@ MinionPlayer.prototype.checkConnection = function () {
     // eject mass
     if (this.owner.minionEject)
         this.socket.packetHandler.pressW = true;
+    // Slither Mode
     if (this.owner.minionSlither)
-        this.socket.PlayerTracker.slither = !this.socket.PlayerTracker.slither;
+        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
     // follow owners mouse by default
     this.mouse = this.owner.mouse;
     // pellet-collecting mode
