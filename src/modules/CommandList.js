@@ -875,7 +875,7 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        if (isNan(type)) {
+        if (isNaN(type)) {
             Logger.warn("Please specify a valid virus ID!");
             Logger.info("1 is for a normal virus.");
             Logger.info("2 is for a Lottery virus.");
