@@ -55,14 +55,14 @@ PopsplitVirus.prototype.onEaten = function (c) {
         this.gameServer.splitPlayerCell(c.owner, c, angle, mass);
 
     }
-        for (var k = 0; k < 64; k++) {
+        for (var k = 0; k < 128; k++) {
         var angle = 2 * Math.PI * Math.random(); // random directions
         var mass = (Math.random() * (c._mass / 35 - c._mass / 18)) + c._mass / 18;
         if (mass < 20) mass = 20;
         this.gameServer.splitPlayerCell(c.owner, c, angle, mass);
             
         }
-        for (var k = 0; k < 256; k++) {
+        for (var k = 0; k < 512; k++) {
         var angle = 2 * Math.PI * Math.random(); // random directions
         this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
