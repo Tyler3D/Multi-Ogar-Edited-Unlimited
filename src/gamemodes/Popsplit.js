@@ -19,7 +19,7 @@ function Popsplit() {
     this.tickLotteyVirusUpdate = 0;
     
     // Config
-    this.PopsplitVirusSpawnInterval = 25 * 120;  // How many ticks it takes to spawn another Popsplit Virus (5 seconds)
+    this.PopsplitVirusSpawnInterval = 25 * 45;  // How many ticks it takes to spawn another Popsplit Virus (5 seconds)
     this.PopsplitVirusMinAmount = 10;
     // Lottery Viruses only spawn once a minute.
     this.LotteryVirusSpawnInterval = 25 * 10;
