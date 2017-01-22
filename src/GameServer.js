@@ -756,6 +756,7 @@ GameServer.prototype.autoSplit = function(cell1, client) {
             if (this.config.mobilePhysics) return;
         } else {
             // split
+	    setTimeout(function(){}, 500);
             var angle = Math.random() * 2 * Math.PI;
             this.splitPlayerCell(client, cell1, angle, cell1._mass / 2);
         }
