@@ -28,7 +28,7 @@ Lottery.prototype.onEat = function (prey) {
     }
 };
 Lottery.prototype.onEaten = function (c) {
-        this.prize = Math.round((Math.random() * (4 - 0.8)) + 0.8); // 1 = Gold, 2 = Silver, 3 = Bronze Don't Change It does it automatically
+        this.prize = Math.round((Math.random() * (3.75 - 0.8)) + 0.8); // 1 = Gold, 2 = Silver, 3 = Bronze Don't Change It does it automatically
         if (this.prize == 1) { // Gold Best Prize
         if (c.owner == null) return;
 
@@ -51,7 +51,8 @@ Lottery.prototype.onEaten = function (c) {
             }
         }
     // Split
-            for (var k = 0; k < 512; k++) {
+            var max = this.gameServer.config.playerMaxCells * this.gameServer.config.playerMaxCells;
+            for (var k = 0; k < max k++) {
             var angle = 2 * Math.PI * Math.random(); // random directions
             this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
