@@ -69,9 +69,27 @@ var playerCommands = {
         this.writeLine("ID: " + this.playerTracker.pID);
     },
     help: function (args) {
+        if (this.playerTracker.userRole == UserRoleEnum.ADMIN || this.playerTracker.userRole == UserRoleEnum.MODER) {
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         this.writeLine("/skin %shark - change skin");
         this.writeLine("/kill - self kill");
         this.writeLine("/help - this command list");
+        this.writeLine("/mass - gives mass to yourself - Must be ADMIN or MODER");
+        this.writeLine("/spawnmass - gives yourself spawnmass - Must be ADMIN");
+        this.writeLine("/minion - gives yourself minions - Must be ADMIN or MODER");
+        this.writeLine("/minion remove - removes all of your minions - Must be ADMIN or MODER");
+        this.writeLine("/addbot - Adds Bots to the server - Must be ADMIN");
+        this.writeLine("/shutdown - SHUTDOWNS THE SERVER - MUST BE ADMIN");
+        this.writeLine("/restart - RESTARTS THE SERVER - MUST BE ADMIN");
+        this.writeLine("/status - Shows Status of the Server - Must be ADMIN or Moder");
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    } else {
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        this.writeLine("/skin %shark - change skin");
+        this.writeLine("/kill - self kill");
+        this.writeLine("/help - this command list");
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
     },
     skin: function (args) {
         if (this.playerTracker.cells.length > 0) {
@@ -101,6 +119,97 @@ var playerCommands = {
             this.gameServer.addNode(food);
         }
         this.writeLine("You killed yourself");
+    },
+    mass: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        var mass = (args || "").trim();
+        if (mass.length < 1) {
+            this.writeLine("ERROR: missing mass argument!");
+            return;
+        }
+        var size = Math.sqrt(mass * 100);
+        for (var i in this.playerTracker.cells) {
+        this.playerTracker.cells[i].setSize(size);
+        }
+        this.writeLine("Set mass of " + this.playerTracker._name + " to " + (size * size / 100).toFixed(3));
+
+    },
+    spawnmass: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        var mass = (args || "").trim();
+        if (mass.length < 1) {
+            this.writeLine("ERROR: missing mass argument!");
+            return;
+        }
+        var size = Math.sqrt(mass * 100);
+        this.playerTracker.spawnmass = size;     
+        this.writeLine("Set spawnmass of " + this.playerTracker._name + " to " + (size * size / 100).toFixed(3));
+    },
+    minion: function(args) {
+        var add = (args || "").trim();
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+                // Remove minions
+                if (this.playerTracker.minionControl === true && add == "remove") {
+                    this.playerTracker.minionControl = false;
+                    this.playerTracker.miQ = 0;
+                    this.writeLine("Succesfully removed minions for " + this.playerTracker._name);
+                // Add minions
+                } else {
+                    this.playerTracker.minionControl = true;
+                    // Add minions for client
+                    if (isNaN(add)) add = 1;
+
+                    for (var i = 0; i < add; i++) {
+                        this.gameServer.bots.addMinion(this.playerTracker);
+                    }
+                    this.writeLine("Added " + add + " minions for " + this.playerTracker._name);
+                }
+    },
+    addbot: function(args) {
+    var add = (args || "").trim();
+    if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+        this.writeLine("ERROR: access denied!");
+        return;
+    }
+        for (var i = 0; i < add; i++) {
+            this.gameServer.bots.addBot();
+        }
+        Logger.warn(this.playerTracker.socket.remoteAddress + "ADDED " + add + " BOTS");
+        this.writeLine("Added " + add + " Bots");
+    },
+    status: function(args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        var ini = require('./ini.js');
+        // Get amount of humans/bots
+        var humans = 0,
+            bots = 0;
+        for (var i = 0; i < this.gameServer.clients.length; i++) {
+            if ('_socket' in this.gameServer.clients[i]) {
+                humans++;
+            } else {
+                bots++;
+            }
+        }
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        this.writeLine("Connected players: " + this.gameServer.clients.length + "/" + this.gameServer.config.serverMaxConnections);
+        this.writeLine("Players: " + humans + " - Bots: " + bots);
+        this.writeLine("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
+        this.writeLine("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
+        this.writeLine("Current game mode: " + this.gameServer.gameMode.name);
+        this.writeLine("Current update time: " + this.gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.gameServer.updateTimeAvg) + ")");
+        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     },
     login: function (args) {
         var password = (args || "").trim();
@@ -136,5 +245,13 @@ var playerCommands = {
         }
         Logger.warn("SHUTDOWN REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
         process.exit(0);
+    },
+    restart: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: acces denied!");
+            return;
+        }
+        Logger.warn("RESTART REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
+        process.exit(3);
     }
 };
