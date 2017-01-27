@@ -4,6 +4,7 @@ var UserRoleEnum = require("../enum/UserRoleEnum");
 function PlayerCommand(gameServer, playerTracker) {
     this.gameServer = gameServer;
     this.playerTracker = playerTracker;
+    this.roleList = [];
 }
 
 module.exports = PlayerCommand;
@@ -55,10 +56,17 @@ var playerCommands = {
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("/mass - gives mass to yourself or to other player");
+            this.writeLine("/merge - Instantly Recombines all of your cells");
+            this.writeLine("/rec - Turns rec mode on for you - MUST BE ADMIN");
             this.writeLine("/spawnmass - gives yourself or other player spawnmass - MUST BE ADMIN");
             this.writeLine("/minion - gives yourself or other player minions");
             this.writeLine("/minion remove - removes all of your minions or other players minions");
+            this.writeLine("/userrole - Allows you to give User Role to a player ID - MUST BE ADMIN");
+            this.writeLine("/userrole list - Lists all the people you have given a Role - MUST BE ADMIN");
+            this.writeLine("/kick - Kicks a Player ID to make them lose their Temporarily Role");
             this.writeLine("/addbot - Adds Bots to the Server - MUST BE ADMIN");
+            this.writeLine("/change - Allows you to Temporarily change the config of the Server! - MUST BE ADMIN");
+            this.writeLine("/reloadconfig - Reloads the config of the Server to the gameServer.ini file - MUST BE ADMIN");
             this.writeLine("/shutdown - SHUTDOWNS THE SERVER - MUST BE ADMIN");
             this.writeLine("/restart - RESTARTS THE SERVER - MUST BE ADMIN");
             this.writeLine("/status - Shows Status of the Server");
@@ -227,6 +235,104 @@ var playerCommands = {
             }
         }
     },
+    userrole: function(args) {
+        // Temporarily changes the User Role of a player until that player leaves the server.
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied");
+            return;
+        }
+        var id = args[1];
+        var role = args[2];
+        if(isNaN(parseInt(id))) {
+            this.writeLine("Please specify a valid player ID!");
+        if (id == "list") {
+            if (!this.roleList.length) {
+                this.writeLine("You have not given anyone a Role!");
+                return;
+            }
+            this.writeLine(" ID   |   SCORE   |   NICK");
+            for (var i in this.roleList) {
+                var client = this.roleList[i];
+                var id = client.pID;
+                var nick = client._name;
+                var score = Math.round(client._score);
+                this.writeLine(id + "    " + score + "    " + nick);
+            }
+            return;
+        }
+            return;
+        } else {
+        if (role != "moder" && role != "user" && role != "guest" || role == null) {
+            this.writeLine("Please specify a valid Role!");
+            return;
+        }
+        if (this.playerTracker.pID == id) {
+            this.writeLine("You cannot change your own Role!");
+            return;
+        }
+        for (var i in this.gameServer.clients) {
+            var client = this.gameServer.clients[i].playerTracker;
+            if (client.pID == id) {
+                if (client.userRole == UserRoleEnum.ADMIN) {
+                    this.writeLine("You cannot change Admins Roles!");
+                    return;
+                }
+                if (role == "moder") {
+                        client.userRole = UserRoleEnum.MODER;
+                        this.writeLine("Successfully changed " + client._name + "'s Role to Moder");
+                        this.gameServer.sendChatMessage(null, client, "You have been temporarily changed to MODER."); // notify
+                        this.roleList.push(client);
+                    } else if (role == "user") {
+                        client.userRole = UserRoleEnum.USER;
+                        this.writeLine("Successfully changed " + client._name + "'s Role to User!");
+                        this.gameServer.sendChatMessage(null, client, "You have been temporarily changed to USER."); // notify
+                        this.roleList.push(client);
+                    } else {
+                        client.userRole = UserRoleEnum.GUEST;
+                        this.writeLine("Successfully changed " + client._name + "'s Role to Guest!");
+                        this.gameServer.sendChatMessage(null, client, "You have been temporarily changed to GUEST."); // notify
+                        this.roleList.push(client);
+                    }
+                }
+            }
+        }
+    },
+    kick: function(args) {
+        var id = parseInt(args[1]);
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+            this.writeLine("ERROR: acces denied!");
+            return;
+        }
+        if (isNaN(id)) {
+            this.writeLine("Please specify a valid player ID!");
+            return;
+        }
+        // kick player
+        var count = 0;
+        this.gameServer.clients.forEach(function (socket) {
+            if (socket.isConnected === false)
+               return;
+            if (id !== 0 && socket.playerTracker.pID != id)
+                return;
+            if (socket.playerTracker.userRole == UserRoleEnum.ADMIN) {
+                this.writeLine("You cannot kick a ADMIN in game!");
+                return;
+            }
+            // remove player cells
+                for (var j = 0; j < socket.playerTracker.cells.length; j++) {
+                    this.gameServer.removeNode(socket.playerTracker.cells[0]);
+                    count++;
+                }
+            // disconnect
+            socket.close(1000, "Kicked from server");
+            var name = socket.playerTracker._name;
+            this.writeLine("Successfully kicked " + name);
+            count++;
+        }, this);
+        if (count) return;
+        if (!id) this.writeLine("Warn: No players to kick!");
+        else this.writeLine("Warn: Player with ID " + id + " not found!");
+    },
     addbot: function(args) {
         var add = parseInt(args[1]);
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
@@ -263,6 +369,121 @@ var playerCommands = {
         this.writeLine("Current game mode: " + this.gameServer.gameMode.name);
         this.writeLine("Current update time: " + this.gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.gameServer.updateTimeAvg) + ")");
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    },
+    merge: function(args) {
+        // Validation checks
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        var id = parseInt(args[1]);
+        if (isNaN(id)) {
+            this.writeLine("Warn: Missing ID arguments. This will merge you.");
+            if (this.playerTracker.cells.length == 1) {
+                this.writeLine("You already have one cell!");
+                return;
+            }
+            this.playerTracker.mergeOverride = !this.playerTracker.mergeOverride;
+            if (this.playerTracker.mergeOverride) this.writeLine(this.playerTracker._name + " is now force mergeing");
+            else this.writeLine(this.playerTracker._name + " isn't force merging anymore");
+        } else {
+        
+        // Find client with same ID as player entered
+        for (var i = 0; i < this.gameServer.clients.length; i++) {
+            if (id == this.gameServer.clients[i].playerTracker.pID) {
+                var client = this.gameServer.clients[i].playerTracker;
+                    if (client.cells.length == 1) {
+                        this.writeLine("Client already has one cell!");
+                        return;
+                    }
+                    // Set client's merge override
+                    client.mergeOverride = !client.mergeOverride;
+                    if (client.mergeOverride) {
+                        this.writeLine(client._name + " is now force merging");
+                        var text = this.playerTracker._name + " Caused you to merge!";
+                        this.gameServer.sendChatMessage(null, client, text); // notify
+                    }
+                    else {
+                        this.writeLine(client._name + " isn't force merging anymore");
+                        var text = this.playerTracker._name + " Stopped your mergeing"
+                        this.gameServer.sendChatMessage(null, client, text); // notify
+                    }
+                }
+            }
+        }
+    },
+    rec: function(args) {
+        var id = parseInt(args[1]);
+        if (isNaN(id)) {
+            this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
+            this.playerTracker.rec = !this.playerTracker.rec;
+            if (this.playerTracker.rec) this.writeLine(this.playerTracker._name + " is now in rec mode!");
+            else this.writeLine(this.playerTracker._name + " is no longer in rec mode");
+        }
+        
+        // set rec for client
+        for (var i in this.gameServer.clients) {
+            if (this.gameServer.clients[i].playerTracker.pID == id) {
+                var client = this.gameServer.clients[i].playerTracker;
+                client.rec = !client.rec;
+                if (client.rec) {
+                    this.writeLine(client._name + " is now in rec mode!");
+                    var text = this.playerTracker._name + " gave you rec mode!";
+                    this.gameServer.sendChatMessage(null, client, text); // notify
+                } else {
+                    this.writeLine(client._name + " is no longer in rec mode");
+                    var text = this.playerTracker._name + " Removed your rec mode";
+                    this.gameServer.sendChatMessage(null, client, text); // notify
+                }
+            }
+        }
+    },
+    change: function(args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        if (args.length < 3) {
+            this.writeLine("Invalid command arguments");
+            return;
+        }
+        var key = args[1];
+        var value = args[2];
+        
+        // Check if int/float
+        if (value.indexOf('.') != -1) {
+            value = parseFloat(value);
+        } else {
+            value = parseInt(value);
+        }
+        
+        if (value == null || isNaN(value)) {
+            this.writeLine("Invalid value: " + value);
+            return;
+        }
+        if (!this.gameServer.config.hasOwnProperty(key)) {
+            this.writeLine("Unknown config value: " + key);
+            return;
+        }
+        this.gameServer.config[key] = value;
+        
+        // update/validate
+        this.gameServer.config.playerMinSize = Math.max(32, this.gameServer.config.playerMinSize);
+        Logger.setVerbosity(this.gameServer.config.logVerbosity);
+        Logger.setFileVerbosity(this.gameServer.config.logFileVerbosity);
+        this.writeLine("Set " + key + " = " + this.gameServer.config[key]);
+        Logger.warn("CONFIGURATION CHANGE REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
+        Logger.info(key + " WAS CHANGED TO " + value);
+    },
+    reloadconfig: function(args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        this.gameServer.loadConfig();
+        this.gameServer.loadIpBanList();
+        Logger.warn("CONFIGURATION RELOAD REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
+        this.writeLine("Configuration was Successfully Reloaded!");
     },
     login: function (args) {
         var password = args[1];
