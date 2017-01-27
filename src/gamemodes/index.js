@@ -5,6 +5,7 @@ module.exports = {
     Experimental: require('./Experimental'),
     Rainbow: require('./Rainbow'),
     Popsplit: require('./Popsplit'),
+    Rush: require('./Rush'),
 };
 
 var get = function (id) {
@@ -22,6 +23,9 @@ var get = function (id) {
         case 4: // Popsplit
         	mode = new module.exports.Popsplit();
         	break;
+        case 5: // Rush
+            mode = new module.exports.Rush();
+            break;
         default: // FFA is default
             mode = new module.exports.FFA();
             break;
