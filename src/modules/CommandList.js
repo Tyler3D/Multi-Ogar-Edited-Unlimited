@@ -2,6 +2,7 @@
 var GameMode = require('../gamemodes');
 var Logger = require('./Logger');
 var Entity = require('../entity');
+var UserRoleEnum = require('../enum/UserRoleEnum');
 
 function Commands() {
     this.list = {}; // Empty
@@ -53,6 +54,7 @@ Commands.list = {
                     "│ pop [PlayerID]               │ Pops a player with any virus              │\n"+
                     "| explode [PlayerID]           | Explodes a player into ejected mass       |\n"+
                     "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
+                    "| userrole [PlayerID] [role]   | Gives a player a User Role temporarily    |\n"+
                     "│                                                                          │\n"+
                     "│                          ----Server Commands----                         │\n"+
                     "│                                                                          │\n"+
@@ -667,6 +669,41 @@ Commands.list = {
         gameServer.ipBanList.splice(index, 1);
         saveIpBanList(gameServer);
         Logger.print("Unbanned IP: " + ip);
+    },
+    userrole: function(gameServer, split) {
+        // Temporarily changes the User Role of a player until that player leaves the server.
+        var id = parseInt(split[1]);
+        var role = split[2]
+        if(isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+        if (role != "admin" && role != "moder" && role != "user" && role != "guest" || role == null) {
+            Logger.warn("Please specify a valid Role!");
+            return;
+        }
+        for (var i in gameServer.clients) {
+            var client = gameServer.clients[i].playerTracker;
+            if (client.pID == id) {
+                if (role == "admin") {
+                    client.userRole = UserRoleEnum.ADMIN;
+                    Logger.print("Successfully changed " + getName(client._name) + "'s Role to Admin");
+                    gameServer.sendChatMessage(null, client, "You have been temporarily changed to ADMIN."); // notify
+                } else if (role == "moder") {
+                    client.userRole = UserRoleEnum.MODER;
+                    Logger.print("Successfully changed " + getName(client._name) + "'s Role to Moder");
+                    gameServer.sendChatMessage(null, client, "You have been temporarily changed to MODER."); // notify
+                } else if (role == "user") {
+                    client.userRole = UserRoleEnum.USER;
+                    Logger.print("Successfully changed " + getName(client._name) + "'s Role to User!");
+                    gameServer.sendChatMessage(null, client, "You have been temporarily changed to USER."); // notify
+                } else {
+                    client.userRole = UserRoleEnum.GUEST;
+                    Logger.print("Successfully changed " + getName(client._name) + "'s Role to Guest!");
+                    gameServer.sendChatMessage(null, client, "You have been temporarily changed to GUEST."); // notify
+                }
+            }
+        }
     },
     playerlist: function (gameServer, split) {
         Logger.print("\nCurrent players: " + gameServer.clients.length);
