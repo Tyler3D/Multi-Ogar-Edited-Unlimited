@@ -49,19 +49,29 @@ PlayerCommand.prototype.userLogin = function (ip, password) {
 
 var playerCommands = {
     help: function (args) {
+        var page = parseInt(args[1]);
         if (this.playerTracker.userRole == UserRoleEnum.ADMIN || this.playerTracker.userRole == UserRoleEnum.MODER) {
+            if (isNaN(page)) {
+                this.writeLine("Please Enter a Page Number!");
+                return;
+            }
+            if (page == 1) {
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
-            this.writeLine("/help - this command list");
+            this.writeLine("/help [page #] - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("/mass - gives mass to yourself or to other players");
             this.writeLine("/merge - Instantly Recombines all of your cells or other players cells");
-            this.writeLine("/rec - Toggles rec mode for you or for other players- MUST BE ADMIN");
+            this.writeLine("/rec - Toggles rec mode for you or for other players - MUST BE ADMIN");
             this.writeLine("/spawnmass - gives yourself or other players spawnmass - MUST BE ADMIN");
             this.writeLine("/minion - gives yourself or other players minions");
             this.writeLine("/minion remove - removes all of your minions or other players minions");
-            this.writeLine("/userrole - Allows you to give User Role to a player - MUST BE ADMIN");
+            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            this.writeLine("Showing Page 1 of 2.");
+            } else if (page == 2) {
+            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            this.writeLine("/userrole - Allows you to give User Role to a player ID - MUST BE ADMIN");
             this.writeLine("/userrole list - Lists all the people you have given a Role - MUST BE ADMIN");
             this.writeLine("/kick - Kicks a Player ID to make them lose their Temporarily Role");
             this.writeLine("/addbot - Adds Bots to the Server - MUST BE ADMIN");
@@ -71,14 +81,17 @@ var playerCommands = {
             this.writeLine("/restart - RESTARTS THE SERVER - MUST BE ADMIN");
             this.writeLine("/status - Shows Status of the Server");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        } else {
+            this.writeLine("Showing Page 2 of 2.");
+            }
+        }
+        else {
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        }
+            }
     },
     id: function (args) {
         this.writeLine("Your PlayerID is " + this.playerTracker.pID);
