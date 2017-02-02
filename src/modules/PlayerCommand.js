@@ -32,16 +32,14 @@ PlayerCommand.prototype.executeCommandLine = function(commandLine) {
 };
 
 
-PlayerCommand.prototype.userLogin = function (ip, password) {
-    if (!password) return null;
-    password = password.trim();
-    if (!password) return null;
+PlayerCommand.prototype.userLogin = function (username, password) {
+    if (!username || !password) return null;
     for (var i = 0; i < this.gameServer.userList.length; i++) {
         var user = this.gameServer.userList[i];
+        if (user.username != username)
+            break;
         if (user.password != password)
-            continue;
-        if (user.ip && user.ip != ip)
-            continue;
+            break;
         return user;
     }
     return null;
@@ -348,6 +346,7 @@ var playerCommands = {
     },
     addbot: function(args) {
         var add = parseInt(args[1]);
+        if (isNaN(add)) add = 1;
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -355,7 +354,7 @@ var playerCommands = {
         for (var i = 0; i < add; i++) {
             this.gameServer.bots.addBot();
         }
-        Logger.warn(this.playerTracker.socket.remoteAddress + "ADDED " + add + " BOTS");
+        Logger.warn(this.playerTracker.socket.remoteAddress + " ADDED " + add + " BOTS");
         this.writeLine("Added " + add + " Bots");
     },
     status: function(args) {
@@ -499,17 +498,24 @@ var playerCommands = {
         this.writeLine("Configuration was Successfully Reloaded!");
     },
     login: function (args) {
-        var password = args[1];
-        if (password.length < 1) {
-            this.writeLine("ERROR: missing password argument!");
+        try {
+        var username = args[1].trim();
+    } catch (error) {
+        this.writeLine("ERROR: you have to type in a username!");
+        return;
+    }
+    try {
+        var password = args[2].trim();
+        } catch (error) {
+            this.writeLine("ERROR: You have to type in a password!");
             return;
         }
-        var user = this.userLogin(this.playerTracker.socket.remoteAddress, password);
+        var user = this.userLogin(username, password);
         if (!user) {
             this.writeLine("ERROR: login failed!");
             return;
         }
-        Logger.write("LOGIN        " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort + " as \"" + user.name + "\"");
+        Logger.info(username + " Logined in as " + user.name + " from " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort);
         this.playerTracker.userRole = user.role;
         this.playerTracker.userAuth = user.name;
         this.writeLine("Login done as \"" + user.name + "\"");
@@ -520,7 +526,8 @@ var playerCommands = {
             this.writeLine("ERROR: not logged in");
             return;
         }
-        Logger.write("LOGOUT       " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort + " as \"" + this.playerTracker.userAuth + "\"");
+        var username = this.playerTracker.username;
+        Logger.info(username + " Logged out from " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort);
         this.playerTracker.userRole = UserRoleEnum.GUEST;
         this.playerTracker.userAuth = null;
         this.writeLine("Logout done");
