@@ -1,18 +1,18 @@
 [
     { 
-        "ip":"127.0.0.1", 
+		"username":"",
         "password":"",
         "role":"ADMIN",
         "name":"Local Administrator" 
     },
     { 
-        "ip":"127.0.0.1", 
+		"username":"",
         "password":"",
         "role":"MODER",
         "name":"Local Moderator" 
     },
     { 
-        "ip":"127.0.0.1", 
+		"username":"",		
         "password":"",
         "role":"USER",
         "name":"Local User" 
