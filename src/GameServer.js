@@ -1172,21 +1172,19 @@ GameServer.prototype.loadUserList = function() {
         var list = JSON.parse(usersJson.trim());
         for (var i = 0; i < list.length; ) {
             var item = list[i];
-            if (!item.hasOwnProperty("ip") ||
+            if (!item.hasOwnProperty("username") ||
                 !item.hasOwnProperty("password") ||
                 !item.hasOwnProperty("role") ||
                 !item.hasOwnProperty("name")) {
                 list.splice(i, 1);
                 continue;
             }
-            if (!item.password || !item.password.trim()) {
+            if (!item.password || !item.password.trim() || !item.username || !item.username.trim()) {
                 Logger.warn("User account \"" + item.name + "\" disabled");
                 list.splice(i, 1);
                 continue;
             }
-            if (item.ip) {
-                item.ip = item.ip.trim();
-            }
+            if (item.username) item.username = item.username.trim();
             item.password = item.password.trim();
             if (!UserRoleEnum.hasOwnProperty(item.role)) {
                 Logger.warn("Unknown user role: " + item.role);
