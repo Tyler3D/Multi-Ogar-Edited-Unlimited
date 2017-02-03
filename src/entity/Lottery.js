@@ -52,7 +52,7 @@ Lottery.prototype.onEaten = function (c) {
         }
     // Split
             var max = this.gameServer.config.playerMaxCells * this.gameServer.config.playerMaxCells;
-            for (var k = 0; k < max k++) {
+            for (var k = 0; k < max; k++) {
             var angle = 2 * Math.PI * Math.random(); // random directions
             this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
