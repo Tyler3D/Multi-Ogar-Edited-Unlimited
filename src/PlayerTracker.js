@@ -407,12 +407,13 @@ PlayerTracker.prototype.sendLeaderboard = function() {
             lbList = this.gameServer.leaderboard;
 
         if (lbType >= 0) {
-            if (this.socket.packetHandler.protocol >= 11)
-                this.socket.sendPacket(new Packet.LeaderboardPosition(lbList.indexOf(this) + 1));
+            if (this.socket.packetHandler.protocol >= 11 && this.gameServer.gameMode.specByLeaderboard)
+                this.socket.sendPacket(new Packet.LeaderboardPosition(this, lbList.indexOf(this) + 1));
             this.socket.sendPacket(new Packet.UpdateLeaderboard(this, lbList, lbType));
         }
     }
 };
+
 PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cells
     if (!this.cells.length) return;
     var cx = 0;
