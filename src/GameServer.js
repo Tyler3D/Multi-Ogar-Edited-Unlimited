@@ -447,21 +447,19 @@ GameServer.prototype.updateLeaderboard = function() {
     this.leaderboard = [];
     this.leaderboardType = -1;
     this.gameMode.updateLB(this);
-    
+
     if (!this.gameMode.specByLeaderboard) {
         // Get client with largest score if gamemode doesn't have a leaderboard
         var clients = this.clients.valueOf();
-        
+
         // Use sort function
         clients.sort(function(a, b) {
-            return b.playerTracker.getScore() - a.playerTracker.getScore();
+            return b.playerTracker._score - a.playerTracker._score;
         });
         this.largestClient = null;
-        if (clients[0] != null)
-            this.largestClient = clients[0].playerTracker;
-    } else {
+        if (clients[0]) this.largestClient = clients[0].playerTracker;
+    } else
         this.largestClient = this.gameMode.rankOne;
-    }
 };
 
 GameServer.prototype.onChatMessage = function(from, to, message) {

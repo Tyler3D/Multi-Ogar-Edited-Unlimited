@@ -1,8 +1,8 @@
-﻿var Mode = require('./Mode');
+var Mode = require('./Mode');
 
 function FFA() {
     Mode.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 0;
     this.name = "Free For All";
     this.specByLeaderboard = true;
@@ -11,65 +11,33 @@ function FFA() {
 module.exports = FFA;
 FFA.prototype = new Mode();
 
-// Gamemode Specific Functions
+// Gamemode-specific functions
 
-FFA.prototype.leaderboardAddSort = function (player, leaderboard) {
-    // Adds the player and sorts the leaderboard
-    var len = leaderboard.length - 1;
-    var loop = true;
-    while ((len >= 0) && (loop)) {
-        // Start from the bottom of the leaderboard
-        if (player.getScore() <= leaderboard[len].getScore()) {
-            leaderboard.splice(len + 1, 0, player);
-            loop = false; // End the loop if a spot is found
-        }
-        len--;
-    }
-    if (loop) {
-        // Add to top of the list because no spots were found
-        leaderboard.splice(0, 0, player);
-    }
-};
-
-// Override
-
-FFA.prototype.onPlayerSpawn = function (gameServer, player) {
-    player.setColor(player.isMinion ? { r: 240, g: 240, b: 255 } : gameServer.getRandomColor());
+FFA.prototype.onPlayerSpawn = function(gameServer, player) {
+    player.setColor(gameServer.getRandomColor());
     // Spawn player
     gameServer.spawnPlayer(player, gameServer.randomPos());
 };
 
-FFA.prototype.updateLB = function (gameServer) {
+FFA.prototype.updateLB = function(gameServer) {
     gameServer.leaderboardType = this.packetLB;
-    var lb = gameServer.leaderboard;
-    // Loop through all clients
-    for (var i = 0; i < gameServer.clients.length; i++) {
-        var client = gameServer.clients[i];
-        if (client == null) continue;
-        
-        var player = client.playerTracker;
-        if (player.socket.isConnected == false)
-            continue; // Don't add disconnected players to list
-        
-        var playerScore = player.getScore();
-        
-        if (player.cells.length <= 0)
-            continue;
-        
-        if (lb.length == 0) {
-            // Initial player
-            lb.push(player);
-            continue;
-        } else if (lb.length < gameServer.config.serverMaxLB) {
-            this.leaderboardAddSort(player, lb);
-        } else {
-            // 10 in leaderboard already
-            if (playerScore > lb[gameServer.config.serverMaxLB - 1].getScore()) {
-                lb.pop();
-                this.leaderboardAddSort(player, lb);
-            }
-        }
+    var lb = [],
+        i = 0, l = gameServer.clients.length,
+        client, pushi, s, ri = 0;
+
+    for (; i < l; i++) {
+        client = gameServer.clients[i];
+        if (client.isRemoved) continue;
+        if (client.playerTracker.cells.length <= 0) continue;
+
+        for (pushi = 0; pushi < ri; pushi++)
+            if (lb[pushi]._score < client.playerTracker._score) break;
+
+        lb.splice(pushi, 0, client.playerTracker);
+        ri++;
     }
-    
+
+    gameServer.leaderboard = lb;
     this.rankOne = lb[0];
+    gameServer.leaderboardChanged = true;
 };
