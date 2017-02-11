@@ -398,16 +398,21 @@ PlayerTracker.prototype.sendUpdate = function () {
     );
     
     // Update leaderboard
-    if (++this.tickLeaderboard > 25) {
-        // 1 / 0.040 = 25 (once per second)
-        this.tickLeaderboard = 0;
-        if (this.gameServer.leaderboardType >= 0) {
-            var packet = new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType);
-            this.socket.sendPacket(packet);
+    this.sendLeaderboard();
+};
+PlayerTracker.prototype.sendLeaderboard = function() {
+    // Update leaderboard if changed
+    if (this.gameServer.leaderboardChanged) {
+        var lbType = this.gameServer.leaderboardType,
+            lbList = this.gameServer.leaderboard;
+
+        if (lbType >= 0) {
+            if (this.socket.packetHandler.protocol >= 11)
+                this.socket.sendPacket(new Packet.LeaderboardPosition(lbList.indexOf(this) + 1));
+            this.socket.sendPacket(new Packet.UpdateLeaderboard(this, lbList, lbType));
         }
     }
 };
-
 PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cells
     if (!this.cells.length) return;
     var cx = 0;
