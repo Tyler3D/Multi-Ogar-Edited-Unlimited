@@ -393,12 +393,13 @@ PlayerTracker.prototype.sendUpdate = function () {
     this.clientNodes = this.viewNodes;
     
     // Send packet
-    this.socket.sendPacket(new Packet.UpdateNodes(
-        this, addNodes, updNodes, eatNodes, delNodes)
-    );
-    
-    // Update leaderboard
-    this.sendLeaderboard();
+    if (this.socket.isConnected != null) {
+        this.socket.sendPacket(new Packet.UpdateNodes(
+            this, addNodes, updNodes, eatNodes, delNodes
+        ));
+        // Send Leaderboard Packet
+        this.sendLeaderboard();
+    }
 };
 PlayerTracker.prototype.sendLeaderboard = function() {
     // Update leaderboard if changed
@@ -413,7 +414,6 @@ PlayerTracker.prototype.sendLeaderboard = function() {
         }
     }
 };
-
 PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cells
     if (!this.cells.length) return;
     var cx = 0;
