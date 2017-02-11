@@ -7,6 +7,7 @@ function UpdateLeaderboard(playerTracker, leaderboard, leaderboardType) {
     this.leaderboard = leaderboard;
     this.leaderboardType = leaderboardType;
     this.leaderboardCount = Math.min(leaderboard.length, playerTracker.gameServer.config.serverMaxLB);
+    this.leaderboardmass = playerTracker.gameServer.config.leaderboardmass;
 }
 
 module.exports = UpdateLeaderboard;
@@ -75,6 +76,7 @@ UpdateLeaderboard.prototype.buildFfa5 = function() {
     writer.writeUInt32(this.leaderboardCount >>> 0);       // Number of elements
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
         if (item == null) return null;  // bad leaderboardm just don't send it
 
         var name = item._nameUnicode;
@@ -84,8 +86,11 @@ UpdateLeaderboard.prototype.buildFfa5 = function() {
 
 
         writer.writeUInt32(id >>> 0);   // Player cell Id
-        if (name != null)
-            writer.writeBytes(name);
+        if (name != null) {
+            if (this.leaderboardmass)
+            writer.writeStringZeroUnicode(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+            else writer.writeBytes(name);
+        }
         else
             writer.writeUInt16(0);
     }
@@ -101,14 +106,18 @@ UpdateLeaderboard.prototype.buildFfa6 = function() {
     writer.writeUInt32(this.leaderboardCount >>> 0);       // Number of elements
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
         if (item == null) return null;   // bad leaderboardm just don't send it
 
         var name = item._nameUtf8;
         var id = item == player ? 1 : 0;
 
         writer.writeUInt32(id >>> 0);   // isMe flag
-        if (name != null)
-            writer.writeBytes(name);
+        if (name != null) {
+            if (this.leaderboardmass)
+            writer.writeStringZeroUtf8(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+            else writer.writeBytes(name);
+        }
         else
             writer.writeUInt8(0);
     }
@@ -124,17 +133,20 @@ UpdateLeaderboard.prototype.buildFfa11 = function() {
     writer.writeUInt32(this.leaderboardCount >>> 0);         // Number of elements
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
         if (item == null) return null;  // bad leaderboardm just don't send it
 
         var name = item._nameUtf8;
-        if (name != null)
-            writer.writeBytes(name);
+        if (name != null) {
+            if (this.leaderboardmass)
+            writer.writeStringZeroUtf8(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+            else writer.writeBytes(name);
+        }
         else
             writer.writeUInt8(0);
     }
     return writer.toBuffer();
 };
-
 // Team
 UpdateLeaderboard.prototype.buildTeam = function() {
     var writer = new BinaryWriter();
