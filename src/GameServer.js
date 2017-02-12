@@ -128,6 +128,7 @@ function GameServer() {
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
     	slithermode: 0,             // Enable Slither Mode. To use just press Q. (Warning: Change Disable Q to 1 or this will not work)
         leaderboardmass: 0,         // Shows your mass on the leaderboard. (Warning: The leaderboard may become crowded because of this)
+        leaderboardcurrentPos: 0,   // Shows your current Position on the leaderboard if you aren't in the top 10.
     };
     this.ipBanList = [];
     this.minionTest = [];
