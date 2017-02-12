@@ -410,7 +410,7 @@ PlayerTracker.prototype.sendLeaderboard = function() {
         if (lbType >= 0) {
             if (this.socket.packetHandler.protocol >= 11 && this.gameServer.gameMode.specByLeaderboard)
                 this.socket.sendPacket(new Packet.LeaderboardPosition(this, lbList.indexOf(this) + 1));
-            this.socket.sendPacket(new Packet.UpdateLeaderboard(this, lbList, lbType));
+            this.socket.sendPacket(new Packet.UpdateLeaderboard(this, lbList, lbType, lbList.indexOf(this) + 1));
         }
     }
 };
