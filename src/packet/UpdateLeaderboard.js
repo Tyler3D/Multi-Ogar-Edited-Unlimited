@@ -93,8 +93,9 @@ UpdateLeaderboard.prototype.buildFfa5 = function() {
 
         writer.writeUInt32(id >>> 0);   // Player cell Id
         if (name != null) {
+        	var sending = (this.leaderboard[i].getFriendlyName() + " ~~~ " + score).toString();
             if (this.leaderboardmass)
-            writer.writeStringZeroUnicode(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+            writer.writeStringZeroUnicode(sending);
             else writer.writeBytes(name);
         }
         else
@@ -161,23 +162,32 @@ UpdateLeaderboard.prototype.buildFfa5CurrentPos = function () {
     writer.writeUInt32(0);
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
-        //var score = (item.getScore() / 100).toFixed();
-        var score = 5;
+        var score = (item.getScore() / 100).toFixed();
         if (item == null) return null;   // bad leaderboard just don't send it
         var name = item.getFriendlyName();
         var j = i + 1;
         if (name != null) {
-            if (this.leaderboardmass)
-            writer.writeStringZeroUnicode(j + ": " + name + " ~~~ " + score);
-            else writer.writeStringZeroUnicode(j + ": " + name);
+            if (this.leaderboardmass) {
+            if (i == 0) var info = (name + " ~~~ " + score).toString();
+            else var info = ("	 " + name + " ~~~ " + score).toString();
+            writer.writeStringZeroUnicode(info);
+            }
+            else {
+            if (i == 0) var info = (name).toString();
+            else var info = ("	 " + name).toString();
+            writer.writeStringZeroUnicode(info);
+	}
         }
-	} var current = this.leaderboard[this.currentPos - 1] || ""
-	var currentname = current._name;
-	var currentscore = current._score;
+	}
 			if (this.leaderboardmass) {
-    		var scoreCurrentPos = (currentscore / 100).toFixed();
-    		writer.writeStringZeroUnicode(this.currentPos + ": " + currentname + " ~~~ " + scoreCurrentPos);
-    		} else writer.writeStringZeroUnicode(this.currentPos + ": " + currentname);
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		var info = ("	 Position: " + pos).toString();
+    		writer.writeStringZeroUnicode(info);
+    		} else {
+    			var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    			var info = ("	 Position " + pos).toString();
+    			writer.writeStringZeroUnicode(info);
+    		}
     		return writer.toBuffer();
 };
 
@@ -197,9 +207,9 @@ UpdateLeaderboard.prototype.buildFfa6CurrentPos = function () {
             writer.writeStringZeroUtf8(j + ": " + name + " ~~~ " + score);
             else writer.writeStringZeroUtf8(j + ": " + name);
         }
-	} var current = this.leaderboard[this.currentPos - 1] || ""
-	var currentname = current._name;
-	var currentscore = current._score;
+	} var current = this.leaderboard[this.currentPos - 1] || "";
+	var currentname = current._name || "";
+	var currentscore = current._score || "";
 			if (this.leaderboardmass) {
     		var scoreCurrentPos = (currentscore / 100).toFixed();
     		writer.writeStringZeroUtf8(this.currentPos + ": " + currentname + " ~~~ " + scoreCurrentPos);
