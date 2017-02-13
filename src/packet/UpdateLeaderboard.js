@@ -166,6 +166,7 @@ UpdateLeaderboard.prototype.buildFfa5CurrentPos = function () {
         if (item == null) return null;   // bad leaderboard just don't send it
         var name = item.getFriendlyName();
         var j = i + 1;
+
         if (name != null) {
             if (this.leaderboardmass) {
             if (i == 0) var info = (name + " ~~~ " + score).toString();
@@ -194,7 +195,7 @@ UpdateLeaderboard.prototype.buildFfa5CurrentPos = function () {
 UpdateLeaderboard.prototype.buildFfa6CurrentPos = function () {
     var player = this.playerTracker;
     var writer = new BinaryWriter();
-    writer.writeUInt8(0x30);                 	  		   // Packet ID
+    writer.writeUInt8(0x31);                 	  		   // Packet ID
     writer.writeUInt32(this.leaderboardCount + 1 >>> 0);
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
@@ -202,18 +203,23 @@ UpdateLeaderboard.prototype.buildFfa6CurrentPos = function () {
         if (item == null) return null;   // bad leaderboard just don't send it
         var name = item.getFriendlyName();
         var j = i + 1;
+        var id = item == player ? 1 : 0;
+        writer.writeUInt32(id >>> 0);   // isMe flag
         if (name != null) {
             if (this.leaderboardmass)
-            writer.writeStringZeroUtf8(j + ": " + name + " ~~~ " + score);
-            else writer.writeStringZeroUtf8(j + ": " + name);
+            writer.writeStringZeroUtf8(name + " ~~~ " + score);
+            else writer.writeStringZeroUtf8(name);
         }
-	} var current = this.leaderboard[this.currentPos - 1] || "";
-	var currentname = current._name || "";
-	var currentscore = current._score || "";
+	}
 			if (this.leaderboardmass) {
-    		var scoreCurrentPos = (currentscore / 100).toFixed();
-    		writer.writeStringZeroUtf8(this.currentPos + ": " + currentname + " ~~~ " + scoreCurrentPos);
-    		} else writer.writeStringZeroUtf8(this.currentPos + ": " + currentname);
+    		writer.writeUInt32(1 >>> 0);
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		writer.writeStringZeroUtf8("Position: " + pos);
+    		} else {
+    		writer.writeUInt32(1 >>> 0);
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		writer.writeStringZeroUtf8("Position: " + pos);
+    		}
     		return writer.toBuffer();
 };
 // Team
