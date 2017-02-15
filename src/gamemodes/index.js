@@ -7,6 +7,7 @@ module.exports = {
     Popsplit: require('./Popsplit'),
     Rush: require('./Rush'),
     SuperPowers: require('./SuperPowers'),
+    Spliting: require('./Spliting'),
 };
 
 var get = function (id) {
@@ -29,6 +30,9 @@ var get = function (id) {
             break;
         case 6: // SuperPowers
             mode = new module.exports.SuperPowers();
+            break;
+        case 7: // Spliting
+            mode = new module.exports.Spliting();
             break;
         default: // FFA is default
             mode = new module.exports.FFA();
