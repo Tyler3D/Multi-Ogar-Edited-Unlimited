@@ -6,6 +6,7 @@ module.exports = {
     Rainbow: require('./Rainbow'),
     Popsplit: require('./Popsplit'),
     Rush: require('./Rush'),
+    SuperPowers: require('./SuperPowers'),
 };
 
 var get = function (id) {
@@ -25,6 +26,9 @@ var get = function (id) {
         	break;
         case 5: // Rush
             mode = new module.exports.Rush();
+            break;
+        case 6: // SuperPowers
+            mode = new module.exports.SuperPowers();
             break;
         default: // FFA is default
             mode = new module.exports.FFA();
