@@ -37,8 +37,7 @@ PowerUP.prototype.onEaten = function (c) {
             player.minionControl = false;
             player.miQ = 0;
             player.gameServer.sendChatMessage(null, player, "YOUR MINIONS HAVE SUDDENLY VANISHED!");
-        }
-      }, this.powertimer);
+        }, this.powertimer);
     } else if (this.power == 3) {
         player.canShootVirus = true;
         player.gameServer.sendChatMessage(null, player, "YOUR HAVE BEEN GRANTED THE ABILITY TO SHOOT VIRUSES!");
