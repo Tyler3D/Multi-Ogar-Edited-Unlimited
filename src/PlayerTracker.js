@@ -33,6 +33,7 @@ function PlayerTracker(gameServer, socket) {
     this.canShootPopsplitVirus = false;
     this.canShootVirus = false;
     this.doublespeed = false;
+    this.timeuntilsplit = 0;
     
     this.centerPos = {
         x: 0,
@@ -223,6 +224,7 @@ PlayerTracker.prototype.joinGame = function (name, skin) {
         this.socket.sendPacket(new Packet.SetBorder(this, border));
     }
     this.spawnCounter++;
+    this.timeuntilsplit = 0;
     this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
 };
 
@@ -295,7 +297,6 @@ PlayerTracker.prototype.updateTick = function () {
         halfWidth: halfWidth,
         halfHeight: halfHeight
     };
-    
     // update visible nodes
     this.viewNodes = [];
     if (!this.isMinion || !this.isMi) {
