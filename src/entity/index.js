@@ -7,4 +7,5 @@ module.exports = {
     PopsplitVirus: require('./PopsplitVirus'),
     Lottery: require('./Lottery'),
     EjectedMass: require('./EjectedMass'),
+    PowerUP: require('./PowerUP'),
 };
