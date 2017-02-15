@@ -30,6 +30,9 @@ function PlayerTracker(gameServer, socket) {
     this.freeRoam = false;      // Free-roam mode enables player to move in spectate mode
     this.spectateTarget = null; // Spectate target, null for largest player
     this.lastSpectateSwitchTick = 0;
+    this.canShootPopsplitVirus = false;
+    this.canShootVirus = false;
+    this.doublespeed = false;
     
     this.centerPos = {
         x: 0,
