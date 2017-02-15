@@ -21,7 +21,7 @@ Split.prototype = new FFA();
 Split.prototype.onServerInit = function (gameServer) {
     // Override Config
     gameServer.run = true;
-    //gameServer.config.playerMaxCells = 256;
+    gameServer.config.playerMaxCells = 256;
 };
 Split.prototype.onTick = function (gameServer) {
     for (var i in gameServer.clients) {
