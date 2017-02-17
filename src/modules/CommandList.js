@@ -138,6 +138,26 @@ Commands.list = {
         }
         Commands.list.killall(gameServer, split);
     },
+    gamemode: function (gameServer, split) {
+        var mode = parseInt(split[1]);
+        if (isNaN(mode)) {
+            Logger.warn("Invalid Game Mode Selected!");
+            return;
+        }
+        if (mode > 7 || mode < 0) {
+            Logger.warn("Invalid Game Mode Selected!");
+            return;
+        }
+        var gamemode = GameMode.get(mode);
+        // Reset
+        gameServer.gameMode.packetLB = gamemode.packetLB;
+        gameServer.gameMode.updateLB = gamemode.updateLB;
+        Commands.list.reset(gameServer, split);
+        gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
+        gameServer.gameMode = gamemode;
+        gamemode.onServerInit(gameServer);
+        Logger.print("Successfully Changed Game Mode to: " + gameServer.gameMode.name);
+    },
     minion: function(gameServer, split) {
         var id = parseInt(split[1]);
         var add = parseInt(split[2]);
