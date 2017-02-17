@@ -53,7 +53,7 @@ var playerCommands = {
                 this.writeLine("Please Enter a Page Number!");
                 return;
             }
-            if (page == 1) {
+            if (page == 1) { // 10 Fit per Page
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
@@ -78,6 +78,7 @@ var playerCommands = {
             this.writeLine("/shutdown - SHUTDOWNS THE SERVER - MUST BE ADMIN");
             this.writeLine("/restart - RESTARTS THE SERVER - MUST BE ADMIN");
             this.writeLine("/status - Shows Status of the Server");
+            this.writeLine("/gamemode - Allows you to change the Game Mode of the Server. - MUST BE ADMIN");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("Showing Page 2 of 2.");
             }
@@ -424,7 +425,43 @@ var playerCommands = {
             }
         }
     },
+    gamemode: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        var mode = parseInt(args[1]);
+        if (isNaN(mode)) {
+            this.writeLine("Invalid Game Mode Selected!");
+            return;
+        }
+        if (mode > 7 || mode < 0) {
+            this.writeLine("Invalid Game Mode Selected!");
+            return;
+        }
+        var GameMode = require('../Gamemodes');
+        var Command = require('./CommandList');
+        var gamemode = GameMode.get(mode);
+        // Reset
+        this.gameServer.gameMode.packetLB = gamemode.packetLB;
+        this.gameServer.gameMode.updateLB = gamemode.updateLB;
+        Command.list.reset(this.gameServer, args);
+        this.gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
+        this.gameServer.gameMode = gamemode;
+        gamemode.onServerInit(this.gameServer);
+        this.writeLine("Successfully Changed Game Mode to: " + this.gameServer.gameMode.name);
+        Logger.warn("GAMEMODE CHANGE FROM  " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort + " AS " + this.playerTracker.socket.userAuth);
+        for (var i in this.gameServer.clients) {
+            var client = this.gameServer.clients[i].playerTracker;
+            var text = this.playerTracker._name + " Changed to Game Mode to: " + this.gameServer.gameMode.name;
+            this.gameServer.sendChatMessage(null, client, text);
+        }
+    },
     rec: function(args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
         var id = parseInt(args[1]);
         if (isNaN(id)) {
             this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
