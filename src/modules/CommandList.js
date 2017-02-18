@@ -144,7 +144,7 @@ Commands.list = {
             Logger.warn("Invalid Game Mode Selected!");
             return;
         }
-        if (mode > 7 || mode < 0) {
+        if (mode > 8 || mode < 0) {
             Logger.warn("Invalid Game Mode Selected!");
             return;
         }
@@ -156,6 +156,7 @@ Commands.list = {
         gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
         gameServer.gameMode = gamemode;
         gamemode.onServerInit(gameServer);
+        Commands.list.reset(gameServer, split); // Just in case
         Logger.print("Successfully Changed Game Mode to: " + gameServer.gameMode.name);
     },
     minion: function(gameServer, split) {
