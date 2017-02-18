@@ -11,7 +11,7 @@ function AntiTeam() {
     this.specByLeaderboard = true;
     
     // Gamemode Specific Variables
-    this.FeedAmount = 25 // 25 W's
+    this.FeedAmount = 75 // 75 W's
     this.VirusPop = 3;
     this.timeuntilreset = 25 * 60 * 2 // 2 Minutes
     this.antiteamduration = 1000 * 30 // 30 Seconds
