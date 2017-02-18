@@ -30,10 +30,6 @@ function PlayerTracker(gameServer, socket) {
     this.freeRoam = false;      // Free-roam mode enables player to move in spectate mode
     this.spectateTarget = null; // Spectate target, null for largest player
     this.lastSpectateSwitchTick = 0;
-    this.canShootPopsplitVirus = false;
-    this.canShootVirus = false;
-    this.doublespeed = false;
-    this.timeuntilsplit = 0;
     
     this.centerPos = {
         x: 0,
@@ -63,6 +59,17 @@ function PlayerTracker(gameServer, socket) {
     this.spawnCounter = 0;
     this.isMuted = false;
     
+    // GameMode
+    this.canShootPopsplitVirus = false;
+    this.canShootVirus = false;
+    this.doublespeed = false;
+    this.timeuntilsplit = 0;
+    this.antiteamstate = false;
+    this.wcount = 0;
+    this.viruspopcount = 0;
+    this.lastwtick = 0;
+    this.lastviruspoptick = 0;
+
     // Custom commands
     this.spawnmass = 0;
     this.frozen = false;
