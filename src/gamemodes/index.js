@@ -8,6 +8,7 @@ module.exports = {
     Rush: require('./Rush'),
     SuperPowers: require('./SuperPowers'),
     Spliting: require('./Spliting'),
+    VanillaAntiTeam: require('./AntiTeamVanillaFFA'),
 };
 
 var get = function (id) {
@@ -33,6 +34,9 @@ var get = function (id) {
             break;
         case 7: // Spliting
             mode = new module.exports.Spliting();
+            break;
+        case 8: // Anti - Team Vanilla
+            mode = new module.exports.VanillaAntiTeam();
             break;
         default: // FFA is default
             mode = new module.exports.FFA();
