@@ -435,7 +435,7 @@ var playerCommands = {
             this.writeLine("Invalid Game Mode Selected!");
             return;
         }
-        if (mode > 7 || mode < 0) {
+        if (mode > 8 || mode < 0) {
             this.writeLine("Invalid Game Mode Selected!");
             return;
         }
@@ -449,6 +449,7 @@ var playerCommands = {
         this.gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
         this.gameServer.gameMode = gamemode;
         gamemode.onServerInit(this.gameServer);
+        Command.list.reset(this.gameServer, args); // Just in Case
         this.writeLine("Successfully Changed Game Mode to: " + this.gameServer.gameMode.name);
         Logger.warn("GAMEMODE CHANGE FROM  " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort + " AS " + this.playerTracker.socket.userAuth);
         for (var i in this.gameServer.clients) {
