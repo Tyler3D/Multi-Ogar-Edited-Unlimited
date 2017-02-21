@@ -32,28 +32,6 @@ MinionPlayer.prototype.checkConnection = function () {
     // eject mass
     if (this.owner.minionEject)
         this.socket.packetHandler.pressW = true;
-    // Slither Mode
-    if (this.owner.minionSlither)
-        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
     // follow owners mouse by default
     this.mouse = this.owner.mouse;
-    // pellet-collecting mode
-    if (this.owner.collectPellets) {
-	this.viewNodes = [];
-	var self = this;
-	this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
-        if (quadItem.cell.cellType == 1)
-            self.viewNodes.push(quadItem.cell);
-        });
-	var bestDistance = 1e999;
-	for (var i in this.viewNodes) {
-	    var cell = this.viewNodes[i];
-	    var dx = this.cells[0].position.x - cell.position.x;
-            var dy = this.cells[0].position.y - cell.position.y;
-            if (dx * dx + dy * dy < bestDistance) {
-                bestDistance = dx * dx + dy * dy;
-                this.mouse = cell.position;
-	    }
-	}
-    }
 };
