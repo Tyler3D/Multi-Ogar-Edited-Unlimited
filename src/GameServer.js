@@ -194,7 +194,7 @@ GameServer.prototype.start = function() {
     if (client.slither) {
     	var speed = cell1.getSpeed(d) * 2;
         this.slitherEject(client);
-  	}
+  	} else speed = cell1.getSpeed(d);
   	if (!speed) return; // avoid shaking
 
     // move player cells
@@ -393,6 +393,138 @@ Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
     		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
     		writer.writeStringZeroUtf8("Position: " + pos);
     		return writer.toBuffer();
+};
+	}
+	if (this.config.collectPellets && this.config.slithermode) {
+		var MinionPlayer = require('./ai/MinionPlayer');
+		MinionPlayer.prototype.checkConnection = function () {
+    if (this.socket.isCloseRequest) {
+        while (this.cells.length > 0) {
+            this.gameServer.removeNode(this.cells[0]);
+        }
+        this.isRemoved = true;
+        return;
+    }
+    if (this.cells.length <= 0) {
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+        if (this.cells.length == 0) this.socket.close();
+    }
+    // remove if owner loses control or disconnects
+    if (!this.owner.socket.isConnected || !this.owner.minionControl)
+        this.socket.close();
+    // frozen or not
+    if (this.owner.minionFrozen) this.frozen = true;
+    else this.frozen = false;
+    // split cells
+    if (this.owner.minionSplit)
+        this.socket.packetHandler.pressSpace = true;
+    // eject mass
+    if (this.owner.minionEject)
+        this.socket.packetHandler.pressW = true;
+    // Slither Mode
+    if (this.owner.minionSlither)
+        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
+    // follow owners mouse by default
+    this.mouse = this.owner.mouse;
+    // pellet-collecting mode
+    if (this.owner.collectPellets) {
+	this.viewNodes = [];
+	var self = this;
+	this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
+        if (quadItem.cell.cellType == 1)
+            self.viewNodes.push(quadItem.cell);
+        });
+	var bestDistance = 1e999;
+	for (var i in this.viewNodes) {
+	    var cell = this.viewNodes[i];
+	    var dx = this.cells[0].position.x - cell.position.x;
+            var dy = this.cells[0].position.y - cell.position.y;
+            if (dx * dx + dy * dy < bestDistance) {
+                bestDistance = dx * dx + dy * dy;
+                this.mouse = cell.position;
+	    }
+	}
+    }
+};
+	} else if (this.config.collectPellets && !this.config.slithermode) {
+		var MinionPlayer = require('./ai/MinionPlayer');
+		MinionPlayer.prototype.checkConnection = function () {
+    if (this.socket.isCloseRequest) {
+        while (this.cells.length > 0) {
+            this.gameServer.removeNode(this.cells[0]);
+        }
+        this.isRemoved = true;
+        return;
+    }
+    if (this.cells.length <= 0) {
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+        if (this.cells.length == 0) this.socket.close();
+    }
+    // remove if owner loses control or disconnects
+    if (!this.owner.socket.isConnected || !this.owner.minionControl)
+        this.socket.close();
+    // frozen or not
+    if (this.owner.minionFrozen) this.frozen = true;
+    else this.frozen = false;
+    // split cells
+    if (this.owner.minionSplit)
+        this.socket.packetHandler.pressSpace = true;
+    // eject mass
+    if (this.owner.minionEject)
+        this.socket.packetHandler.pressW = true;
+    // follow owners mouse by default
+    this.mouse = this.owner.mouse;
+    // pellet-collecting mode
+    if (this.owner.collectPellets) {
+	this.viewNodes = [];
+	var self = this;
+	this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
+        if (quadItem.cell.cellType == 1)
+            self.viewNodes.push(quadItem.cell);
+        });
+	var bestDistance = 1e999;
+	for (var i in this.viewNodes) {
+	    var cell = this.viewNodes[i];
+	    var dx = this.cells[0].position.x - cell.position.x;
+            var dy = this.cells[0].position.y - cell.position.y;
+            if (dx * dx + dy * dy < bestDistance) {
+                bestDistance = dx * dx + dy * dy;
+                this.mouse = cell.position;
+	    }
+	}
+    }
+};
+	} else if (!this.config.collectPellets && this.config.slithermode) {
+		var MinionPlayer = require('./ai/MinionPlayer');
+		MinionPlayer.prototype.checkConnection = function () {
+    if (this.socket.isCloseRequest) {
+        while (this.cells.length > 0) {
+            this.gameServer.removeNode(this.cells[0]);
+        }
+        this.isRemoved = true;
+        return;
+    }
+    if (this.cells.length <= 0) {
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+        if (this.cells.length == 0) this.socket.close();
+    }
+    // remove if owner loses control or disconnects
+    if (!this.owner.socket.isConnected || !this.owner.minionControl)
+        this.socket.close();
+    // frozen or not
+    if (this.owner.minionFrozen) this.frozen = true;
+    else this.frozen = false;
+    // split cells
+    if (this.owner.minionSplit)
+        this.socket.packetHandler.pressSpace = true;
+    // eject mass
+    if (this.owner.minionEject)
+        this.socket.packetHandler.pressW = true;
+    // Slither Mode
+    if (this.owner.minionSlither)
+        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
+    // follow owners mouse by default
+    this.mouse = this.owner.mouse;
 };
 	}
 };
