@@ -9,6 +9,7 @@ var PlayerTracker = require('./PlayerTracker');
 var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
 var Logger = require('./modules/Logger');
+var BinaryWriter = Packet.BinaryWriter;
 
 // GameServer implementation
 function GameServer() {
@@ -175,6 +176,225 @@ GameServer.prototype.start = function() {
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
     if (this.config.serverStatsPort > 0) this.startStatsServer(this.config.serverStatsPort);
+    // Replace
+    if (this.config.slithermode) {
+    this.movePlayer = function(cell1, client) {
+    if (client.socket.isConnected == false || client.frozen)
+        return;
+    // TODO: use vector for distance(s)
+    // get distance
+    var dx = ~~(client.mouse.x - cell1.position.x);
+    var dy = ~~(client.mouse.y - cell1.position.y);
+    var squared = dx * dx + dy * dy;
+    if (squared < 1 || isNaN(dx) || isNaN(dy)) {
+        return;
+    }
+    // get movement speed
+    var d = Math.sqrt(squared);
+    if (client.slither) {
+    	var speed = cell1.getSpeed(d) * 2;
+        this.slitherEject(client);
+  	}
+  	if (!speed) return; // avoid shaking
+
+    // move player cells
+    cell1.position.x += dx / d * speed;
+    cell1.position.y += dy / d * speed;
+    cell1.checkBorder(this.border);
+		}
+	}
+		if (this.config.leaderboardmass && this.config.leaderboardcurrentPos) {
+	Packet.UpdateLeaderboard.prototype.buildFfa5 = function () {
+    var player = this.playerTracker;
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                 	  		   // Packet ID
+    writer.writeUInt32(this.leaderboardCount + 1 >>> 0);
+    writer.writeUInt32(0);
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (item.getScore() / 100).toFixed();
+        if (item == null) return null;   // bad leaderboard just don't send it
+        var name = item.getFriendlyName();
+        var j = i + 1;
+
+        if (name != null) {
+            if (i == 0) var info = (name + " ~~~ " + score).toString();
+            else var info = ("	 " + name + " ~~~ " + score).toString();
+            writer.writeStringZeroUnicode(info);
+
+        }
+	}
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		var info = ("	 Position: " + pos).toString();
+    		writer.writeStringZeroUnicode(info);
+    		return writer.toBuffer();
+};
+
+Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
+    var player = this.playerTracker;
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                 	  		   // Packet ID
+    writer.writeUInt32(this.leaderboardCount + 1 >>> 0);
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (item.getScore() / 100).toFixed();
+        if (item == null) return null;   // bad leaderboard just don't send it
+        var name = item.getFriendlyName();
+        var j = i + 1;
+        var id = item == player ? 1 : 0;
+        writer.writeUInt32(id >>> 0);   // isMe flag
+        if (name != null) {
+            writer.writeStringZeroUtf8(name + " ~~~ " + score);
+        }
+	}
+    		writer.writeUInt32(1 >>> 0);
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		writer.writeStringZeroUtf8("Position: " + pos);
+    		return writer.toBuffer();
+};
+Packet.UpdateLeaderboard.prototype.buildFfa11 = function() {
+    var player = this.playerTracker;
+
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                                 // Packet ID
+    writer.writeUInt32(this.leaderboardCount >>> 0);         // Number of elements
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
+        if (item == null) return null;  // bad leaderboardm just don't send it
+
+        var name = item._nameUtf8;
+        if (name != null) {
+            writer.writeStringZeroUtf8(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+        }
+        else
+            writer.writeUInt8(0);
+    }
+    return writer.toBuffer();
+};
+	}
+	else if (this.config.leaderboardmass && !this.config.leaderboardcurrentPos) {
+		Packet.UpdateLeaderboard.prototype.buildFfa5 = function() {
+    var player = this.playerTracker;
+
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                               // Packet ID
+    writer.writeUInt32(this.leaderboardCount >>> 0);       // Number of elements
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
+        if (item == null) return null;  // bad leaderboardm just don't send it
+
+        var name = item._nameUnicode;
+        var id = 0;
+        if (item == player && item.cells.length > 0)
+            id = item.cells[0].nodeId ^ this.playerTracker.scrambleId;
+
+
+        writer.writeUInt32(id >>> 0);   // Player cell Id
+        if (name != null) {
+        	var sending = (this.leaderboard[i].getFriendlyName() + " ~~~ " + score).toString();
+            writer.writeStringZeroUnicode(sending);
+        }
+        else
+            writer.writeUInt16(0);
+    }
+    return writer.toBuffer();
+};
+Packet.UpdateLeaderboard.prototype.buildFfa6 = function() {
+    var player = this.playerTracker;
+
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                               // Packet ID
+    writer.writeUInt32(this.leaderboardCount >>> 0);       // Number of elements
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
+        if (item == null) return null;   // bad leaderboardm just don't send it
+
+        var name = item._nameUtf8;
+        var id = item == player ? 1 : 0;
+
+        writer.writeUInt32(id >>> 0);   // isMe flag
+        if (name != null) {
+            writer.writeStringZeroUtf8(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+        }
+        else
+            writer.writeUInt8(0);
+    }
+    return writer.toBuffer();
+};
+Packet.UpdateLeaderboard.prototype.buildFfa11 = function() {
+    var player = this.playerTracker;
+
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                                 // Packet ID
+    writer.writeUInt32(this.leaderboardCount >>> 0);         // Number of elements
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (this.leaderboard[i].getScore() / 100).toFixed();
+        if (item == null) return null;  // bad leaderboardm just don't send it
+
+        var name = item._nameUtf8;
+        if (name != null) {
+            writer.writeStringZeroUtf8(this.leaderboard[i].getFriendlyName() + " ~~~ " + score);
+        }
+        else
+            writer.writeUInt8(0);
+    }
+    return writer.toBuffer();
+};
+	}
+	else if (!this.config.leaderboardmass && this.config.leaderboardcurrentPos) {
+Packet.UpdateLeaderboard.prototype.buildFfa5 = function () {
+    var player = this.playerTracker;
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                 	  		   // Packet ID
+    writer.writeUInt32(this.leaderboardCount + 1 >>> 0);
+    writer.writeUInt32(0);
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (item.getScore() / 100).toFixed();
+        if (item == null) return null;   // bad leaderboard just don't send it
+        var name = item.getFriendlyName();
+        var j = i + 1;
+
+        if (name != null) {
+            if (i == 0) var info = (name).toString();
+            else info = ("	 " + name).toString();
+            writer.writeStringZeroUnicode(info);
+        }
+	}
+
+    			var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    			var info = ("	 Position " + pos).toString();
+    			writer.writeStringZeroUnicode(info);
+    		return writer.toBuffer();
+};
+
+Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
+    var player = this.playerTracker;
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                 	  		   // Packet ID
+    writer.writeUInt32(this.leaderboardCount + 1 >>> 0);
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        var score = (item.getScore() / 100).toFixed();
+        if (item == null) return null;   // bad leaderboard just don't send it
+        var name = item.getFriendlyName();
+        var j = i + 1;
+        var id = item == player ? 1 : 0;
+        writer.writeUInt32(id >>> 0);   // isMe flag
+        if (name != null) {
+            writer.writeStringZeroUtf8(name);
+        }
+	}
+    		writer.writeUInt32(1 >>> 0);
+    		var pos = this.leaderboard.indexOf(this.playerTracker) + 1 == 0 ? "" : this.leaderboard.indexOf(this.playerTracker) + 1;
+    		writer.writeStringZeroUtf8("Position: " + pos);
+    		return writer.toBuffer();
+};
+	}
 };
 
 GameServer.prototype.onHttpServerOpen = function() {
@@ -733,12 +953,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
     }
     // get movement speed
     var d = Math.sqrt(squared);
-    if (this.config.slithermode && client.slither) {
-    	var speed = cell1.getSpeed(d) * 2;
-        var self = this;
-        self.slitherEject(client);
-    }
-    else var speed = cell1.getSpeed(d);
+	var speed = cell1.getSpeed(d);
     if (!speed) return; // avoid shaking
 
     // move player cells
