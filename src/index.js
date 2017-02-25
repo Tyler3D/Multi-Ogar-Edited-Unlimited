@@ -34,7 +34,7 @@ process.argv.forEach(function (val) {
 
 // Run Ogar
 var gameServer = new GameServer();
-Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited-Unlimited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
 gameServer.start();
 
 // Add command handler
