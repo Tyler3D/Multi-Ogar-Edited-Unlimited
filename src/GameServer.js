@@ -18,7 +18,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.4.8';
+    this.version = '1.0.0';
     this.httpServer = null;
     this.wsServer = null;
     this.commands;
