@@ -1,4 +1,12 @@
 # Changelog
+#### 1.0.2:
+* Added New Gamemodes
+* Added Slither Mode
+* Fixed the good performance
+* Reverted back to 1.0.2 for some reason
+
+
+-------------
 #### 1.4.8:
 * Added multiple client bindings, thanks to @MastaCoder;
 * Cleaned up setNickname function in PacketHandler, thanks to @MastaCoder;
