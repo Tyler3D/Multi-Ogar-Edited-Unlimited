@@ -604,7 +604,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     };
 	}
 }
-if (!this.config.disableERTPcontrol) {
+if (this.config.disableERTPcontrol) {
 	PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
     this.handler = {
         0: this.message_onJoin.bind(this),
@@ -631,7 +631,8 @@ if (!this.config.disableERTPcontrol) {
     if (this.protocol < 4)
         this.gameServer.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
 };
-	PacketHandler.prototype.message_onKeyQ = function (message) {
+} else {
+		PacketHandler.prototype.message_onKeyQ = function (message) {
     if (message.length !== 1) return;
     var tick = this.gameServer.tickCoutner;
     var dt = tick - this.lastQTick;
