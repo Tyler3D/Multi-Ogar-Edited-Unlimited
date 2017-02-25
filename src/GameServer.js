@@ -74,8 +74,8 @@ function GameServer() {
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
         serverChat: 1,              // Set to 1 to allow chat; 0 to disable chat.
         serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only mode)
-        serverName: 'MultiOgar-Edited #1', // Server name
-        serverWelcome1: 'Welcome to MultiOgar-Edited!',      // First server welcome message
+        serverName: 'MultiOgar-Edited-Unlimited', // Server name
+        serverWelcome1: 'Welcome to MultiOgar-Edited-Unlimited!',      // First server welcome message
         serverWelcome2: '',         // Second server welcome message (for info, etc)
         clientBind: '',             // Only allow connections to the server from specified client (eg: http://agar.io - http://mywebsite.com - http://more.com) [Use ' - ' to seperate different websites]
         
@@ -1679,7 +1679,7 @@ GameServer.prototype.pingServerTracker = function() {
         uptime: process.uptime() >> 0,              // [mandatory] server uptime [seconds]
         w: this.border.width >> 0,                  // [mandatory] map border width [integer]
         h: this.border.height >> 0,                 // [mandatory] map border height [integer]
-        version: 'MultiOgar-Edited ' + this.version,       // [optional]  server version
+        version: 'MultiOgar-Edited-Unlimited ' + this.version,       // [optional]  server version
         stpavg: this.updateTimeAvg >> 0,            // [optional]  average server loop time
         chat: this.config.serverChat ? 1 : 0,       // [optional]  0 - chat disabled, 1 - chat enabled
         os: os.platform()                           // [optional]  operating system
@@ -1698,12 +1698,12 @@ GameServer.prototype.pingServerTracker = function() {
                '&spectators=' + spectatePlayers +
                '&max_players=' + this.config.serverMaxConnections +
                '&sport=' + this.config.serverPort +
-               '&gamemode=[**] ' + this.gameMode.name +             // we add [**] to indicate that this is MultiOgar-Edited server
+               '&gamemode=[***] ' + this.gameMode.name +             // we add [***] to indicate that this is MultiOgar-Edited-Unlimted server
                '&agario=true' +                                     // protocol version
                '&name=Unnamed Server' +                             // we cannot use it, because other value will be used as dns name
                '&opp=' + os.platform() + ' ' + os.arch() +          // "win32 x64"
                '&uptime=' + process.uptime() +                      // Number of seconds server has been running
-               '&version=MultiOgar-Edited ' + this.version +
+               '&version=MultiOgar-Edited-Unlimited ' + this.version +
                '&start_time=' + this.startTime;
     trackerRequest({
         host: 'ogar.mivabe.nl',
@@ -1723,7 +1723,7 @@ GameServer.prototype.pingServerTracker = function() {
 
 function trackerRequest(options, type, body) {
     if (options.headers == null) options.headers = {};
-    options.headers['user-agent'] = 'MultiOgar-Edited' + this.version;
+    options.headers['user-agent'] = 'MultiOgar-Edited-Unlimited' + this.version;
     options.headers['content-type'] = type;
     options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
     var req = http.request(options, function(res) {
