@@ -604,7 +604,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     };
 	}
 }
-if (this.config.disableERTPcontrol) {
+if (this.config.disableERTP) {
 	PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
     this.handler = {
         0: this.message_onJoin.bind(this),
@@ -621,7 +621,7 @@ if (this.config.disableERTPcontrol) {
     this.socket.sendPacket(new Packet.ClearAll());
     this.socket.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.gameServer.border, this.gameServer.config.serverGamemode, "MultiOgar-Edited-Unlimited " + this.gameServer.version));
     // Send welcome message
-    this.gameServer.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.gameServer.version);
+    this.gameServer.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited-Unlimited " + this.gameServer.version);
     if (this.gameServer.config.serverWelcome1)
         this.gameServer.sendChatMessage(null, this.socket.playerTracker, this.gameServer.config.serverWelcome1);
     if (this.gameServer.config.serverWelcome2)
