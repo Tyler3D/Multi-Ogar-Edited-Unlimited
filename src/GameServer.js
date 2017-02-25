@@ -18,7 +18,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.0.0';
+    this.version = '1.0.2';
     this.httpServer = null;
     this.wsServer = null;
     this.commands;
@@ -123,7 +123,6 @@ function GameServer() {
         minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERTP: 1,             // Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
-        disableQ: 0,                // Whether or not to disable Q controls for minions. (Set 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
@@ -527,8 +526,124 @@ Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
     this.mouse = this.owner.mouse;
 };
 	}
+	if (this.config.mobilePhysics) {
+	GameServer.prototype.checkRigidCollision = function(c) {
+    if (!c.cell1.owner || !c.cell2.owner)
+        return false;
+    if (c.cell1.owner != c.cell2.owner) {
+        // Different owners
+        return this.gameMode.haveTeams && 
+            c.cell1.owner.team == c.cell2.owner.team;
+    }
+    // The same owner
+    if (c.cell1.owner.mergeOverride)
+        return false;
+    if (c.cell1.getAge() < 1 || c.cell2.getAge() < 1) {
+        // just splited => ignore
+        return false;
+    }
+    return !c.cell1._canRemerge || !c.cell2._canRemerge;
 };
-
+GameServer.prototype.resolveCollision = function(manifold) {
+    var cell = manifold.cell1;
+    var check = manifold.cell2;
+    if (cell._size > check._size) {
+        cell = manifold.cell2;
+        check = manifold.cell1;
+    }
+    // check if any cell already eaten
+    if (cell.isRemoved || check.isRemoved)
+        return;
+    // check distance
+    var eatDistance = check._size - cell._size / 20;
+    if (manifold.squared >= eatDistance * eatDistance) {
+        return; // too far => can't eat
+    }
+    // collision owned => ignore, resolve, or remerge
+    if (cell.owner && cell.owner == check.owner) {
+        if (cell.getAge() < 13 || check.getAge() < 13)
+            return; // just splited => ignore
+    } else {
+        if (check._size < cell._size * 1.15) return; // size check
+        if (!check.canEat(cell)) return; // cell refuses to be eaten
+    }
+    // Now maxCell can eat minCell
+    cell.isRemoved = true;
+    
+    // Consume effect
+    check.onEat(cell);
+    cell.onEaten(check);
+    cell.killedBy = check;
+  
+    // update bounds & Remove cell
+    this.updateNodeQuad(check);
+    this.removeNode(cell);
+};
+GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) {
+    // Player cell limit
+    if (client.cells.length >= m) return;
+    
+    if (mass == null) {
+        var size1 = parent._size / 1.41421356;
+    } else {
+        var size2 = Math.sqrt(mass * 100);
+        size1 = Math.sqrt(parent._size * parent._size - size2 * size2);
+    }
+    
+    if (isNaN(size1) || size1 < this.config.playerMinSize) {
+        return false;
+    }
+    
+    // Remove mass from parent cell
+    parent.setSize(size1);
+    
+    // make a small shift to the cell position to prevent extrusion in wrong direction
+    var pos = {
+        x: parent.position.x + size1 * Math.sin(angle),
+        y: parent.position.y + size1 * Math.cos(angle)
+    };
+	}
+}
+if (!this.config.ERTPcontrol) {
+	PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
+    this.handler = {
+        0: this.message_onJoin.bind(this),
+        1: this.message_onSpectate.bind(this),
+        16: this.message_onMouse.bind(this),
+        17: this.message_onKeySpace.bind(this),
+        18: this.message_onKeyQ.bind(this),
+        21: this.message_onKeyW.bind(this),
+        99: this.message_onChat.bind(this),
+        254: this.message_onStat.bind(this),
+    };
+    this.protocol = protocol;
+    // Send handshake response
+    this.socket.sendPacket(new Packet.ClearAll());
+    this.socket.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.gameServer.border, this.gameServer.config.serverGamemode, "MultiOgar-Edited-Unlimited " + this.gameServer.version));
+    // Send welcome message
+    this.gameServer.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.gameServer.version);
+    if (this.gameServer.config.serverWelcome1)
+        this.gameServer.sendChatMessage(null, this.socket.playerTracker, this.gameServer.config.serverWelcome1);
+    if (this.gameServer.config.serverWelcome2)
+        this.gameServer.sendChatMessage(null, this.socket.playerTracker, this.gameServer.config.serverWelcome2);
+    if (this.gameServer.config.serverChat == 0)
+        this.gameServer.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
+    if (this.protocol < 4)
+        this.gameServer.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
+};
+} else if (this.config.ERTPcontrol) {
+	PacketHandler.prototype.message_onKeyQ = function (message) {
+    if (message.length !== 1) return;
+    var tick = this.gameServer.tickCoutner;
+    var dt = tick - this.lastQTick;
+    if (dt < this.gameServer.config.ejectCooldown) {
+        return;
+    }
+    this.lastQTick = tick;
+        this.pressQ = true
+};
+}
+}
 GameServer.prototype.onHttpServerOpen = function() {
     // Start Main Loop
     setTimeout(this.timerLoopBind, 1);
@@ -1163,8 +1278,7 @@ GameServer.prototype.checkRigidCollision = function(c) {
     // The same owner
     if (c.cell1.owner.mergeOverride)
         return false;
-    var r = (this.config.mobilePhysics) ? 1 : 13;
-    if (c.cell1.getAge() < r || c.cell2.getAge() < r) {
+    if (c.cell1.getAge() < 13 || c.cell2.getAge() < 13) {
         // just splited => ignore
         return false;
     }
@@ -1205,8 +1319,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
     if (cell.isRemoved || check.isRemoved)
         return;
     // check distance
-    var div = (this.config.mobilePhysics) ? 20 : 3;
-    var eatDistance = check._size - cell._size / div;
+    var eatDistance = check._size - cell._size / 3;
     if (manifold.squared >= eatDistance * eatDistance) {
         return; // too far => can't eat
     }
@@ -1250,10 +1363,9 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     parent.setSize(size1);
     
     // make a small shift to the cell position to prevent extrusion in wrong direction
-    var s = (this.config.mobilePhysics) ? size1 : 40;
     var pos = {
-        x: parent.position.x + s * Math.sin(angle),
-        y: parent.position.y + s * Math.cos(angle)
+        x: parent.position.x + 40 * Math.sin(angle),
+        y: parent.position.y + 40 * Math.cos(angle)
     };
     
     // Create cell
@@ -1698,7 +1810,7 @@ GameServer.prototype.pingServerTracker = function() {
                '&spectators=' + spectatePlayers +
                '&max_players=' + this.config.serverMaxConnections +
                '&sport=' + this.config.serverPort +
-               '&gamemode=[***] ' + this.gameMode.name +             // we add [***] to indicate that this is MultiOgar-Edited-Unlimted server
+               '&gamemode=[***] ' + this.gameMode.name +             // we add [***] to indicate that this is MultiOgar-Edited-Unlimited server
                '&agario=true' +                                     // protocol version
                '&name=Unnamed Server' +                             // we cannot use it, because other value will be used as dns name
                '&opp=' + os.platform() + ' ' + os.arch() +          // "win32 x64"
