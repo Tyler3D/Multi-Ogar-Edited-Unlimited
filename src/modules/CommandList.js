@@ -49,6 +49,7 @@ Commands.list = {
                     "│ freeze [PlayerID]            │ Freezes a player                          │\n"+
                     "│ speed [PlayerID]             │ Sets a players base speed                 │\n"+
                     "│ rec [PlayerID]               │ Gives a player instant-recombine          │\n"+
+                    "| popsplit [PlayerID]          | Gives a player Perfect Popsplits          |\n"+
                     "│ split [PlayerID] [Amount]    │ Forces a player to split                  │\n"+
                     "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
                     "│ pop [PlayerID]               │ Pops a player with any virus              │\n"+
@@ -646,6 +647,22 @@ Commands.list = {
                 client.rec = !client.rec;
                 if (client.rec) Logger.print(client.getFriendlyName() + " is now in rec mode!");
                 else Logger.print(client.getFriendlyName() + " is no longer in rec mode");
+            }
+        }
+    },
+    popsplit: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) {
+            Logger.warn("Please specify a valid player ID!");
+            return;
+        }
+
+        for (var i in gameServer.clients) {
+            var client = gameServer.clients[i].playerTracker;
+            if (client.pID == id) {
+                client.perfectpopsplit = !client.perfectpopsplit;
+                if (client.perfectpopsplit) Logger.print(client.getFriendlyName() + " is now in popsplit mode!");
+                else Logger.print(client.getFriendlyName() + " is no longer in popsplit mode");
             }
         }
     },
