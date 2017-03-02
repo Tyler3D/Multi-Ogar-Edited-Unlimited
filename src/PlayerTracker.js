@@ -1,5 +1,6 @@
 var Packet = require('./packet');
 var BinaryWriter = require("./packet/BinaryWriter");
+var UserRoleEnum = require("./enum/UserRoleEnum");
 
 function PlayerTracker(gameServer, socket) {
     this.gameServer = gameServer;
@@ -100,7 +101,6 @@ function PlayerTracker(gameServer, socket) {
         // Only scramble if enabled in config
         this.scramble();
     }
-    var UserRoleEnum = require("./enum/UserRoleEnum");
     this.userRole = UserRoleEnum.GUEST;
 }
 
@@ -199,6 +199,18 @@ PlayerTracker.prototype.updateMass = function () {
 PlayerTracker.prototype.joinGame = function (name, skin) {
     if (this.cells.length) return;
     if (name == null) name = "";
+    else {
+        // 4 = Admin 2 = Mod
+        if (this.userRole == UserRoleEnum.ADMIN) name = name + "ᴬᴰᴹᴵᴺ";
+        else if (this.userRole == UserRoleEnum.MODER) name = name + "ᴹᴼᴰᴱᴿ";
+    // Perform check to see if someone that isn't admin has a check
+    if (this.userRole != UserRoleEnum.ADMIN && this.userRole != UserRoleEnum.MODER) {
+                for (var i in name) {
+                name = name.replace('ᴬᴰᴹᴵᴺ', '');
+                name = name.replace('ᴹᴼᴰᴱᴿ', '');
+            }
+        }
+    }
     this.setName(name);
     if (skin != null)
         this.setSkin(skin);
@@ -231,7 +243,6 @@ PlayerTracker.prototype.joinGame = function (name, skin) {
         this.socket.sendPacket(new Packet.SetBorder(this, border));
     }
     this.spawnCounter++;
-    this.timeuntilsplit = 0;
     this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
 };
 
@@ -438,7 +449,7 @@ PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cell
     }
     if (!count) return;
     this.centerPos.x = cx / count;
-	this.centerPos.y = cy / count;
+    this.centerPos.y = cy / count;
 };
 
 PlayerTracker.prototype.updateCenterFreeRoam = function () {
