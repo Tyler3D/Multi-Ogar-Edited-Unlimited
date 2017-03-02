@@ -176,6 +176,10 @@ GameServer.prototype.start = function() {
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
     if (this.config.serverStatsPort > 0) this.startStatsServer(this.config.serverStatsPort);
     // Replace
+    this.changeFiles();
+};
+
+GameServer.prototype.changeFiles = function() {
     if (this.config.slithermode) {
     this.movePlayer = function(cell1, client) {
     if (client.socket.isConnected == false || client.frozen)
@@ -643,7 +647,7 @@ if (this.config.disableERTP) {
         this.pressQ = true
 };
 }
-}
+};
 GameServer.prototype.onHttpServerOpen = function() {
     // Start Main Loop
     setTimeout(this.timerLoopBind, 1);
