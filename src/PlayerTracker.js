@@ -70,6 +70,7 @@ function PlayerTracker(gameServer, socket) {
     this.viruspopcount = 0;
     this.lastwtick = 0;
     this.lastviruspoptick = 0;
+    this.timeuntilsplit = 0;
 
     // Custom commands
     this.spawnmass = 0;
@@ -243,6 +244,7 @@ PlayerTracker.prototype.joinGame = function (name, skin) {
         this.socket.sendPacket(new Packet.SetBorder(this, border));
     }
     this.spawnCounter++;
+    this.timeuntilsplit = 0;
     this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
 };
 
