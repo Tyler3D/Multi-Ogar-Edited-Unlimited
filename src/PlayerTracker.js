@@ -79,6 +79,8 @@ function PlayerTracker(gameServer, socket) {
     this.rec = false;
     this.disableSpawn = false;
     this.slither = false;
+    this.perfectpopsplit = false;
+    this.beingpopsplited = false;
     
     // Minions
     this.miQ = 0;
