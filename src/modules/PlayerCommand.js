@@ -66,7 +66,7 @@ var playerCommands = {
             this.writeLine("/minion - gives yourself or other players minions");
             this.writeLine("/minion remove - removes all of your minions or other players minions");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            this.writeLine("Showing Page 1 of 2.");
+            this.writeLine("Showing Page 1 of 3.");
             } else if (page == 2) {
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/userrole - Allows you to give User Role to a player ID - MUST BE ADMIN");
@@ -80,7 +80,11 @@ var playerCommands = {
             this.writeLine("/status - Shows Status of the Server");
             this.writeLine("/gamemode - Allows you to change the Game Mode of the Server. - MUST BE ADMIN");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            this.writeLine("Showing Page 2 of 2.");
+            this.writeLine("Showing Page 2 of 3.");
+            } else if (page == 3) {
+                this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                this.writeLine("/popsplit - Gives you the ability to do perfect popsplits (within reason)");
+                this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             }
         }
         else {
@@ -483,6 +487,33 @@ var playerCommands = {
                 } else {
                     this.writeLine(client._name + " is no longer in rec mode");
                     var text = this.playerTracker._name + " Removed your rec mode";
+                    this.gameServer.sendChatMessage(null, client, text); // notify
+                }
+            }
+        }
+    },
+    popsplit: function (args) {
+        var id = parseInt(args[1]);
+        if (isNaN(id)) {
+            this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
+            this.playerTracker.perfectpopsplit = !this.playerTracker.perfectpopsplit;
+            if (this.playerTracker.perfectpopsplit) this.writeLine(this.playerTracker._name + " is now in popsplit mode!");
+            else this.writeLine(this.playerTracker._name + " is no longer in popsplit mode");
+        }
+
+        // set popsplit for client
+        for (var i in this.gameServer.clients) {
+            var client = this.gameServer.clients[i].playerTracker;
+            if (client.pID == id) {
+                
+                client.popsplit = !client.popsplit;
+                if (client.popsplit) {
+                    this.writeLine(client._name + " is now in popsplit mode!");
+                    var text = this.playerTracker._name + " gave you the ability to do perfect popsplits!";
+                    this.gameServer.sendChatMessage(null, client, text); // notify
+                } else {
+                    this.writeLine(client._name + " is no longer in popsplit mode");
+                    var text = this.playerTracker._name + " Removed your ability to do perfect popsplits!";
                     this.gameServer.sendChatMessage(null, client, text); // notify
                 }
             }
