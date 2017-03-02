@@ -29,12 +29,18 @@ Virus.prototype.onEat = function (prey) {
 
 Virus.prototype.onEaten = function (c) {
     if (c.owner == null) return;
-
     var minSize = this.gameServer.config.playerMinSize,
     min = (minSize == 32) ? 30 : minSize, // minimun size of small splits
     cellsLeft = this.gameServer.config.playerMaxCells - c.owner.cells.length,
     numSplits = cellsLeft < (c._mass / 16) ? cellsLeft : (c._mass / 16),
     splitMass = (c._mass / numSplits) < min ? (c._mass / numSplits) : min;
+    if (c.owner.beingpopsplited) {
+        for (var t = 0; t < 512; t++) {
+            var angle = 2 * Math.PI * Math.random();
+            this.gameServer.splitPlayerCell(c.owner, c, angle, min)
+        }
+    
+    } else {
     
     // Diverse explosion(s)
     var big = [];
@@ -69,6 +75,7 @@ Virus.prototype.onEaten = function (c) {
         angle = 2 * Math.PI * Math.random(); // random directions
         this.gameServer.splitPlayerCell(c.owner, c, angle, min);
     }
+  }
 };
 
 Virus.prototype.onAdd = function (gameServer) {
