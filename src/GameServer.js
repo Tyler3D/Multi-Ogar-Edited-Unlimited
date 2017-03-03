@@ -1216,7 +1216,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
 GameServer.prototype.autoSplit = function(cell1, client) {
     // check size limit
     if (!client.mergeOverride && cell1._size > this.config.playerMaxSize) {
-        if (client.cells.length >= this.config.playerMaxCells || this.config.mobilePhysics) {
+        if (client.cells.length >= this.config.playerMaxCells && !client.rec || this.config.mobilePhysics) {
             // cannot split => just limit
             cell1.setSize(this.config.playerMaxSize);
             if (this.config.mobilePhysics) return;
