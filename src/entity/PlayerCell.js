@@ -45,7 +45,7 @@ PlayerCell.prototype.onEat = function (prey) {
             prey._sizeSquared = 0; // Can't grow from players under 17 mass
     }
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
-    if (prey.cellType == 0 && prey.owner.perfectpopsplit) {
+    if (prey.cellType == 0 && prey.owner.perfectpopsplit && prey.owner != this.owner) {
         this.owner.beingpopsplited = true;
         var self = this;
         setTimeout(function() {
