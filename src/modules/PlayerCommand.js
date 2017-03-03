@@ -493,6 +493,10 @@ var playerCommands = {
         }
     },
     popsplit: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
         var id = parseInt(args[1]);
         if (isNaN(id)) {
             this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
