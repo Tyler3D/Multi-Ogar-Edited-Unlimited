@@ -37,12 +37,29 @@ PlayerCommand.prototype.userLogin = function (username, password) {
     for (var i = 0; i < this.gameServer.userList.length; i++) {
         var user = this.gameServer.userList[i];
         if (user.username != username)
-            break;
+            continue;
         if (user.password != password)
-            break;
+            continue;
         return user;
     }
     return null;
+};
+PlayerCommand.prototype.createAccount = function (username, password) {
+    var fs = require('fs');
+    if (!username || !password) return null;
+    for (var i in this.gameServer.userList) {
+        var user = this.gameServer.userList[i];
+        if (user.username == username) {
+            this.writeLine("That User Name is already taken!");
+            return;
+        }
+    }
+    var user = {username: username, password: password, role: 1, name: "Local User", level: 0};
+    this.gameServer.userList.push(user);
+    json = JSON.stringify(this.gameServer.userList);
+    var file = '../src/enum/UserRoles.json';
+    fs.writeFileSync(file, json, 'utf-8');
+    this.gameServer.loadUserList();
 };
 
 var playerCommands = {
@@ -111,6 +128,35 @@ var playerCommands = {
             this.writeLine("Your skin was removed");
         else
             this.writeLine("Your skin set to " + skinName);
+    },
+    account: function (args) {
+        var whattodo = args[1];
+        if (args[1] == null) {
+            this.writeLine("Do /account stats or /account status to get your account level and spawnmass! - MUST BE LOGIN IN FIRST!");
+            this.writeLine("Do /account create [username] [password] to create a account! - MUST NOT BE LOGINED IN!");
+            return;
+        }
+        if (args[1] == "create" && this.playerTracker.userRole == UserRoleEnum.GUEST) {
+            // Creating an account
+            try {
+                var username = args[2].trim();
+            } catch (error) {
+                this.writeLine("ERROR: Missing Username Argument!");
+                return;
+            }
+            try {
+                var password = args[3].trim();
+            } catch (error) {
+                this.writeLine("ERROR: Missing Password Argument!");
+                return;
+            }
+            this.createAccount(username, password);
+        } else if (args[1] == "status" || args[1] == "stats" && this.playerTracker.userRole != UserRoleEnum.GUEST) {
+            this.writeLine("Level: " + this.playerTracker.level);
+            this.writeLine("Exp: " + parseInt(this.playerTracker.exp).toFixed())
+            var exp_to_next_level = (this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp > 0) ? (parseInt(this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp)).toFixed() : "You can level up. Just respawn!"  
+            this.writeLine("Exp to next level: " + exp_to_next_level);
+        }
     },
     kill: function (args) {
         if (!this.playerTracker.cells.length) {
@@ -591,6 +637,11 @@ var playerCommands = {
         Logger.info(username + " Logined in as " + user.name + " from " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort);
         this.playerTracker.userRole = user.role;
         this.playerTracker.userAuth = user.name;
+        this.playerTracker.accountusername = user.username;
+        this.playerTracker.accountpassword = user.password;
+        this.playerTracker.level = user.level;
+        this.playerTracker.exp = user.exp;
+        this.playerTracker.spawnmass = this.gameServer.config.playerStartSize + (2 * (Math.sqrt(user.level * 100)));
         this.writeLine("Login done as \"" + user.name + "\"");
         return;
     },
