@@ -54,7 +54,7 @@ PlayerCommand.prototype.createAccount = function (username, password) {
             return;
         }
     }
-    var user = {username: username, password: password, role: 1, name: "Local User", level: 0};
+    var user = {username: username, password: password, role: 1, name: "Local User", level: 0, exp: 0};
     this.gameServer.userList.push(user);
     json = JSON.stringify(this.gameServer.userList);
     var file = '../src/enum/UserRoles.json';
@@ -152,6 +152,8 @@ var playerCommands = {
                 return;
             }
             this.createAccount(username, password);
+            this.writeLine("Successfully Created your Account!");
+            this.writeLine("Do /login [User Name] [Password] to login in!")
         } else if (args[1] == "status" || args[1] == "stats" && this.playerTracker.userRole != UserRoleEnum.GUEST) {
             this.writeLine("Level: " + this.playerTracker.level);
             this.writeLine("Exp: " + parseInt(this.playerTracker.exp).toFixed())
