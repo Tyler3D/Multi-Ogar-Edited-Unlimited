@@ -1,20 +1,26 @@
 [
     { 
-	"username":"",
-        "password":"",
+		"username":"Tyler",
+        "password":"Tylderyler3D",
         "role":"ADMIN",
-        "name":"Local Administrator" 
+        "name":"Local Administrator",
+		"level":"100",
+		"exp":"0"
     },
     { 
-	"username":"",
-        "password":"",
+		"username":"Moder",
+        "password":"Moder",
         "role":"MODER",
-        "name":"Local Moderator" 
+        "name":"Local Moderator",
+		"level":"100",
+		"exp":"0"
     },
     { 
-	"username":"",		
-        "password":"",
+		"username":"User",		
+        "password":"User",
         "role":"USER",
-        "name":"Local User" 
+        "name":"Local User",
+		"level":"0",
+		"exp":"0"
     }
 ]
