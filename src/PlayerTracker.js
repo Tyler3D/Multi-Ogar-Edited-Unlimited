@@ -51,6 +51,112 @@ function PlayerTracker(gameServer, socket) {
         halfHeight: 0
     };
     
+    // Account system
+    this.level = 0;
+    this.levelexps = [
+    	50,
+    	125,
+    	250,
+    	500,
+    	1000,
+    	1600,
+    	2300,
+    	3100,
+    	4000,
+    	5000,
+    	6100,
+    	7300,
+    	8600,
+    	10000,
+    	11500,
+    	13100,
+    	14800,
+    	16600,
+    	18500,
+    	20500,
+    	22600,
+    	24800,
+    	27100,
+    	29500,
+    	32000,
+    	34600,
+    	37300,
+    	40100,
+    	43000,
+    	46000,
+    	49100,
+    	52300,
+    	55600,
+    	59000,
+    	62500,
+    	66100,
+    	69800,
+    	73600,
+    	77500,
+    	81500,
+    	85600,
+    	89800,
+    	94100,
+    	98500,
+    	103000,
+    	107600,
+    	112300,
+    	127000,
+    	132100,
+    	137300,
+    	142600,
+    	148000,
+    	153500,
+    	159100,
+    	164800,
+    	170600,
+    	176500,
+    	182500,
+    	188600,
+    	194800,
+    	201100,
+    	207500,
+    	214000,
+    	220600,
+    	227300,
+    	234100,
+    	241000,
+    	248000,
+    	255100,
+    	262300,
+    	269600,
+    	277000,
+    	284500,
+    	292100,
+    	299800,
+    	307600,
+    	315500,
+    	323500,
+    	331600,
+    	339800,
+    	348100,
+    	356500,
+    	365000,
+    	373600,
+    	382300,
+    	391100,
+    	400000,
+    	409000,
+    	418100,
+    	427300,
+    	436600,
+    	446000,
+    	455500,
+    	465100,
+    	474800,
+    	484600,
+    	494500,
+    ];
+    this.exp = 0;
+    this.accountusername = "";
+    this.accountpassword = "";
+
+
     // Scramble the coordinate system for anti-raga
     this.scrambleX = 0;
     this.scrambleY = 0;
@@ -130,6 +236,27 @@ PlayerTracker.prototype.scramble = function () {
     }
     this.borderCounter = 0;
 };
+PlayerTracker.prototype.onLevel = function () {
+	var fs = require('fs');
+	var newuser = {
+		user: this.accountusername,
+		password: this.accountpassword,
+		role: this.userRole,
+		name: this.userAuth,
+		level: this.level
+	}
+    for (var i in this.gameServer.userList) {
+        var user = this.gameServer.userList[i];
+
+        if (user.username == this.accountusername && user.password == this.accountpassword) {
+    		this.gameServer.userList[user] = newuser;
+    		json = JSON.stringify(this.gameServer.userList);
+    		var file = '../src/enum/UserRoles.json';
+    		fs.writeFileSync(file, json, 'utf-8');
+    		this.gameServer.loadUserList();
+        }
+    }
+};
 
 PlayerTracker.prototype.getFriendlyName = function () {
     if (!this._name) this._name = "";
@@ -180,7 +307,6 @@ PlayerTracker.prototype.getScale = function () {
     if (this.isMassChanged) this.updateMass();
     return this._scale;
 };
-
 PlayerTracker.prototype.updateMass = function () {
     var totalSize = 0;
     var totalScore = 0;
@@ -200,6 +326,15 @@ PlayerTracker.prototype.updateMass = function () {
 };
 
 PlayerTracker.prototype.joinGame = function (name, skin) {
+	for (var i in this.levelexps) {
+		if (this.levelexps[i + 1] < this.level)
+			continue;
+		if (this.exp > this.levelexps[i] && this.level < 101) {
+			this.level++;
+			this.exp = this.exp - this.levelexps[i];
+			this.onLevel();
+		}
+	}
     if (this.cells.length) return;
     if (name == null) name = "";
     else {
