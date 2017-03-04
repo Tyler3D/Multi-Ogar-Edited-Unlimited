@@ -642,7 +642,7 @@ var playerCommands = {
         this.playerTracker.accountpassword = user.password;
         this.playerTracker.level = user.level;
         this.playerTracker.exp = user.exp;
-        this.playerTracker.spawnmass = this.gameServer.config.playerStartSize + (2 * (Math.sqrt(user.level * 100)));
+        this.playerTracker.spawnmass = (this.gameServer.config.playerStartSize + (2 * (Math.sqrt(user.level * 100))) < 500) ? this.gameServer.config.playerStartSize + (2 * (Math.sqrt(user.level * 100))) : 500; // 2500 Spawnmass is wayy too much
         this.writeLine("Login done as \"" + user.name + "\"");
         return;
     },
