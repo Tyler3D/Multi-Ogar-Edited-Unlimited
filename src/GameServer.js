@@ -111,7 +111,7 @@ function GameServer() {
         playerMinSize: 32,          // Minimym size of the player cell (mass = 32*32/100 = 10.24)
         playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
         playerMinSplitSize: 60,     // Minimum player cell size allowed to split (mass = 60*60/100 = 36) 
-        playerStartSize: 64,        // Start size of the player cell (mass = 64*64/100 = 41)
+        playerStartSize: 32,        // Start size of the player cell (mass = 64*64/100 = 41)
         playerMaxCells: 16,         // Max cells the player is allowed to have
         playerSpeed: 1,             // Player speed multiplier
         playerDecayRate: .002,      // Amount of player cell size lost per second
@@ -1638,7 +1638,9 @@ GameServer.prototype.loadUserList = function() {
             if (!item.hasOwnProperty("username") ||
                 !item.hasOwnProperty("password") ||
                 !item.hasOwnProperty("role") ||
-                !item.hasOwnProperty("name")) {
+                !item.hasOwnProperty("name") ||
+                !item.hasOwnProperty("level") ||
+                !item.hasOwnProperty("exp")) {
                 list.splice(i, 1);
                 continue;
             }
