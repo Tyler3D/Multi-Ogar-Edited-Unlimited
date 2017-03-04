@@ -239,23 +239,25 @@ PlayerTracker.prototype.scramble = function () {
 PlayerTracker.prototype.onLevel = function () {
 	var fs = require('fs');
 	var newuser = {
-		user: this.accountusername,
+		username: this.accountusername,
 		password: this.accountpassword,
 		role: this.userRole,
 		name: this.userAuth,
-		level: this.level
+		level: this.level,
+        exp: this.exp
 	}
     for (var i in this.gameServer.userList) {
         var user = this.gameServer.userList[i];
 
         if (user.username == this.accountusername && user.password == this.accountpassword) {
-    		this.gameServer.userList[user] = newuser;
+    		this.gameServer.userList[i] = newuser;
     		json = JSON.stringify(this.gameServer.userList);
     		var file = '../src/enum/UserRoles.json';
     		fs.writeFileSync(file, json, 'utf-8');
     		this.gameServer.loadUserList();
         }
     }
+    this.spawnmass = (this.gameServer.config.playerStartSize + (2 * (Math.sqrt(this.level * 100))) < 500) ? this.gameServer.config.playerStartSize + (2 * (Math.sqrt(this.level * 100))) : 500; // 2500 Spawnmass is wayy too much
 };
 
 PlayerTracker.prototype.getFriendlyName = function () {
