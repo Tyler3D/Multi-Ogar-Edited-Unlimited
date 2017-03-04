@@ -52,4 +52,5 @@ PlayerCell.prototype.onEat = function (prey) {
         self.owner.beingpopsplited = false;
         }, 500) // 0.5 Seconds after inital popsplit
     }
+    this.owner.exp += ((Math.sqrt(prey._sizeSquared)) / 20);
 };
