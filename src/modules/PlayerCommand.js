@@ -110,6 +110,7 @@ var playerCommands = {
             this.writeLine("/kill - self kill");
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
+            this.writeLine("/account - Allows you to manage your account");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             }
     },
