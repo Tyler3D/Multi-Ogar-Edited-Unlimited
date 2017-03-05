@@ -14,6 +14,7 @@ function PlayerTracker(gameServer, socket) {
     this._nameUtf8 = null;
     this._nameUnicode = null;
     this._skinUtf8 = null;
+    this._skinUtf8protocol11 = null;
     this.color = { r: 0, g: 0, b: 0 };
     this.viewNodes = [];
     this.clientNodes = [];
@@ -24,6 +25,7 @@ function PlayerTracker(gameServer, socket) {
     this._scaleF = 1;
     this.isMassChanged = true;
     this.borderCounter = 0;
+    this.skinChanger = false;
     
     this.tickLeaderboard = 0;
     this.team = 0;
@@ -291,6 +293,9 @@ PlayerTracker.prototype.setSkin = function (skin) {
     var writer = new BinaryWriter();
     writer.writeStringZeroUtf8(skin);
     this._skinUtf8 = writer.toBuffer();
+    var writer1 = new BinaryWriter();
+    writer1.writeStringZeroUtf8("%" + skin);
+    this._skinUtf8protocol11 = writer1.toBuffer();
 };
 
 PlayerTracker.prototype.setColor = function (color) {
