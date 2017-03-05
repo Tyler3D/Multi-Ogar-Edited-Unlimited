@@ -50,7 +50,18 @@ function PlayerTracker(gameServer, socket) {
         halfWidth: 0,
         halfHeight: 0
     };
-    
+        // Gamemode function
+    if (gameServer) {
+        this.connectedTime = gameServer.stepDateTime;
+        this.centerPos.x = gameServer.border.centerx;
+        this.centerPos.y = gameServer.border.centery;
+        // Player id
+        this.pID = gameServer.lastPlayerId++ >> 0;
+        // Gamemode function
+        gameServer.gameMode.onPlayerInit(this);
+        // Only scramble if enabled in config
+        this.scramble();
+    }
     // Account system
     this.level = 0;
     this.levelexps = [
@@ -153,7 +164,7 @@ function PlayerTracker(gameServer, socket) {
     	494500,
     ];
     this.exp = 0;
-    this.accountusername = "";
+    this.accountusername = this.pID;
     this.accountpassword = "";
 
 
@@ -198,18 +209,6 @@ function PlayerTracker(gameServer, socket) {
     this.collectPellets = false;
     this.minionSlither = false;
     
-    // Gamemode function
-    if (gameServer) {
-        this.connectedTime = gameServer.stepDateTime;
-        this.centerPos.x = gameServer.border.centerx;
-        this.centerPos.y = gameServer.border.centery;
-        // Player id
-        this.pID = gameServer.lastPlayerId++ >> 0;
-        // Gamemode function
-        gameServer.gameMode.onPlayerInit(this);
-        // Only scramble if enabled in config
-        this.scramble();
-    }
     this.userRole = UserRoleEnum.GUEST;
 }
 
