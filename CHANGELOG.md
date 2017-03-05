@@ -1,4 +1,13 @@
 # Changelog
+#### 1.0.3:
+* Added Popsplit Mode
+* Added semi-vanilla level-up system
+* Chat shows your id in front of your name
+* Reduced lag when using less configs
+* Updated the changelog
+
+
+-------------
 #### 1.0.2:
 * Added New Gamemodes
 * Added Slither Mode
