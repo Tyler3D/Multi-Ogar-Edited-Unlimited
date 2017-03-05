@@ -120,17 +120,38 @@ var playerCommands = {
         this.writeLine("Your PlayerID is " + this.playerTracker.pID);
     },
     skin: function (args) {
-        if (this.playerTracker.cells.length) {
-            this.writeLine("ERROR: Cannot change skin while player in game!");
-            return;
-        }
         var skinName = "";
         if (args[1]) skinName = args[1];
         this.playerTracker.setSkin(skinName);
         if (skinName == "")
             this.writeLine("Your skin was removed");
-        else
+        else if (skinName == "c" || skinName == "changer") {
+        	this.playerTracker.skinchanger = !this.playerTracker.skinchanger;
+        	if (this.playerTracker.skinchanger) {
+        		this.writeLine("You now have a skin changer!");
+        		var self = this;
+        		setInterval(function() {
+        		var rSkin = self.playerTracker.socket.packetHandler.getRandomSkin();
+        		self.playerTracker.setSkin(rSkin);
+        		for (var i in self.playerTracker.cells) {
+        		var cell = self.playerTracker.cells[i];
+        		var Player = require('../entity/PlayerCell');
+        		var newCell = new Player(self.gameServer, self.playerTracker, cell.position, cell._size);
+        		self.gameServer.removeNode(cell);
+        		self.gameServer.addNode(newCell);
+        	}
+				}, 5000) // Every 5 seconds
+        	} else this.writeLine("Your skin changer was removed!");
+        } else {
+        	for (var i in this.playerTracker.cells) {
+        		var cell = this.playerTracker.cells[i];
+        		var Player = require('../entity/PlayerCell');
+        		var newCell = new Player(this.gameServer, this.playerTracker, cell.position, cell._size);
+        		this.gameServer.removeNode(cell);
+        		this.gameServer.addNode(newCell);
+        	}
             this.writeLine("Your skin set to " + skinName);
+        }
     },
     account: function (args) {
         var whattodo = args[1];
