@@ -44,6 +44,7 @@ PlayerCommand.prototype.userLogin = function (username, password) {
     }
     return null;
 };
+
 PlayerCommand.prototype.createAccount = function (username, password) {
     var fs = require('fs');
     if (!username || !password) return null;
@@ -153,11 +154,20 @@ var playerCommands = {
             }
             this.createAccount(username, password);
             this.writeLine("Successfully Created your Account!");
-            this.writeLine("Do /login [User Name] [Password] to login in!")
+            this.writeLine("Do /login [User Name] [Password] to login in!");
         } else if (args[1] == "status" || args[1] == "stats" && this.playerTracker.userRole != UserRoleEnum.GUEST) {
             this.writeLine("Level: " + this.playerTracker.level);
             this.writeLine("Exp: " + parseInt(this.playerTracker.exp).toFixed())
-            var exp_to_next_level = (this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp > 0) ? (parseInt(this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp)).toFixed() : "You can level up. Just respawn!"  
+            var exp_to_next_level;
+            if (this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp > 0 && this.playerTracker.level < 99) {
+                exp_to_next_level = "You can level up. Just respawn!";
+            } else if (this.playerTracker.level > 100) {
+                exp_to_next_level = "You have achieved the highest level";
+            } else if (this.playerTracker.level == 100) {
+                exp_to_next_level = "You only have one level left!";
+            } else {
+                exp_to_next_level = (parseInt(this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp)).toFixed()
+            }
             this.writeLine("Exp to next level: " + exp_to_next_level);
         }
     },
