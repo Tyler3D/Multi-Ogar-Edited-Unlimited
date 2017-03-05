@@ -17,7 +17,7 @@ process.on('exit', function (code) {
 process.on('uncaughtException', function (err) {
     Logger.fatal(err.stack);
     Logger.warn("RESTARTING SERVER")
-    setTimeout(function(){process.exit(3)}, 5000);
+    setTimeout(function() {process.exit(3) }, 5500);
 });
 
 // Handle arguments
