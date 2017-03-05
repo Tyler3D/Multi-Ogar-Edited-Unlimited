@@ -313,7 +313,7 @@ UpdateNodes.prototype.writeUpdateItems11 = function (writer) {
         var skinName = null;
         var cellName = null;
         if (node.owner) {
-            skinName = node.owner._skinUtf8;
+            skinName = node.owner._skinUtf8protocol11; // _skinUtf8protocol11
             cellName = node.owner._nameUtf8;
         }
 
