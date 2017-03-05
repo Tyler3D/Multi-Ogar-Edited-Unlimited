@@ -3,7 +3,7 @@ Ogar game server with fast and smooth vanilla physics and multi-protocol support
 
 This is my Mess around Fork of Mult-Ogar-Edited. It's purpose is to have OgarUL like features implemented into Multi-Ogar- Edited
 
-Current version: **1.0.2**
+Current version: **1.0.3**
 
 ## Project Info
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
