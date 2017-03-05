@@ -127,7 +127,6 @@ var playerCommands = {
             this.writeLine("Your skin was removed");
         else if (skinName == "c" || skinName == "changer") {
         	this.playerTracker.skinchanger = !this.playerTracker.skinchanger;
-        	if (this.playerTracker.skinchanger) {
         		this.writeLine("You now have a skin changer!");
         		var self = this;
         		setInterval(function() {
@@ -141,8 +140,8 @@ var playerCommands = {
         		self.gameServer.addNode(newCell);
         	}
 				}, 5000) // Every 5 seconds
-        	} else this.writeLine("Your skin changer was removed!");
-        } else {
+        	}
+		 else {
         	for (var i in this.playerTracker.cells) {
         		var cell = this.playerTracker.cells[i];
         		var Player = require('../entity/PlayerCell');
