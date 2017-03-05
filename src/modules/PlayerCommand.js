@@ -5,6 +5,7 @@ function PlayerCommand(gameServer, playerTracker) {
     this.gameServer = gameServer;
     this.playerTracker = playerTracker;
     this.roleList = [];
+    this.SCInterval;
 }
 
 module.exports = PlayerCommand;
@@ -12,7 +13,20 @@ module.exports = PlayerCommand;
 PlayerCommand.prototype.writeLine = function (text) {
     this.gameServer.sendChatMessage(null, this.playerTracker, text);
 };
-
+PlayerCommand.prototype.skinchanger = function () {
+	    var self = this;
+        this.SCInterval = setInterval(function() {
+        var rSkin = self.playerTracker.socket.packetHandler.getRandomSkin();
+        self.playerTracker.setSkin(rSkin);
+        for (var i in self.playerTracker.cells) {
+        var cell = self.playerTracker.cells[i];
+        var Player = require('../entity/PlayerCell');
+        var newCell = new Player(self.gameServer, self.playerTracker, cell.position, cell._size);
+        self.gameServer.removeNode(cell);
+        self.gameServer.addNode(newCell);
+       }
+		}, 10000) // Every 10 seconds
+}
 PlayerCommand.prototype.executeCommandLine = function(commandLine) {
     if (!commandLine) return;
     
@@ -122,26 +136,22 @@ var playerCommands = {
     skin: function (args) {
         var skinName = "";
         if (args[1]) skinName = args[1];
-        this.playerTracker.setSkin(skinName);
-        if (skinName == "")
+        if (skinName == "") {
+        	this.playerTracker.setSkin(skinName);
             this.writeLine("Your skin was removed");
+        }
         else if (skinName == "c" || skinName == "changer") {
         	this.playerTracker.skinchanger = !this.playerTracker.skinchanger;
+        	if (this.playerTracker.skinchanger) {
         		this.writeLine("You now have a skin changer!");
-        		var self = this;
-        		setInterval(function() {
-        		var rSkin = self.playerTracker.socket.packetHandler.getRandomSkin();
-        		self.playerTracker.setSkin(rSkin);
-        		for (var i in self.playerTracker.cells) {
-        		var cell = self.playerTracker.cells[i];
-        		var Player = require('../entity/PlayerCell');
-        		var newCell = new Player(self.gameServer, self.playerTracker, cell.position, cell._size);
-        		self.gameServer.removeNode(cell);
-        		self.gameServer.addNode(newCell);
+        		this.skinchanger();
+        	} else {
+        		this.writeLine("You no longer have a skin changer");
+        		clearInterval(this.SCInterval);
         	}
-				}, 5000) // Every 5 seconds
-        	}
+        } 
 		 else {
+		 	this.playerTracker.setSkin(skinName);
         	for (var i in this.playerTracker.cells) {
         		var cell = this.playerTracker.cells[i];
         		var Player = require('../entity/PlayerCell');
@@ -151,7 +161,7 @@ var playerCommands = {
         	}
             this.writeLine("Your skin set to " + skinName);
         }
-    },
+},
     account: function (args) {
         var whattodo = args[1];
         if (args[1] == null) {
