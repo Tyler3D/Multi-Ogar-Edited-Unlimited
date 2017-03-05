@@ -52,7 +52,7 @@ PlayerCommand.prototype.createAccount = function (username, password) {
         var user = this.gameServer.userList[i];
         if (user.username == username) {
             this.writeLine("That User Name is already taken!");
-            return;
+            return false;
         }
     }
     var user = {username: username, password: password, role: 1, name: "Local User", level: 0, exp: 0};
@@ -61,6 +61,7 @@ PlayerCommand.prototype.createAccount = function (username, password) {
     var file = '../src/enum/UserRoles.json';
     fs.writeFileSync(file, json, 'utf-8');
     this.gameServer.loadUserList();
+    return true;
 };
 
 var playerCommands = {
@@ -152,14 +153,16 @@ var playerCommands = {
                 this.writeLine("ERROR: Missing Password Argument!");
                 return;
             }
-            this.createAccount(username, password);
+            var test = this.createAccount(username, password);
+            if (test) {
             this.writeLine("Successfully Created your Account!");
             this.writeLine("Do /login [User Name] [Password] to login in!");
+        }
         } else if (args[1] == "status" || args[1] == "stats" && this.playerTracker.userRole != UserRoleEnum.GUEST) {
             this.writeLine("Level: " + this.playerTracker.level);
             this.writeLine("Exp: " + parseInt(this.playerTracker.exp).toFixed())
             var exp_to_next_level;
-            if (this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp > 0 && this.playerTracker.level < 99) {
+            if (this.playerTracker.levelexps[this.playerTracker.level + 1] - this.playerTracker.exp < 0 && this.playerTracker.level < 99) {
                 exp_to_next_level = "You can level up. Just respawn!";
             } else if (this.playerTracker.level > 100) {
                 exp_to_next_level = "You have achieved the highest level";
