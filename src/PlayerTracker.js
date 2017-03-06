@@ -332,15 +332,6 @@ PlayerTracker.prototype.updateMass = function () {
 };
 
 PlayerTracker.prototype.joinGame = function (name, skin) {
-	for (var i in this.levelexps) {
-		if (this.levelexps[i + 1] < this.level)
-			continue;
-		if (this.exp > this.levelexps[i] && this.level < 101) {
-			this.level++;
-			this.exp = this.exp - this.levelexps[i];
-			this.onLevel();
-		}
-	}
     if (this.cells.length) return;
     if (name == null) name = "";
     else {
