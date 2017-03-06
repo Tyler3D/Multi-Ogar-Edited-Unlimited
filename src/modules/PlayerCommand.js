@@ -680,6 +680,66 @@ var playerCommands = {
             this.writeLine("ERROR: login failed!");
             return;
         }
+        var PlayerTracker = require("../PlayerTracker");
+        PlayerTracker.prototype.joinGame = function (name, skin) {
+	for (var i in this.levelexps) {
+		if (this.levelexps[i + 1] < this.level)
+			continue;
+		if (this.exp > this.levelexps[i] && this.level < 101) {
+			this.level++;
+			this.exp = this.exp - this.levelexps[i];
+			this.onLevel();
+		}
+	}
+    if (this.cells.length) return;
+    if (name == null) name = "";
+    else {
+        // 4 = Admin 2 = Mod
+        if (this.userRole == UserRoleEnum.ADMIN) name = name + "ᴬᴰᴹᴵᴺ";
+        else if (this.userRole == UserRoleEnum.MODER) name = name + "ᴹᴼᴰᴱᴿ";
+    // Perform check to see if someone that isn't admin has a check
+    if (this.userRole != UserRoleEnum.ADMIN && this.userRole != UserRoleEnum.MODER) {
+                for (var i in name) {
+                name = name.replace('ᴬᴰᴹᴵᴺ', '');
+                name = name.replace('ᴹᴼᴰᴱᴿ', '');
+            }
+        }
+    }
+    this.setName(name);
+    if (skin != null)
+        this.setSkin(skin);
+    this.spectate = false;
+    this.freeRoam = false;
+    this.spectateTarget = null;
+    
+    // some old clients don't understand ClearAll message
+    // so we will send update for them
+    if (this.socket.packetHandler.protocol < 6) {
+        this.socket.sendPacket(new Packet.UpdateNodes(this, [], [], [], this.clientNodes));
+    }
+    this.socket.sendPacket(new Packet.ClearAll());
+    this.clientNodes = [];
+    this.scramble();
+    if (this.gameServer.config.serverScrambleLevel < 2) {
+        // no scramble / lightweight scramble
+        this.socket.sendPacket(new Packet.SetBorder(this, this.gameServer.border));
+    }
+    else if (this.gameServer.config.serverScrambleLevel == 3) {
+        var ran = 0x10000 + 10000000 * Math.random();
+        // Scramble level 3 (no border)
+        // Ruins most known minimaps
+        var border = {
+            minx: this.gameServer.border.minx - (ran),
+            miny: this.gameServer.border.miny - (ran),
+            maxx: this.gameServer.border.maxx + (ran),
+            maxy: this.gameServer.border.maxy + (ran)
+        };
+        this.socket.sendPacket(new Packet.SetBorder(this, border));
+    }
+    this.spawnCounter++;
+    this.timeuntilsplit = 0;
+    this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+};
         Logger.info(username + " Logined in as " + user.name + " from " + this.playerTracker.socket.remoteAddress + ":" + this.playerTracker.socket.remotePort);
         this.playerTracker.userRole = user.role;
         this.playerTracker.userAuth = user.name;
