@@ -39,6 +39,8 @@ function GameServer() {
     
     var BotLoader = require('./ai/BotLoader');
     this.bots = new BotLoader(this);
+    var PluginHandler = require('./PluginHandler');
+    this.PluginHandler = new PluginHandler(this);
     
     // Main loop tick
     this.startTime = Date.now();
@@ -135,6 +137,7 @@ function GameServer() {
     this.userList = [];
     this.badWords = [];
 
+
     // Parse config
     this.loadConfig();
     this.loadIpBanList();
@@ -156,7 +159,7 @@ GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
-    
+    this.PluginHandler.load();
     // Client Binding
     var bind =  this.config.clientBind + "";
     this.clientBind = bind.split(' - ');

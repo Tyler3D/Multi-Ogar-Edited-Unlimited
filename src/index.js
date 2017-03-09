@@ -54,7 +54,9 @@ if (showConsole) {
 function prompt() {
     in_.question(">", function (str) {
         try {
-            parseCommands(str);
+            var thing = parseCommands(str);
+            if (thing);
+            parsePluginCommands(str);
         } catch (err) {
             Logger.error(err.stack);
         } finally {
@@ -81,7 +83,30 @@ function parseCommands(str) {
     var execute = gameServer.commands[first];
     if (typeof execute != 'undefined') {
         execute(gameServer, split);
+        return true;
     } else {
         Logger.warn("Invalid Command!");
+        return false;
+    }
+}
+
+function parsePluginCommands(str) {
+    // Log the string
+    Logger.write(">" + str);
+    
+    // Don't process ENTER
+    if (str === '')
+        return;
+    
+    // Splits the string
+    var split = str.split(" ");
+    
+    // Process the first string value
+    var first = split[0].toLowerCase();
+    
+    // Get command function
+    var execute = gameServer.PluginHandler.commands[first];
+    if (typeof execute != 'undefined') {
+        execute(gameServer, split);
     }
 }
