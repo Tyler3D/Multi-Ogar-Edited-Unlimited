@@ -197,7 +197,6 @@ function PlayerTracker(gameServer, socket) {
     this.customspeed = 0;
     this.rec = false;
     this.disableSpawn = false;
-    this.slither = false;
     this.perfectpopsplit = false;
     this.beingpopsplited = false;
     
@@ -209,7 +208,6 @@ function PlayerTracker(gameServer, socket) {
     this.minionFrozen = false;
     this.minionControl = false;
     this.collectPellets = false;
-    this.minionSlither = false;
     
     this.userRole = UserRoleEnum.GUEST;
 }
@@ -650,7 +648,6 @@ PlayerTracker.prototype.pressQ = function () {
         }
         this.spectateTarget = null;
     }
-    this.slither = !this.slither;
 
 };
 

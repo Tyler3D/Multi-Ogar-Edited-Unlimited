@@ -66,7 +66,6 @@ PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
         23: this.message_onKeyR.bind(this),
         24: this.message_onKeyT.bind(this),
         25: this.message_onKeyP.bind(this),
-        26: this.message_onKeyS.bind(this),
         99: this.message_onChat.bind(this),
         254: this.message_onStat.bind(this),
     };
@@ -176,10 +175,6 @@ PacketHandler.prototype.message_onKeyP = function (message) {
     if (this.gameServer.config.collectPellets) {
         this.socket.playerTracker.collectPellets = !this.socket.playerTracker.collectPellets;
     }
-};
-PacketHandler.prototype.message_onKeyS = function (message) {
-    if (this.gameServer.config.disableERTP && this.gameServer.config.slithermode) return;
-    this.socket.playerTracker.minionSlither = !this.socket.playerTracker.minionSlither;
 };
 
 

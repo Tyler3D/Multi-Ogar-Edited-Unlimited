@@ -128,7 +128,6 @@ function GameServer() {
         serverMinions: 0,           // Amount of minions each player gets once they spawn
         defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
-    	slithermode: 0,             // Enable Slither Mode. To use just press Q. (Warning: Change Disable Q to 1 or this will not work)
         leaderboardmass: 0,         // Shows your mass on the leaderboard. (Warning: The leaderboard may become crowded because of this)
         leaderboardcurrentPos: 0,   // Shows your current Position on the leaderboard if you aren't in the top 10.
     };
@@ -159,7 +158,6 @@ GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
-    this.PluginHandler.load();
     // Client Binding
     var bind =  this.config.clientBind + "";
     this.clientBind = bind.split(' - ');
@@ -173,6 +171,7 @@ GameServer.prototype.start = function() {
     };
     Logger.info("WebSocket: " + this.config.serverWsModule);
     WebSocket = require(this.config.serverWsModule);
+    this.PluginHandler.load();
     this.wsServer = new WebSocket.Server(wsOptions);
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
@@ -183,32 +182,6 @@ GameServer.prototype.start = function() {
 };
 
 GameServer.prototype.changeFiles = function() {
-    if (this.config.slithermode) {
-    this.movePlayer = function(cell1, client) {
-    if (client.socket.isConnected == false || client.frozen)
-        return;
-    // TODO: use vector for distance(s)
-    // get distance
-    var dx = ~~(client.mouse.x - cell1.position.x);
-    var dy = ~~(client.mouse.y - cell1.position.y);
-    var squared = dx * dx + dy * dy;
-    if (squared < 1 || isNaN(dx) || isNaN(dy)) {
-        return;
-    }
-    // get movement speed
-    var d = Math.sqrt(squared);
-    if (client.slither) {
-    	var speed = cell1.getSpeed(d) * 2;
-        this.slitherEject(client);
-  	} else speed = cell1.getSpeed(d);
-  	if (!speed) return; // avoid shaking
-
-    // move player cells
-    cell1.position.x += dx / d * speed;
-    cell1.position.y += dy / d * speed;
-    cell1.checkBorder(this.border);
-		}
-	}
 		if (this.config.leaderboardmass && this.config.leaderboardcurrentPos) {
 	Packet.UpdateLeaderboard.prototype.buildFfa5 = function () {
     var player = this.playerTracker;
@@ -401,58 +374,7 @@ Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
     		return writer.toBuffer();
 };
 	}
-	if (this.config.collectPellets && this.config.slithermode) {
-		var MinionPlayer = require('./ai/MinionPlayer');
-		MinionPlayer.prototype.checkConnection = function () {
-    if (this.socket.isCloseRequest) {
-        while (this.cells.length > 0) {
-            this.gameServer.removeNode(this.cells[0]);
-        }
-        this.isRemoved = true;
-        return;
-    }
-    if (this.cells.length <= 0) {
-        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
-        if (this.cells.length == 0) this.socket.close();
-    }
-    // remove if owner loses control or disconnects
-    if (!this.owner.socket.isConnected || !this.owner.minionControl)
-        this.socket.close();
-    // frozen or not
-    if (this.owner.minionFrozen) this.frozen = true;
-    else this.frozen = false;
-    // split cells
-    if (this.owner.minionSplit)
-        this.socket.packetHandler.pressSpace = true;
-    // eject mass
-    if (this.owner.minionEject)
-        this.socket.packetHandler.pressW = true;
-    // Slither Mode
-    if (this.owner.minionSlither)
-        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
-    // follow owners mouse by default
-    this.mouse = this.owner.mouse;
-    // pellet-collecting mode
-    if (this.owner.collectPellets) {
-	this.viewNodes = [];
-	var self = this;
-	this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
-        if (quadItem.cell.cellType == 1)
-            self.viewNodes.push(quadItem.cell);
-        });
-	var bestDistance = 1e999;
-	for (var i in this.viewNodes) {
-	    var cell = this.viewNodes[i];
-	    var dx = this.cells[0].position.x - cell.position.x;
-            var dy = this.cells[0].position.y - cell.position.y;
-            if (dx * dx + dy * dy < bestDistance) {
-                bestDistance = dx * dx + dy * dy;
-                this.mouse = cell.position;
-	    }
-	}
-    }
-};
-	} else if (this.config.collectPellets && !this.config.slithermode) {
+ if (this.config.collectPellets) {
 		var MinionPlayer = require('./ai/MinionPlayer');
 		MinionPlayer.prototype.checkConnection = function () {
     if (this.socket.isCloseRequest) {
@@ -500,39 +422,7 @@ Packet.UpdateLeaderboard.prototype.buildFfa6 = function () {
 	}
     }
 };
-	} else if (!this.config.collectPellets && this.config.slithermode) {
-		var MinionPlayer = require('./ai/MinionPlayer');
-		MinionPlayer.prototype.checkConnection = function () {
-    if (this.socket.isCloseRequest) {
-        while (this.cells.length > 0) {
-            this.gameServer.removeNode(this.cells[0]);
-        }
-        this.isRemoved = true;
-        return;
-    }
-    if (this.cells.length <= 0) {
-        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
-        if (this.cells.length == 0) this.socket.close();
-    }
-    // remove if owner loses control or disconnects
-    if (!this.owner.socket.isConnected || !this.owner.minionControl)
-        this.socket.close();
-    // frozen or not
-    if (this.owner.minionFrozen) this.frozen = true;
-    else this.frozen = false;
-    // split cells
-    if (this.owner.minionSplit)
-        this.socket.packetHandler.pressSpace = true;
-    // eject mass
-    if (this.owner.minionEject)
-        this.socket.packetHandler.pressW = true;
-    // Slither Mode
-    if (this.owner.minionSlither)
-        this.socket.packetHandler.pressQ = !this.socket.packetHandler.pressQ
-    // follow owners mouse by default
-    this.mouse = this.owner.mouse;
-};
-	}
+
 	if (this.config.mobilePhysics) {
 	GameServer.prototype.checkRigidCollision = function(c) {
     if (!c.cell1.owner || !c.cell2.owner)
@@ -1113,50 +1003,6 @@ GameServer.prototype.updateMassDecay = function() {
                 cell.setSize(size);
             }
         }
-    }
-};
-GameServer.prototype.slitherEject = function (client) {
-    if (!this.canEjectMass(client) || client.frozen)
-        return;
-    for (var i = 0; i < client.cells.length; i++) {
-        var cell = client.cells[i];
-        
-        if (!cell || cell._size < this.config.playerMinSplitSize) {
-            continue;
-        }
-        
-        var dx = -client.mouse.x - -cell.position.x;
-        var dy = -client.mouse.y - -cell.position.y;
-        var dl = dx * dx + dy * dy;
-        if (dl > 1) {
-            dx /= Math.sqrt(dl);
-            dy /= Math.sqrt(dl);
-        } else {
-            dx = 1;
-            dy = 0;
-        }
-        
-        // Remove mass from parent cell first
-        var sizeLoss = 10
-        var sizeSquared = cell._sizeSquared - sizeLoss * sizeLoss;
-        cell.setSize(Math.sqrt(sizeSquared));
-        // Get starting position
-        var pos = {
-            x: cell.position.x + dx * cell._size,
-            y: cell.position.y + dy * cell._size
-        };
-        var angle = Math.atan2(dx, dy);
-        if (isNaN(angle)) angle = Math.PI / 2;
-        
-        // Randomize angle
-        angle += (Math.random() * 0.6) - 0.3;
-        
-        // Create cell
-        var mass = (Math.random() * (8 - 4)) + 4;
-            var food = new Entity.Food(this, null, pos, mass);
-        food.setColor(cell.color);
-        food.setBoost(780, angle);
-        this.addNode(food);
     }
 };
 
