@@ -540,6 +540,7 @@ if (this.config.disableERTP) {
         this.pressQ = true
 };
 }
+}
 };
 GameServer.prototype.onHttpServerOpen = function() {
     // Start Main Loop
