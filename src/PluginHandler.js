@@ -38,7 +38,7 @@ PluginHandler.prototype.load = function () {
 PluginHandler.prototype.start = function () {
 	Log(this.pluginsdir.length + " Plugins loaded!");
 	for (var i in this.pluginsdir) {
-		if (this.pluginsdir[i] == 'plugins/Readme.md')
+		if (this.pluginsdir[i] == '../src/plugins/Readme.md' || this.pluginsdir[i] == '../src/plugins/template.js')
 			continue;
 		var plugindir = require(this.pluginsdir[i]);
 		var plugin = new plugindir(this.gameServer, this, Log);
