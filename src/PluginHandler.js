@@ -41,7 +41,9 @@ PluginHandler.prototype.start = function () {
 		if (this.pluginsdir[i] == '../src/plugins/Readme.md' || this.pluginsdir[i] == '../src/plugins/template.js')
 			continue;
 		var plugindir = require(this.pluginsdir[i]);
-		var plugin = new plugindir(this.gameServer, this, Log);
+		var plugin = new plugindir(this.gameServer, this, function (message) {
+			console.log("\u001B[34m\u001B[1m[" + plugindir.name + "] " + "\u001B[37m" + message);
+		});
 		this.plugins[plugin.name] = plugin;
 		Log(plugin.name + " " + plugin.version + " By " + plugin.author + " Has been loaded!");
 		plugin.start();
