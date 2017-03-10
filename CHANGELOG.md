@@ -1,4 +1,12 @@
 # Changelog
+#### 1.0.5:
+* Plugin System
+* Skin Change in-game
+* Skin Changer
+* Skipped 1.0.4
+
+
+-------------
 #### 1.0.3:
 * Added Popsplit Mode
 * Added semi-vanilla level-up system
