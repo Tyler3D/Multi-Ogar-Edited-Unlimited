@@ -52,6 +52,7 @@ function GameServer() {
     this.mainLoopBind = null;
     this.tickCounter = 0;
 
+
     // Config
     this.config = {
         logVerbosity: 4,            // Console log level (0=NONE; 1=FATAL; 2=ERROR; 3=WARN; 4=INFO; 5=DEBUG)
@@ -153,6 +154,7 @@ function GameServer() {
 module.exports = GameServer;
 
 GameServer.prototype.start = function() {
+    this.PluginHandler.load();
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
     this.gameMode.onServerInit(this); // Gamemode configurations
@@ -169,7 +171,6 @@ GameServer.prototype.start = function() {
     };
     Logger.info("WebSocket: " + this.config.serverWsModule);
     WebSocket = require(this.config.serverWsModule);
-    this.PluginHandler.load();
     this.wsServer = new WebSocket.Server(wsOptions);
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
