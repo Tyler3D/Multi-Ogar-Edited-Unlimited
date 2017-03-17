@@ -1,4 +1,4 @@
-﻿// Imports
+// Imports
 var Logger = require('./modules/Logger');
 var Commands = require('./modules/CommandList');
 var GameServer = require('./GameServer');
@@ -54,9 +54,9 @@ if (showConsole) {
 function prompt() {
     in_.question(">", function (str) {
         try {
-            var thing = parseCommands(str);
-            if (thing);
-            parsePluginCommands(str);
+            var thing = parsePluginCommands(str);
+            if (thing)
+            parseCommands(str);
         } catch (err) {
             Logger.error(err.stack);
         } finally {
@@ -83,10 +83,8 @@ function parseCommands(str) {
     var execute = gameServer.commands[first];
     if (typeof execute != 'undefined') {
         execute(gameServer, split);
-        return true;
     } else {
         Logger.warn("Invalid Command!");
-        return false;
     }
 }
 
@@ -108,5 +106,6 @@ function parsePluginCommands(str) {
     var execute = gameServer.PluginHandler.commands[first];
     if (typeof execute != 'undefined') {
         execute(gameServer, split);
-    }
+        return false;
+    } else return true;
 }
