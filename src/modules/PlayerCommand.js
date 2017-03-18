@@ -14,7 +14,7 @@ PlayerCommand.prototype.writeLine = function (text) {
     this.gameServer.sendChatMessage(null, this.playerTracker, text);
 };
 PlayerCommand.prototype.skinchanger = function () {
-	    var self = this;
+        var self = this;
         this.SCInterval = setInterval(function() {
         var rSkin = self.playerTracker.socket.packetHandler.getRandomSkin();
         self.playerTracker.setSkin(rSkin);
@@ -25,11 +25,12 @@ PlayerCommand.prototype.skinchanger = function () {
         self.gameServer.removeNode(cell);
         self.gameServer.addNode(newCell);
        }
-		}, 10000) // Every 10 seconds
+        }, 10000) // Every 10 seconds
 }
 PlayerCommand.prototype.executeCommandLine = function(commandLine) {
     if (!commandLine) return;
-    
+    if (!this.parsePluginCommands(commandLine)) return;
+
     // Splits the string
     var args = commandLine.split(" ");
     
@@ -45,6 +46,20 @@ PlayerCommand.prototype.executeCommandLine = function(commandLine) {
     }
 };
 
+PlayerCommand.prototype.parsePluginCommands = function(str) {
+    // Splits the string
+    var args = str.split(" ");
+    
+    // Process the first string value
+    var first = args[0].toLowerCase();
+    
+    // Get command function
+    var execute = this.gameServer.PluginHandler.playerCommands[first];
+    if (typeof execute != 'undefined') {
+        execute(this, args, this.playerTracker, this.gameServer);
+        return false;
+    } else return true;
+}
 
 PlayerCommand.prototype.userLogin = function (username, password) {
     if (!username || !password) return null;
@@ -137,28 +152,28 @@ var playerCommands = {
         var skinName = "";
         if (args[1]) skinName = args[1];
         if (skinName == "") {
-        	this.playerTracker.setSkin(skinName);
+            this.playerTracker.setSkin(skinName);
             this.writeLine("Your skin was removed");
         }
         else if (skinName == "c" || skinName == "changer") {
-        	this.playerTracker.skinchanger = !this.playerTracker.skinchanger;
-        	if (this.playerTracker.skinchanger) {
-        		this.writeLine("You now have a skin changer!");
-        		this.skinchanger();
-        	} else {
-        		this.writeLine("You no longer have a skin changer");
-        		clearInterval(this.SCInterval);
-        	}
+            this.playerTracker.skinchanger = !this.playerTracker.skinchanger;
+            if (this.playerTracker.skinchanger) {
+                this.writeLine("You now have a skin changer!");
+                this.skinchanger();
+            } else {
+                this.writeLine("You no longer have a skin changer");
+                clearInterval(this.SCInterval);
+            }
         } 
-		 else {
-		 	this.playerTracker.setSkin(skinName);
-        	for (var i in this.playerTracker.cells) {
-        		var cell = this.playerTracker.cells[i];
-        		var Player = require('../entity/PlayerCell');
-        		var newCell = new Player(this.gameServer, this.playerTracker, cell.position, cell._size);
-        		this.gameServer.removeNode(cell);
-        		this.gameServer.addNode(newCell);
-        	}
+         else {
+            this.playerTracker.setSkin(skinName);
+            for (var i in this.playerTracker.cells) {
+                var cell = this.playerTracker.cells[i];
+                var Player = require('../entity/PlayerCell');
+                var newCell = new Player(this.gameServer, this.playerTracker, cell.position, cell._size);
+                this.gameServer.removeNode(cell);
+                this.gameServer.addNode(newCell);
+            }
             this.writeLine("Your skin set to " + skinName);
         }
 },
@@ -683,15 +698,15 @@ var playerCommands = {
         var PlayerTracker = require("../PlayerTracker");
         var Packet = require("../Packet");
         PlayerTracker.prototype.joinGame = function (name, skin) {
-	for (var i in this.levelexps) {
-		if (this.levelexps[i + 1] < this.level)
-			continue;
-		if (this.exp > this.levelexps[i] && this.level < 101) {
-			this.level++;
-			this.exp = this.exp - this.levelexps[i];
-			this.onLevel();
-		}
-	}
+    for (var i in this.levelexps) {
+        if (this.levelexps[i + 1] < this.level)
+            continue;
+        if (this.exp > this.levelexps[i] && this.level < 101) {
+            this.level++;
+            this.exp = this.exp - this.levelexps[i];
+            this.onLevel();
+        }
+    }
     if (this.cells.length) return;
     if (name == null) name = "";
     else {
