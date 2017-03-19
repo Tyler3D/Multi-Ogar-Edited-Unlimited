@@ -53,7 +53,7 @@ Version 1.2.8:
 * Run run\win-Start.bat
 
 *Method 2:*
-
+You will not be able to use the restart command if you use this method
 Start command line and execute from MultiOgar folder.
 
 ```batch
@@ -92,11 +92,11 @@ npm install
 
 ```bash
 cd run
-sh lin-Start.sh
+sudo bash lin-Start.sh
 ```
 
 *Method 2:*
-
+You will not be able to use the restart command if you use this method
 ```bash
 cd src
 sudo node index.js
