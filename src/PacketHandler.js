@@ -35,7 +35,7 @@ PacketHandler.prototype.handleMessage = function (message) {
 PacketHandler.prototype.handshake_onProtocol = function (message) {
     if (message.length !== 5) return;
     this.handshakeProtocol = message[1] | (message[2] << 8) | (message[3] << 16) | (message[4] << 24);
-    if (this.handshakeProtocol < 1 || this.handshakeProtocol > 11) {
+    if (this.handshakeProtocol < 1 || this.handshakeProtocol > 13) {
         this.socket.close(1002, "Not supported protocol");
         return;
     }
