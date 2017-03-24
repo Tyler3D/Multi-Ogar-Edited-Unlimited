@@ -241,7 +241,7 @@ var playerCommands = {
             return;
         }
         var mass = parseInt(args[1]);
-        var id = parseInt(args[2]);
+        var id = args[2];
         var size = Math.sqrt(mass * 100);
         
         if (isNaN(mass)) {
@@ -249,7 +249,7 @@ var playerCommands = {
             return;
         }
         
-        if (isNaN(id)) {
+        if (id == null) {
             this.writeLine("Warn: missing ID arguments. This will change your mass.");
             for (var i in this.playerTracker.cells) {
                 this.playerTracker.cells[i].setSize(size);
@@ -259,14 +259,13 @@ var playerCommands = {
         } else {
             for (var i in this.gameServer.clients) {
                 var client = this.gameServer.clients[i].playerTracker;
-                if (client.pID == id) {
+                if (client.accountusername == id || client.pID.toString() == id) {
                     for (var j in client.cells) {
                         client.cells[j].setSize(size);
                     }
                     this.writeLine("Set mass of " + client._name + " to " + size * size / 100);
                     var text = this.playerTracker._name + " changed your mass to " + size * size / 100;
                     this.gameServer.sendChatMessage(null, client, text);
-                    break;
                 }
             }
         }
@@ -278,7 +277,7 @@ var playerCommands = {
             return;
         }
         var mass = parseInt(args[1]);
-        var id = parseInt(args[2]);
+        var id = args[2];
         var size = Math.sqrt(mass * 100);
         
         if (isNaN(mass)) {
@@ -286,14 +285,14 @@ var playerCommands = {
             return;
         }
         
-        if (isNaN(id)) {
+        if (id == null) {
             this.playerTracker.spawnmass = size; 
             this.writeLine("Warn: missing ID arguments. This will change your spawnmass.");
             this.writeLine("Set spawnmass of " + this.playerTracker._name + " to " + size * size / 100);
         } else {
             for (var i in this.gameServer.clients) {
                 var client = this.gameServer.clients[i].playerTracker;
-                if (client.pID == id) {
+                if (client.accountusername == id || client.pID.toString() == id) {
                     client.spawnmass = size;
                     this.writeLine("Set spawnmass of " + client._name + " to " + size * size / 100);
                     var text = this.playerTracker._name + " changed your spawn mass to " + size * size / 100; 
@@ -308,11 +307,11 @@ var playerCommands = {
             return;
         }
         var add = args[1];
-        var id = parseInt(args[2]);
+        var id = args[2];
         var player = this.playerTracker;
         
         /** For you **/
-        if (isNaN(id)) {
+        if (id == null) {
             this.writeLine("Warn: missing ID arguments. This will give you minions.");
             // Remove minions
             if (player.minionControl == true && add == "remove") {
@@ -334,7 +333,7 @@ var playerCommands = {
             /** For others **/
             for (var i in this.gameServer.clients) {
                 var client = this.gameServer.clients[i].playerTracker;
-                if (client.pID == id) {
+                if (client.accountusername == id || client.pID.toString() == id) {
                     // Remove minions
                     if (client.minionControl == true) {
                         client.minionControl = false;
@@ -366,9 +365,10 @@ var playerCommands = {
         }
         var id = args[1];
         var role = args[2];
-        if(isNaN(parseInt(id))) {
-            this.writeLine("Please specify a valid player ID!");
-        if (id == "list") {
+        if (id == null) {
+            this.writeLine("Please specify a valid player ID or User Name!");
+            return;
+        } else if (id == "list") {
             if (!this.roleList.length) {
                 this.writeLine("You have not given anyone a Role!");
                 return;
@@ -376,26 +376,24 @@ var playerCommands = {
             this.writeLine(" ID   |   SCORE   |   NICK");
             for (var i in this.roleList) {
                 var client = this.roleList[i];
-                var id = client.pID;
+                var id = client.accountusername;
                 var nick = client._name;
                 var score = Math.round(client._score);
                 this.writeLine(id + "    " + score + "    " + nick);
             }
             return;
-        }
-            return;
-        } else {
+    } else {
         if (role != "moder" && role != "user" && role != "guest" || role == null) {
             this.writeLine("Please specify a valid Role!");
             return;
         }
-        if (this.playerTracker.pID == id) {
+        if (this.playerTracker.pID.toString() == id || this.playerTracker.accountusername == id) {
             this.writeLine("You cannot change your own Role!");
             return;
         }
         for (var i in this.gameServer.clients) {
             var client = this.gameServer.clients[i].playerTracker;
-            if (client.pID == id) {
+            if (client.pID.toString() == id || client.accountusername == id) {
                 if (client.userRole == UserRoleEnum.ADMIN) {
                     this.writeLine("You cannot change Admins Roles!");
                     return;
@@ -421,13 +419,13 @@ var playerCommands = {
         }
     },
     kick: function(args) {
-        var id = parseInt(args[1]);
+        var id = args[1];
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: acces denied!");
             return;
         }
-        if (isNaN(id)) {
-            this.writeLine("Please specify a valid player ID!");
+        if (id == null) {
+            this.writeLine("Please specify a valid player ID or User Name!");
             return;
         }
         // kick player
@@ -435,7 +433,7 @@ var playerCommands = {
         this.gameServer.clients.forEach(function (socket) {
             if (socket.isConnected === false)
                return;
-            if (id !== 0 && socket.playerTracker.pID != id)
+            if (id !== 0 && socket.playerTracker.pID.toString() != id && socket.playerTracker.accountusername != id)
                 return;
             if (socket.playerTracker.userRole == UserRoleEnum.ADMIN) {
                 this.writeLine("You cannot kick a ADMIN in game!");
@@ -500,8 +498,8 @@ var playerCommands = {
             this.writeLine("ERROR: access denied!");
             return;
         }
-        var id = parseInt(args[1]);
-        if (isNaN(id)) {
+        var id = args[1];
+        if (id == null) {
             this.writeLine("Warn: Missing ID arguments. This will merge you.");
             if (this.playerTracker.cells.length == 1) {
                 this.writeLine("You already have one cell!");
@@ -514,7 +512,7 @@ var playerCommands = {
         
         // Find client with same ID as player entered
         for (var i = 0; i < this.gameServer.clients.length; i++) {
-            if (id == this.gameServer.clients[i].playerTracker.pID) {
+            if (id == this.gameServer.clients[i].playerTracker.pID.toString() || id == this.gameServer.clients[i].playerTracker.accountusername) {
                 var client = this.gameServer.clients[i].playerTracker;
                     if (client.cells.length == 1) {
                         this.writeLine("Client already has one cell!");
@@ -574,8 +572,8 @@ var playerCommands = {
             this.writeLine("ERROR: access denied!");
             return;
         }
-        var id = parseInt(args[1]);
-        if (isNaN(id)) {
+        var id = args[1];
+        if (id == null) {
             this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
             this.playerTracker.rec = !this.playerTracker.rec;
             if (this.playerTracker.rec) this.writeLine(this.playerTracker._name + " is now in rec mode!");
@@ -584,7 +582,8 @@ var playerCommands = {
         
         // set rec for client
         for (var i in this.gameServer.clients) {
-            if (this.gameServer.clients[i].playerTracker.pID == id) {
+        	var client = this.gameServer.clients[i].PlayerTracker;
+            if (client.pID.toString() == id || client.accountusername == id) {
                 var client = this.gameServer.clients[i].playerTracker;
                 client.rec = !client.rec;
                 if (client.rec) {
@@ -604,9 +603,9 @@ var playerCommands = {
             this.writeLine("ERROR: access denied!");
             return;
         }
-        var id = parseInt(args[1]);
-        if (isNaN(id)) {
-            this.writeLine("Warn: Missing ID arguments. This will give you rec mode.");
+        var id = args[1];
+        if (id == null) {
+            this.writeLine("Warn: Missing ID arguments. This will give you popsplit mode.");
             this.playerTracker.perfectpopsplit = !this.playerTracker.perfectpopsplit;
             if (this.playerTracker.perfectpopsplit) this.writeLine(this.playerTracker._name + " is now in popsplit mode!");
             else this.writeLine(this.playerTracker._name + " is no longer in popsplit mode");
@@ -615,9 +614,10 @@ var playerCommands = {
         // set popsplit for client
         for (var i in this.gameServer.clients) {
             var client = this.gameServer.clients[i].playerTracker;
-            if (client.pID == id) {
+            if (client.pID.toString() == id || client.accountusername == id) {
                 
                 client.popsplit = !client.popsplit;
+
                 if (client.popsplit) {
                     this.writeLine(client._name + " is now in popsplit mode!");
                     var text = this.playerTracker._name + " gave you the ability to do perfect popsplits!";
