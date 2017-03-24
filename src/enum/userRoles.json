@@ -1,26 +1,26 @@
 [
     { 
-	"username":"",
-        "password":"",
+		"username":"ADMIN",
+        "password":"ADMIN",
         "role":"ADMIN",
         "name":"Local Administrator",
-	"level":"100",
-	"exp":"0"
+		"level":"100",
+		"exp":"0"
     },
     { 
-	"username":"Moder",
+		"username":"Moder",
         "password":"Moder",
         "role":"MODER",
         "name":"Local Moderator",
-	"level":"100",
-	"exp":"0"
+		"level":"100",
+		"exp":"0"
     },
     { 
-	"username":"User",		
+		"username":"User",		
         "password":"User",
         "role":"USER",
         "name":"Local User",
-	"level":"0",
-	"exp":"0"
+		"level":"0",
+		"exp":"0"
     }
 ]
