@@ -18,37 +18,38 @@ PowerUP.prototype = new Cell();
 
 PowerUP.prototype.onEaten = function (c) {
     var player = c.owner;
+    var self = this;
     if (this.power == 1) {
         player.doublespeed = true;
             // OverRide
-        player.gameServer.sendChatMessage(null, player, "You have been gived with Double Speed For 20 Seconds!");
+        this.gameServer.sendChatMessage(null, player, "You have been gived with Double Speed For 20 Seconds!");
         setTimeout(function() {
         player.doublespeed = false;
-        player.gameServer.sendChatMessage(null, this.playerTracker, "YOUR DOUBLE SPEED POWERUP HAS RAN OUT!");
+        self.gameServer.sendChatMessage(null, player, "YOUR DOUBLE SPEED POWERUP HAS RAN OUT!");
         }, this.powertimer);
     } else if (this.power == 2) {
         player.minionControl = true;
         for (var i = 0; i < 5; i++) {
             this.gameServer.bots.addMinion(player);
         }
-        player.gameServer.sendChatMessage(null, player, "YOU HAVE BEEN GIVED WITH 5 MINIONS! FOR 20 SECONDS");
+        this.gameServer.sendChatMessage(null, player, "YOU HAVE BEEN GIVED WITH 5 MINIONS! FOR 20 SECONDS");
 
         setTimeout(function() {
             player.minionControl = false;
             player.miQ = 0;
-            player.gameServer.sendChatMessage(null, player, "YOUR MINIONS HAVE SUDDENLY VANISHED!");
+            self.gameServer.sendChatMessage(null, player, "YOUR MINIONS HAVE SUDDENLY VANISHED!");
         }, this.powertimer);
     } else if (this.power == 3) {
         player.canShootVirus = true;
-        player.gameServer.sendChatMessage(null, player, "YOUR HAVE BEEN GRANTED THE ABILITY TO SHOOT VIRUSES!");
+        this.gameServer.sendChatMessage(null, player, "YOUR HAVE BEEN GRANTED THE ABILITY TO SHOOT VIRUSES!");
         setTimeout(function() {
             player.canShootVirus = false;
-            player.gameServer.sendChatMessage(null, player, "YOU CAN NO LONGER SHOOT VIRUSES!");
+            self.gameServer.sendChatMessage(null, player, "YOU CAN NO LONGER SHOOT VIRUSES!");
         }, 5000);
     } else {
         // One popsplt shot
         player.canShootPopsplitVirus = true;
-        player.gameServer.sendChatMessage(null, this.playerTracker, "YOU CAN SHOOT ONE POPSPLIT VIRUS NOW! TURN PLAYERS INTO HUNDREDS OF PIECES!");
+        this.gameServer.sendChatMessage(null, player, "YOU CAN SHOOT ONE POPSPLIT VIRUS NOW! TURN PLAYERS INTO HUNDREDS OF PIECES!");
     }
 };
 
