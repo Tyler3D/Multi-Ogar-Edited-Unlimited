@@ -34,7 +34,12 @@ Virus.prototype.onEaten = function (c) {
     var minSize = this.gameServer.config.playerMinSize,                         // maximum size of small splits
     cellsLeft = this.gameServer.config.playerMaxCells - c.owner.cells.length,   // how many cells can split
     threshold = c._mass - cellsLeft * minSize;                                  // size check for exploding cells
-
+    if (c.owner.beingpopsplited) {
+        for (var t = 0; t < 512; t++) {
+            var angle = 2 * Math.PI * Math.random();
+            this.gameServer.splitPlayerCell(c.owner, c, angle, minSize);
+        }
+    }
     // Diverse explosion(s)
     var big = []; // amount of big splits
     if (cellsLeft <= 0) return; // cannot split

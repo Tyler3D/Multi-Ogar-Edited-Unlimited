@@ -1,5 +1,5 @@
 var Cell = require('./Cell');
-var Food = require('./Food');
+var Virus = require('./Virus');
 // Test Your Luck :)
 
 function Lottery() {
@@ -58,47 +58,7 @@ Lottery.prototype.onEaten = function (c) {
     }
 }
     else if (this.prize == 2) { // Silver Second Best Prize
-    if (c.owner == null) return;
-
-    var minSize = this.gameServer.config.playerMinSize,
-    min = (minSize == 32) ? 30 : minSize, // minimun size of small splits
-    cellsLeft = this.gameServer.config.playerMaxCells - c.owner.cells.length,
-    numSplits = cellsLeft < (c._mass / 16) ? cellsLeft : (c._mass / 16),
-    splitMass = (c._mass / numSplits) < min ? (c._mass / numSplits) : min;
-    
-    // Diverse explosion(s)
-    var big = [];
-    if (!numSplits) return; // can't split anymore
-    if (numSplits == 1) big = [c._mass/4];
-    else if (numSplits == 2) big = [c._mass/8,c._mass/8];
-    else if (numSplits == 3) big = [c._mass/8,c._mass/8,c._mass/14];
-    else if (numSplits == 4) big = [c._mass/10,c._mass/14,c._mass/16,c._mass/20];
-    else {
-        // ckeck size of exploding
-        var threshold = c._mass - numSplits * splitMass; 
-        // Monotone explosion(s)
-        if (threshold > 466) {
-            // virus explosion multipliers
-            var v = c.isMoving ? 2.5 : 4.5;
-            var exp = (Math.random() * (v - 1.5)) + 3.33;
-            while (threshold / exp > 24) {
-                threshold /= exp;
-                exp = 2;
-                big.push(threshold >> 0);
-            }
-        }
-    }
-    numSplits -= big.length;
-    // big splits
-    for (var k = 0; k < big.length; k++) {
-        var angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(c.owner, c, angle, big[k]);
-    }
-    // small splits
-    for (var k = 0; k < numSplits; k++) {
-        angle = 2 * Math.PI * Math.random(); // random directions
-        this.gameServer.splitPlayerCell(c.owner, c, angle, min);
-    }
+        Virus.onEaten(c);
     }
 
     else if (this.prize >= 3) { // Bronze Worst Prize

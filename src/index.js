@@ -2,7 +2,6 @@
 var Logger = require('./modules/Logger');
 var Commands = require('./modules/CommandList');
 var GameServer = require('./GameServer');
-var figlet = require('figlet');
 
 // Init variables
 var showConsole = true;
@@ -17,7 +16,7 @@ process.on('exit', function (code) {
 
 process.on('uncaughtException', function (err) {
     Logger.fatal(err.stack);
-    process.exit(1);
+    process.exit(3);
 });
 
 // Run Ogar
@@ -100,14 +99,6 @@ function setParam(paramName, val){
 
 
 gameServer.start();
-figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
-    if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-    }
-    console.log(data)
-});
 
 // Initialize the server console
 if (showConsole) {

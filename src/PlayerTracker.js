@@ -53,7 +53,8 @@ function PlayerTracker(gameServer, socket) {
     this.frozen = false;
     this.customspeed = 0;
     this.rec = false;
-    
+    this.perfectpopsplit = false;
+    this.beingpopsplited = false;   
     // GameMode
     this.canShootPopsplitVirus = false;
     this.canShootVirus = false;
@@ -227,6 +228,30 @@ PlayerTracker.prototype.setName = function(name) {
     this._nameUtf8 = writer.toBuffer();
 };
 
+PlayerTracker.prototype.onLevel = function () {
+    var fs = require('fs');
+    var newuser = {
+        username: this.accountusername,
+        password: this.accountpassword,
+        role: this.userRole,
+        name: this.userAuth,
+        level: this.level,
+        exp: this.exp
+    }
+    for (var i in this.gameServer.userList) {
+        var user = this.gameServer.userList[i];
+
+        if (user.username == this.accountusername && user.password == this.accountpassword) {
+            this.gameServer.userList[i] = newuser;
+            json = JSON.stringify(this.gameServer.userList);
+            var file = '../src/enum/UserRoles.json';
+            fs.writeFileSync(file, json, 'utf-8');
+            this.gameServer.loadFiles();
+        }
+    }
+    this.spawnmass = (this.gameServer.config.playerStartSize + (2 * (Math.sqrt(this.level * 100))) < 500) ? this.gameServer.config.playerStartSize + (2 * (Math.sqrt(this.level * 100))) : 500; // 2500 Spawnmass is wayy too much
+};
+
 PlayerTracker.prototype.setSkin = function(skin) {
     this._skin = skin;
     var writer = new BinaryWriter();
@@ -260,10 +285,10 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
     if (skin) this.setSkin(skin);
     if (!name) name = "An unnamed cell";
     // 4 = Admin 2 = Mod
-    if (this.userRole == UserRoleEnum.ADMIN) name = name + "ᴬᴰᴹᴵᴺ";
-        else if (this.userRole == UserRoleEnum.MODER) name = name + "ᴹᴼᴰᴱᴿ";
+    if (this.userRole == 4) name = name + "ᴬᴰᴹᴵᴺ";
+        else if (this.userRole == 2) name = name + "ᴹᴼᴰᴱᴿ";
     // Perform check to see if someone that isn't admin has a check
-    if (this.userRole != UserRoleEnum.ADMIN && this.userRole != UserRoleEnum.MODER) {
+    if (this.userRole != 4 && this.userRole != 2) {
                 for (var i in name) {
                 name = name.replace('ᴬᴰᴹᴵᴺ', '');
                 name = name.replace('ᴹᴼᴰᴱᴿ', '');

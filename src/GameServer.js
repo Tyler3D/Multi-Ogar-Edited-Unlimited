@@ -7,7 +7,6 @@ var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
 var PluginHandler = require('./PluginHandler');
-this.PluginHandler = new PluginHandler(this);
 // GameServer implementation
 function GameServer() {
     // Location of source files - For renaming or moving source files!
@@ -34,7 +33,7 @@ function GameServer() {
     
     var BotLoader = require('./ai/BotLoader');
     this.bots = new BotLoader(this);
-    
+    this.PluginHandler = new PluginHandler(this);
     // Main loop tick
     this.startTime = Date.now();
     this.stepDateTime = 0;

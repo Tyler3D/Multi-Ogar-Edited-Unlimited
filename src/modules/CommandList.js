@@ -154,7 +154,7 @@ Commands.list = {
         gameServer.gameMode.packetLB = gamemode.packetLB;
         gameServer.gameMode.updateLB = gamemode.updateLB;
         Commands.list.reset(gameServer, split);
-        gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
+        gameServer.loadFiles(); // Load Config In case Previous Gamemodes changed them
         gameServer.gameMode = gamemode;
         gamemode.onServerInit(gameServer);
         Commands.list.reset(gameServer, split); // Just in case
@@ -180,7 +180,7 @@ Commands.list = {
                 if (client.minionControl == true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    Logger.print("Succesfully removed minions for " + client.getFriendlyName());
+                    Logger.print("Succesfully removed minions for " + client._name);
                 // Add minions
                 } else {
                     client.minionControl = true;
@@ -189,7 +189,7 @@ Commands.list = {
                     for (var i = 0; i < add; i++) {
                         gameServer.bots.addMinion(client, name);
                     }
-                    Logger.print("Added " + add + " minions for " + client.getFriendlyName());
+                    Logger.print("Added " + add + " minions for " + client._name);
                 }
                 break;
             }
@@ -391,7 +391,7 @@ Commands.list = {
             Commands.list.kill(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
-            var name = socket.playerTracker.getFriendlyName();
+            var name = socket.playerTracker._name;
             Logger.print("Kicked \"" + name + "\"");
             gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
             count++;
@@ -421,7 +421,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" was muted");
+        Logger.print("Player \"" + player._name + "\" was muted");
         player.isMuted = true;
     },
     unmute: function (gameServer, args) {
@@ -443,7 +443,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already not muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" was unmuted");
+        Logger.print("Player \"" + player._name + "\" was unmuted");
         player.isMuted = false;
     },
     kickall: function (gameServer, split) {
@@ -459,7 +459,7 @@ Commands.list = {
             Commands.list.killall(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
-            var name = socket.playerTracker.getFriendlyName();
+            var name = socket.playerTracker._name;
             Logger.print("Kicked \"" + name + "\"");
             gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
             count++;
@@ -487,7 +487,7 @@ Commands.list = {
                     count++;
                 }
                 
-                Logger.print("Killed " + client.getFriendlyName() + " and removed " + count + " cells");
+                Logger.print("Killed " + client._name + " and removed " + count + " cells");
                 break;
             }
         }
@@ -524,7 +524,7 @@ Commands.list = {
                 for (var j in client.cells) {
                     client.cells[j].setSize(size);
                 }
-                Logger.print("Set mass of " + client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set mass of " + client._name + " to " + (size * size / 100).toFixed(3));
                 break;
             }
         }
@@ -548,7 +548,7 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.spawnmass = size;
-                Logger.print("Set spawnmass of "+ client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set spawnmass of "+ client._name + " to " + (size * size / 100).toFixed(3));
             }
         }
     },   
@@ -580,7 +580,7 @@ Commands.list = {
                 };
             }
         }
-        Logger.print("Set base speed of "+ client.getFriendlyName() + " to " + speed);
+        Logger.print("Set base speed of "+ client._name + " to " + speed);
     },
     merge: function (gameServer, split) {
         // Validation checks
@@ -630,8 +630,8 @@ Commands.list = {
             }
             state = client.mergeOverride;
         }
-        if (state) Logger.print(client.getFriendlyName() + " is now force merging");
-        else Logger.print(client.getFriendlyName() + " isn't force merging anymore");
+        if (state) Logger.print(client._name + " is now force merging");
+        else Logger.print(client._name + " isn't force merging anymore");
     },
     rec: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -645,8 +645,8 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.rec = !client.rec;
-                if (client.rec) Logger.print(client.getFriendlyName() + " is now in rec mode!");
-                else Logger.print(client.getFriendlyName() + " is no longer in rec mode");
+                if (client.rec) Logger.print(client._name + " is now in rec mode!");
+                else Logger.print(client._name + " is no longer in rec mode");
             }
         }
     },
@@ -661,8 +661,8 @@ Commands.list = {
             var client = gameServer.clients[i].playerTracker;
             if (client.pID == id) {
                 client.perfectpopsplit = !client.perfectpopsplit;
-                if (client.perfectpopsplit) Logger.print(client.getFriendlyName() + " is now in popsplit mode!");
-                else Logger.print(client.getFriendlyName() + " is no longer in popsplit mode");
+                if (client.perfectpopsplit) Logger.print(client._name + " is now in popsplit mode!");
+                else Logger.print(client._name + " is no longer in popsplit mode");
             }
         }
     },
@@ -687,7 +687,7 @@ Commands.list = {
                 for (var i = 0; i < count; i++) {
                     gameServer.splitCells(client);
                 }
-                Logger.print("Forced " + client.getFriendlyName() + " to split " + count + " times");
+                Logger.print("Forced " + client._name + " to split " + count + " times");
                 break;
             }
         }
@@ -797,15 +797,15 @@ Commands.list = {
                 if (!client.freeRoam) {
                     var target = client.getSpectateTarget();
                     if (target != null) {
-                        nick = target.getFriendlyName();
+                        nick = target._name;
                     }
                 }
                 data = fillChar("SPECTATING: " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
             } else if (client.cells.length > 0) {
-                nick = fillChar(client.getFriendlyName(), ' ', gameServer.config.playerMaxNickLength);
+                nick = fillChar(client._name, ' ', gameServer.config.playerMaxNickLength);
                 cells = fillChar(client.cells.length, ' ', 5, true);
-                score = fillChar((client.getScore() / 100) >> 0, ' ', 6, true);
+                score = fillChar((client._score / 100) >> 0, ' ', 6, true);
                 position = fillChar(client.centerPos.x >> 0, ' ', 5, true) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, true);
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
             } else {
@@ -832,17 +832,16 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 client.frozen = !client.frozen;
                 if (client.frozen) {
-                    Logger.print("Froze " + client.getFriendlyName());
+                    Logger.print("Froze " + client._name);
                 } else {
-                    Logger.print("Unfroze " + client.getFriendlyName());
+                    Logger.print("Unfroze " + client._name);
                 }
                 break;
             }
         }
     },
     reload: function (gameServer, split) {
-        gameServer.loadConfig();
-        gameServer.loadIpBanList();
+        gameServer.loadFiles();
         Logger.print("Reloaded the config file succesully");
     },
     status: function (gameServer, split) {
@@ -934,16 +933,16 @@ Commands.list = {
                     if (ent == "virus") {
                         var virus = new Entity.Virus(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(virus);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a virus");
+                        Logger.print("Replaced " + client._name + " with a virus");
                     } else if (ent == "food") {
                         var food = new Entity.Food(gameServer, null, cell.position, cell._size);
                         food.setColor(gameServer.getRandomColor());
                         gameServer.addNode(food);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a food cell");
+                        Logger.print("Replaced " + client._name + " with a food cell");
                     } else if (ent == "mothercell") {
                         var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(mother);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a mothercell");
+                        Logger.print("Replaced " + client._name + " with a mothercell");
                     }
                 }
             }
@@ -984,7 +983,7 @@ Commands.list = {
                 Logger.info("3 is for a Popsplit Virus.");
                 return;
                 }
-                Logger.print("Popped " + client.getFriendlyName());
+                Logger.print("Popped " + client._name);
             }
         }
     },
@@ -1035,9 +1034,9 @@ Commands.list = {
                 client.disableSpawn = !client.disableSpawn;
                 if (client.disableSpawn) {
                     Commands.list.kill(gameServer, split);
-                    Logger.print("Disabled spawning for " + client.getFriendlyName());
+                    Logger.print("Disabled spawning for " + client._name);
                 } else {
-                    Logger.print("Enabled spawning for " + client.getFriendlyName());
+                    Logger.print("Enabled spawning for " + client._name);
                 }
             }
         }
@@ -1155,7 +1154,7 @@ function ban (gameServer, split, ip) {
         Commands.list.kill(gameServer, split);
         // disconnect
         socket.close(null, "Banned from server");
-        var name = socket.playerTracker.getFriendlyName();
+        var name = socket.playerTracker._name;
         Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
         gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
     }, gameServer);

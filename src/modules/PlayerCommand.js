@@ -89,7 +89,7 @@ PlayerCommand.prototype.createAccount = function (username, password) {
     json = JSON.stringify(this.gameServer.userList);
     var file = '../src/enum/UserRoles.json';
     fs.writeFileSync(file, json, 'utf-8');
-    this.gameServer.loadUserList();
+    this.gameServer.loadFiles();
     return true;
 };
 
@@ -555,7 +555,7 @@ var playerCommands = {
         this.gameServer.gameMode.packetLB = gamemode.packetLB;
         this.gameServer.gameMode.updateLB = gamemode.updateLB;
         Command.list.reset(this.gameServer, args);
-        this.gameServer.loadConfig(); // Load Config In case Previous Gamemodes changed them
+        this.gameServer.loadFiles(); // Load Config In case Previous Gamemodes changed them
         this.gameServer.gameMode = gamemode;
         gamemode.onServerInit(this.gameServer);
         Command.list.reset(this.gameServer, args); // Just in Case
@@ -672,8 +672,7 @@ var playerCommands = {
             this.writeLine("ERROR: access denied!");
             return;
         }
-        this.gameServer.loadConfig();
-        this.gameServer.loadIpBanList();
+        this.gameServer.loadFiles();
         Logger.warn("CONFIGURATION RELOAD REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
         this.writeLine("Configuration was Successfully Reloaded!");
     },

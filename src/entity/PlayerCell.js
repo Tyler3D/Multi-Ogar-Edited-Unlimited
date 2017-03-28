@@ -34,3 +34,19 @@ PlayerCell.prototype.onRemove = function (gameServer) {
     index = this.gameServer.nodesPlayer.indexOf(this);
     if (index != -1) this.gameServer.nodesPlayer.splice(index, 1);
 };
+
+PlayerCell.prototype.onEat = function (prey) {
+    if (!this.gameServer.config.playerBotGrow) {
+        if (this._mass >= 625 && prey._mass <= 17 && prey.cellType == 0)
+            prey._sizeSquared = 0; // Can't grow from players under 17 mass
+    }
+    this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
+    if (prey.cellType == 0 && prey.owner.perfectpopsplit && prey.owner != this.owner) {
+        this.owner.beingpopsplited = true;
+        var self = this;
+        setTimeout(function() {
+        self.owner.beingpopsplited = false;
+        }, 500) // 0.5 Seconds after inital popsplit
+    }
+    this.owner.exp += ((Math.sqrt(prey._sizeSquared)) / 20);
+};
