@@ -23,6 +23,8 @@ MotherCell.prototype = new Cell();
 MotherCell.prototype.onEaten = Virus.prototype.onEaten; // Copies the virus prototype function
 
 MotherCell.prototype.canEat = function (cell) {
+    var maxMass = this.gameServer.config.motherCellMaxMass;
+    if (maxMass && this._mass >= maxMass) return false;
     return cell.cellType == 0 ||  // can eat player cell
            cell.cellType == 2 ||  // can eat virus
            cell.cellType == 3;    // can eat ejected mass
