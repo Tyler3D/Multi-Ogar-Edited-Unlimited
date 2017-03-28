@@ -6,7 +6,8 @@ var Packet = require('./packet');
 var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
-
+var PluginHandler = require('./PluginHandler');
+this.PluginHandler = new PluginHandler(this);
 // GameServer implementation
 function GameServer() {
     // Location of source files - For renaming or moving source files!
@@ -154,6 +155,7 @@ function GameServer() {
 module.exports = GameServer;
 
 GameServer.prototype.start = function() {
+    this.PluginHandler.load();
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
 
