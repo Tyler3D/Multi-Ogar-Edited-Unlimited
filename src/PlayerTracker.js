@@ -53,6 +53,18 @@ function PlayerTracker(gameServer, socket) {
     this.frozen = false;
     this.customspeed = 0;
     this.rec = false;
+    
+    // GameMode
+    this.canShootPopsplitVirus = false;
+    this.canShootVirus = false;
+    this.doublespeed = false;
+    this.timeuntilsplit = 0;
+    this.antiteamstate = false;
+    this.wcount = 0;
+    this.viruspopcount = 0;
+    this.lastwtick = 0;
+    this.lastviruspoptick = 0;
+    this.timeuntilsplit = 0;
 
     // Minions
     this.miQ = 0;
@@ -72,6 +84,111 @@ function PlayerTracker(gameServer, socket) {
         // Only scramble if enabled in config
         this.scramble();
     }
+    // Account system
+    this.level = 0;
+    this.levelexps = [
+    	50,
+    	125,
+    	250,
+    	500,
+    	1000,
+    	1600,
+    	2300,
+    	3100,
+    	4000,
+    	5000,
+    	6100,
+    	7300,
+    	8600,
+    	10000,
+    	11500,
+    	13100,
+    	14800,
+    	16600,
+    	18500,
+    	20500,
+    	22600,
+    	24800,
+    	27100,
+    	29500,
+    	32000,
+    	34600,
+    	37300,
+    	40100,
+    	43000,
+    	46000,
+    	49100,
+    	52300,
+    	55600,
+    	59000,
+    	62500,
+    	66100,
+    	69800,
+    	73600,
+    	77500,
+    	81500,
+    	85600,
+    	89800,
+    	94100,
+    	98500,
+    	103000,
+    	107600,
+    	112300,
+    	127000,
+    	132100,
+    	137300,
+    	142600,
+    	148000,
+    	153500,
+    	159100,
+    	164800,
+    	170600,
+    	176500,
+    	182500,
+    	188600,
+    	194800,
+    	201100,
+    	207500,
+    	214000,
+    	220600,
+    	227300,
+    	234100,
+    	241000,
+    	248000,
+    	255100,
+    	262300,
+    	269600,
+    	277000,
+    	284500,
+    	292100,
+    	299800,
+    	307600,
+    	315500,
+    	323500,
+    	331600,
+    	339800,
+    	348100,
+    	356500,
+    	365000,
+    	373600,
+    	382300,
+    	391100,
+    	400000,
+    	409000,
+    	418100,
+    	427300,
+    	436600,
+    	446000,
+    	455500,
+    	465100,
+    	474800,
+    	484600,
+    	494500,
+    ];
+    this.exp = 0;
+    this.accountusername = this.pID.toString();
+    this.accountpassword = "";
+
     var UserRoleEnum = require("./enum/UserRoleEnum");
     this.userRole = UserRoleEnum.GUEST;
 }
@@ -142,6 +259,16 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
 
     if (skin) this.setSkin(skin);
     if (!name) name = "An unnamed cell";
+    // 4 = Admin 2 = Mod
+    if (this.userRole == UserRoleEnum.ADMIN) name = name + "ᴬᴰᴹᴵᴺ";
+        else if (this.userRole == UserRoleEnum.MODER) name = name + "ᴹᴼᴰᴱᴿ";
+    // Perform check to see if someone that isn't admin has a check
+    if (this.userRole != UserRoleEnum.ADMIN && this.userRole != UserRoleEnum.MODER) {
+                for (var i in name) {
+                name = name.replace('ᴬᴰᴹᴵᴺ', '');
+                name = name.replace('ᴹᴼᴰᴱᴿ', '');
+            }
+        } 
     this.setName(name);
     this.spectate = false;
     this.freeRoam = false;
