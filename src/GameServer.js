@@ -14,7 +14,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.6.0';
+    this.version = '1.0.4';
     this.httpServer = null;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
@@ -1010,19 +1010,21 @@ GameServer.prototype.loadFiles = function() {
         var list = JSON.parse(usersJson.trim());
         for (var i = 0; i < list.length; ) {
             var item = list[i];
-            if (!item.hasOwnProperty("ip") ||
+            if (!item.hasOwnProperty("username") ||
                 !item.hasOwnProperty("password") ||
                 !item.hasOwnProperty("role") ||
-                !item.hasOwnProperty("name")) {
+                !item.hasOwnProperty("name") ||
+                !item.hasOwnProperty("level") ||
+                !item.hasOwnProperty("exp")) {
                 list.splice(i, 1);
                 continue;
             }
-            if (!item.password || !item.password.trim()) {
+            if (!item.password || !item.password.trim() || !item.username || !item.username.trim()) {
                 Logger.warn("User account \"" + item.name + "\" disabled");
                 list.splice(i, 1);
                 continue;
             }
-            if (item.ip) item.ip = item.ip.trim();
+            if (item.username) item.username = item.username.trim();
             item.password = item.password.trim();
             if (!UserRoleEnum.hasOwnProperty(item.role)) {
                 Logger.warn("Unknown user role: " + item.role);
@@ -1139,12 +1141,12 @@ GameServer.prototype.pingServerTracker = function() {
                '&spectators=' + spectatePlayers +
                '&max_players=' + this.config.serverMaxConnections +
                '&sport=' + this.config.serverPort +
-               '&gamemode=[**] ' + this.gameMode.name +             // we add [**] to indicate that this is MultiOgar-Edited server
+               '&gamemode=[***] ' + this.gameMode.name +             // we add [***] to indicate that this is MultiOgar-Edited server
                '&agario=true' +                                     // protocol version
                '&name=Unnamed Server' +                             // we cannot use it, because other value will be used as dns name
                '&opp=' + os.platform() + ' ' + os.arch() +          // "win32 x64"
                '&uptime=' + process.uptime() +                      // Number of seconds server has been running
-               '&version=MultiOgar-Edited ' + this.version +
+               '&version=MultiOgar-Edited-Unlimited ' + this.version +
                '&start_time=' + this.startTime;
     trackerRequest({
         host: 'ogar.mivabe.nl',
