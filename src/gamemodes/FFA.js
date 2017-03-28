@@ -11,7 +11,7 @@ function FFA() {
 module.exports = FFA;
 FFA.prototype = new Mode();
 
-// Gamemode-specific functions
+// Gamemode Specific Functions
 
 FFA.prototype.onPlayerSpawn = function(gameServer, player) {
     player.setColor(gameServer.getRandomColor());
@@ -19,25 +19,20 @@ FFA.prototype.onPlayerSpawn = function(gameServer, player) {
     gameServer.spawnPlayer(player, gameServer.randomPos());
 };
 
-FFA.prototype.updateLB = function(gameServer) {
+FFA.prototype.updateLB = function(gameServer, lb) {
     gameServer.leaderboardType = this.packetLB;
-    var lb = [],
-        i = 0, l = gameServer.clients.length,
-        client, pushi, s, ri = 0;
 
-    for (; i < l; i++) {
-        client = gameServer.clients[i];
-        if (client.isRemoved) continue;
-        if (client.playerTracker.cells.length <= 0) continue;
+    for (var i = 0, pos = 0; i < gameServer.clients.length; i++) {
+        var player = gameServer.clients[i].playerTracker;
+        if (player.isRemoved || !player.cells.length || 
+            player.socket.isConnected == false || player.isMi)
+            continue;
 
-        for (pushi = 0; pushi < ri; pushi++)
-            if (lb[pushi]._score < client.playerTracker._score) break;
+        for (var j = 0; j < pos; j++)
+            if (lb[j]._score < player._score) break;
 
-        lb.splice(pushi, 0, client.playerTracker);
-        ri++;
+        lb.splice(j, 0, player);
+        pos++;
     }
-
-    gameServer.leaderboard = lb;
     this.rankOne = lb[0];
-    gameServer.leaderboardChanged = true;
 };
