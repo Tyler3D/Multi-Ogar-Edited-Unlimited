@@ -1,11 +1,11 @@
 # Title: {State of Issue} -- Crash/Bug -- {Description}
-
+# If you do not follow this issue template you will receive a temporary ban
 # Before an issue is made submitted make sure:
 1. You're running the latest version or somewhat recent
 2. That your issue is typed in plain English
 3. That your issue is not off-Topic and is related to the project
 4. That the bug still exists in the latest version
-5. If your issue is a question or suggestion. Please refer to #65 and #66. Instead of making a separate issue.
+5. If your issue is a suggestion. Please refer to #65 and #66. Instead of making a separate issue.
 
 ## Content to include:
 
