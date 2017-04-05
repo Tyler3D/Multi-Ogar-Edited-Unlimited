@@ -695,7 +695,7 @@ var playerCommands = {
             return;
         }
         var PlayerTracker = require("../PlayerTracker");
-        var Packet = require("../Packet");
+        var Packet = require("../packet");
         PlayerTracker.prototype.joinGame = function(name, skin) {
      for (var i in this.levelexps) {
         if (this.levelexps[i + 1] < this.level)
