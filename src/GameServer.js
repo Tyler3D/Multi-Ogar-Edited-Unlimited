@@ -766,8 +766,8 @@ GameServer.prototype.resolveCollision = function(m) {
 };
 
 GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass) {
-    var size = Math.sqrt(mass * 100);
-    var size1 = Math.sqrt(parent._sizeSquared - size * size);
+    var size = Math.sqrt(parent._sizeSquared * 1.5);
+    var size1 = Math.sqrt(mass * 10);
 
     // Too small to split
     if (isNaN(size1) || size1 < this.config.playerMinSize) 
