@@ -1,8 +1,8 @@
 
-# MultiOgar - Unlimited
+# CLOSED
 Ogar game server with fast and smooth vanilla physics and multi-protocol support.
 
-Closed for now. I have no time to fix it.
+##Closed for now. I have no time to fix it.
 
 Current version: **1.0.3**
 
